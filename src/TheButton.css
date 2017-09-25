@@ -1,0 +1,7 @@
+.TheButton {
+    height: 45px;
+    width: 45px;
+    border-radius: 3em;
+    background-color: green;
+    margin-left: 45%;
+}
