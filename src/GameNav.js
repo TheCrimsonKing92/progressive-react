@@ -2,6 +2,14 @@ import React, { Component } from 'react';
 import {Navbar, Nav, NavItem} from 'react-bootstrap'
 
 class GameNav extends Component {
+  constructor(props) {
+    super(props)
+
+    this.emitExportSaveRequest = this.emitExportSaveRequest.bind(this)
+    this.emitImportSaveRequest = this.emitImportSaveRequest.bind(this)
+    this.emitNewGameRequest = this.emitNewGameRequest.bind(this)
+    this.handleSaveGame = this.emitSaveGameRequest.bind(this)
+  }
   emitExportSaveRequest() {
     // TODO: Implement
   }
@@ -9,10 +17,10 @@ class GameNav extends Component {
     // TODO: Implement
   }
   emitNewGameRequest() {
-    // TODO: Implement
+    this.props.newGameHandle()
   }
   emitSaveGameRequest() {
-    // TODO: Implement
+    this.props.saveGameHandle()
   }
   render() {
     return (
