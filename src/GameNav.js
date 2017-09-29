@@ -5,13 +5,13 @@ class GameNav extends Component {
   constructor(props) {
     super(props)
 
-    this.emitExportSaveRequest = this.emitExportSaveRequest.bind(this)
+    this.handleExportSave = this.emitExportSaveRequest.bind(this)
     this.emitImportSaveRequest = this.emitImportSaveRequest.bind(this)
     this.emitNewGameRequest = this.emitNewGameRequest.bind(this)
     this.handleSaveGame = this.emitSaveGameRequest.bind(this)
   }
   emitExportSaveRequest() {
-    // TODO: Implement
+    this.props.exportSaveHandle()
   }
   emitImportSaveRequest() {
     // TODO: Implement

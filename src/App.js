@@ -15,14 +15,17 @@ class App extends Component {
 
     this.state = this.getGame();
     this.buttonClicked = this.buttonClicked.bind(this)
+    this.handleExportSave = this.handleExportSave.bind(this)
     this.newGame = this.newGame.bind(this)
     this.saveGame = this.saveGame.bind(this)
   }
   buttonClicked() {
     this.setState({
       stats:{
+        blocks: this.state.stats.blocks,
         clicks: this.state.stats.clicks + 1,
-        score: this.state.stats.score + 1
+        score: this.state.stats.score + 1,
+        toxicity: this.state.stats.toxicity
       }
     })
   }
@@ -34,6 +37,12 @@ class App extends Component {
   }
   getDefaultStats() {
     return {
+      blocks: {
+        blue: 0,
+        blueFragments: 0,
+        green: 0,
+        greenFragments: 0
+      },
       clicks: 0,
       score: 0,
       toxicity: 0
@@ -43,7 +52,8 @@ class App extends Component {
     return {
       helpers: [],
       upgrades: [],
-      towers: []
+      towers: [],
+      specials: []
     }
   }
   getGame() {
@@ -56,10 +66,16 @@ class App extends Component {
     }
   }
   handleExportSave() {
-    console.log(`Handle an export save request`)
+    window.alert(`Copy the following string:${btoa(this.mapGameState(this.state))}`)
   }
   handleImportSave() {
-    console.log(`Handle an import save request`)
+    const entry = window.prompt('Paste in your exported string')
+    console.log(`Entry: ${entry}`)
+    // TODO: Implement game load
+    // const state = this.unmapGameState(atob(entry))
+  }
+  handleStorePurchase() {
+
   }
   newGame() {
     const state = this.getDefaultGameState()
@@ -74,6 +90,9 @@ class App extends Component {
   }
   unmapGameState(mapped) {
     const previous = JSON.parse(mapped)
+    return previous
+    /*
+    TODO: I guess this should implement some sort of version/upgrade save protocol
     const stats = previous.stats
     const store = previous.store
 
@@ -89,8 +108,10 @@ class App extends Component {
     }
 
     return previous
+    */
   }
   render() {
+    console.log(`State: ${JSON.stringify(this.state)}`)
     const stats = this.state.stats
     const store = this.state.store
 
@@ -104,17 +125,25 @@ class App extends Component {
       <div className="App">
         <Grid>
           <Row>
-            <GameNav newGameHandle={this.newGame} saveGameHandle={this.saveGame} />
+            <GameNav
+              exportSaveHandle={this.handleExportSave}
+              newGameHandle={this.newGame}
+              saveGameHandle={this.saveGame} />
           </Row>
           <Row>
             <Col xs={12} md={3}>
               <ButtonPanel clickHandle={this.buttonClicked} />
             </Col>
             <Col xs={12} md={5}>
-              <StatsPanel blueBlocks={blueBlocks} clicks={clicks} greenBlocks={greenBlocks} score={score} toxicity={toxicity} />
+              <StatsPanel
+                blueBlocks={blueBlocks}
+                clicks={clicks}
+                greenBlocks={greenBlocks}
+                score={score}
+                toxicity={toxicity} />
             </Col>
             <Col xs={12} md={4}>
-              <StorePanel />
+              <StorePanel onPurchase={this.handleStorePurchase} store={this.state.store} />
             </Col>
           </Row>
         </Grid>
