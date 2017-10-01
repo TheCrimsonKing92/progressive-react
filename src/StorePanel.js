@@ -7,39 +7,42 @@ class StorePanel extends Component {
 	}
 	render() {
 		const store = this.props.store
-		const mapBuyable = ((buyable) =>
-			<div className={'buyable' + buyable.className}></div>
-		)
-		const helpers = store.helpers.map(mapBuyable)
-		const upgrades = store.upgrades.map(mapBuyable)
-		const towers = store.towers.map(mapBuyable)
-		const specials = store.specials.map(mapBuyable)
+		const mapBuyable = buyable => <div className={'buyable' + buyable.name}>{buyable.name}</div>
+		const helpers = store.helpers
+		const helperElements = store.helpers.map(mapBuyable)
+		const upgrades = store.upgrades
+		const upgradeElements = store.upgrades.map(mapBuyable)
+		const towers = store.towers
+		const towerElements = store.towers.map(mapBuyable)
+		const specials = store.specials
+		const specialElements = store.specials.map(mapBuyable)
 		return (
 			<div className="StorePanel">
 				<Panel>
 					The Store
-					{helpers.some(h => h.buyable) &&
-					<Row>
-						Helpers
-						{helpers}
-					</Row>
+					{
+						helpers.some(h => h.buyable) &&
+						<Row>
+							Helpers
+							{helperElements}
+						</Row>
 					}
 					{upgrades.some(u => u.buyable) &&
 					<Row>
 						Upgrades
-						{upgrades}
+						{upgradeElements}
 					</Row>
 					}
 					{towers.some(t => t.buyable) &&
 					<Row>
 						Towers
-						{towers}
+						{towerElements}
 					</Row>
 					}
 					{specials.some(s => s.buyable) &&
 					<Row>
 						Specials
-						{specials}
+						{specialElements}
 					</Row>
 					}
 				</Panel>

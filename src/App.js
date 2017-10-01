@@ -3,7 +3,8 @@ import ButtonPanel from './ButtonPanel'
 import GameNav from './GameNav'
 import StatsPanel from './StatsPanel'
 import StorePanel from './StorePanel'
-import {Grid, Row, Col, Panel} from 'react-bootstrap'
+import Store from './Store'
+import {Grid, Row, Col} from 'react-bootstrap'
 import logo from './logo.svg';
 import './App.css';
 
@@ -22,10 +23,9 @@ class App extends Component {
   buttonClicked() {
     this.setState({
       stats:{
-        blocks: this.state.stats.blocks,
+        ...this.state.stats,
         clicks: this.state.stats.clicks + 1,
-        score: this.state.stats.score + 1,
-        toxicity: this.state.stats.toxicity
+        score: this.state.stats.score + 1
       }
     })
   }
@@ -49,12 +49,7 @@ class App extends Component {
     }
   }
   getDefaultStore() {
-    return {
-      helpers: [],
-      upgrades: [],
-      towers: [],
-      specials: []
-    }
+    return Store
   }
   getGame() {
     const stored = localStorage.getItem(LS_ITEM_NAME)
@@ -64,6 +59,10 @@ class App extends Component {
     } else {
       return this.getDefaultGameState();
     }
+  }
+  getScorePerSecond() {
+    // TODO: Calculate score per second based on owned helpers
+    return 0
   }
   handleExportSave() {
     window.alert(`Copy the following string:${btoa(this.mapGameState(this.state))}`)
@@ -119,6 +118,7 @@ class App extends Component {
     const clicks = stats.clicks
     const greenBlocks = stats.blocks.green
     const score = stats.score
+    const scorePerSecond = this.getScorePerSecond()
     const toxicity = stats.toxicity
 
     return (
@@ -140,10 +140,11 @@ class App extends Component {
                 clicks={clicks}
                 greenBlocks={greenBlocks}
                 score={score}
+                scorePerSecond={scorePerSecond}
                 toxicity={toxicity} />
             </Col>
             <Col xs={12} md={4}>
-              <StorePanel onPurchase={this.handleStorePurchase} store={this.state.store} />
+              <StorePanel onPurchase={this.handleStorePurchase} store={store} />
             </Col>
           </Row>
         </Grid>
