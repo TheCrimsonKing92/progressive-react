@@ -1,0 +1,75 @@
+.airplane {
+    background-image: url('./AirplaneBig.png')
+}
+
+.audible-motivation {
+    background-color: green
+}
+
+.autoclicker {
+    background-image: url('./AutoClickerBig.png')
+}
+
+.buddy-system {
+    background-image: url('./BuddySystem.png')
+}
+
+.buyable {
+    background-size: cover;
+    display: inline-block;
+    height: 45px;
+    margin-right: 5px;
+    width: 45px;
+}
+
+.click-efficiency {
+    background-image: url('./ClickEfficiency.png')
+}
+
+.cloner {
+    background-image: url('./Cloner.png')
+}
+
+.cloner-overdrive {
+    background-image: url('./ClonerOverdrive.png')
+}
+
+.consumer {
+    background-image: url('./Consumer.png')
+}
+
+.cybernetic-synergy {
+    background-image: url('CyberneticSynergy.png')
+}
+
+.djinn {
+    background-image: url('DjinnBig.png')
+}
+
+.extended-cargo {
+    background-image: url('ExtendedCargo.png')
+}
+
+.hammer {
+    background-image: url('./HammerBig.png')
+}
+
+.heavier-hammers {
+    background-color: red
+}
+
+.helping-hand, .helping-handsier, .helping-handsiest {
+    background-image: url('./HelpingHand.png')
+}
+
+.robot {
+    background-image: url('./RobotBig.png')
+}
+
+.tamer {
+    background-image: url('./TamerBig.png')
+}
+
+.the-awakening {
+    background-color: blue
+}

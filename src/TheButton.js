@@ -11,9 +11,7 @@ class TheButton extends Component {
   }
   render() {
     return (
-      <div className="TheButton" onClick={this.onClicked}>
-        
-      </div>
+      <div className="TheButton" onClick={this.onClicked}></div>
     );
   }
 }

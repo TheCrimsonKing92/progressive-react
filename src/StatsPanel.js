@@ -16,22 +16,22 @@ class StatsPanel extends Component {
         <Panel>
           <p>Stats</p>
           <Row>
-            <Col xs={12} md={4}>
+            <Col xs={6} sm={4}>
               <TitleStat title={'Clicks'} stat={clicks} />
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={6} sm={4}>
               <TitleStat title={'Score'} stat={score} />
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={6} sm={4}>
               <TitleStat title={'Score Per Second'} stat={scorePerSecond} />
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={6} sm={4}>
               <TitleStat title={'Toxicity'} stat={toxicity} />
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={6} sm={4}>
               <TitleStat title={'Blue Blocks'} stat={blueBlocks} />
             </Col>
-            <Col xs={12} md={4}>
+            <Col xs={6} sm={4}>
               <TitleStat title={'Green Blocks'} stat={greenBlocks} />
             </Col>
           </Row>

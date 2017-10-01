@@ -17,8 +17,10 @@ class App extends Component {
     this.state = this.getGame();
     this.buttonClicked = this.buttonClicked.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
+    this.handleStorePurchase = this.handleStorePurchase.bind(this)
     this.newGame = this.newGame.bind(this)
     this.saveGame = this.saveGame.bind(this)
+    this.tick = this.tick.bind(this)
   }
   buttonClicked() {
     this.setState({
@@ -28,6 +30,61 @@ class App extends Component {
         score: this.state.stats.score + 1
       }
     })
+  }
+  calculateScore(helper) {
+    const name = helper.name
+    let base = helper.power
+    let total = 0
+    const basic = h => h.power * h.purchased
+
+    if (name === 'AutoClicker') {
+      if (this.upgradePurchased('Helping Hand')) {
+        base++
+      }
+
+      if (this.upgradePurchased('Helping Handsier')) {
+        base += 4
+      }
+
+      if (this.upgradePurchased('Helping Handsiest')) {
+        base += 16
+      }
+
+      total = base * helper.purchased
+
+      if (this.upgradePurchased('Click Efficiency')) {
+        total *= 2
+      }
+
+      if (this.upgradePurchased('Audible Motiviation')) {
+        const audibleBase = 1.00
+        const factor = .01
+
+        total *= audibleBase + (factor * this.getHelper('Djinn').purchased)
+      }
+      console.log(`AutoClicker total: ${total}`)
+      return total
+    } else if (name === 'Hammer') {
+      return basic(helper)
+    } else if (name === 'Robot') {
+      return basic(helper)
+    } else if (name === 'Airplane') {
+      return basic(helper)
+    } else if (name === 'Cloner') {
+      return basic(helper)
+    } else if (name === 'Djinn') {
+      return basic(helper)
+    } else if (name === 'Consumer') {
+      return basic(helper)
+    } else {
+      return 0
+    }
+  }
+  componentDidMount() {
+    this.interval = window.setInterval(this.tick, 1000)
+  }
+  componentWillUnmount() {
+    window.clearInterval(this.interval)
   }
   getDefaultGameState() {
     return {
@@ -60,9 +117,15 @@ class App extends Component {
       return this.getDefaultGameState();
     }
   }
+  getHelper(helper) {
+    return this.state.store.helpers[helper]
+  }
   getScorePerSecond() {
     // TODO: Calculate score per second based on owned helpers
-    return 0
+    return Object.values(this.state.store.helpers).map(h => this.calculateScore(h)).reduce((acc,val) => acc + val, 0)
+  }
+  getUpgrade(upgrade) {
+    return this.state.store.upgrades[upgrade]
   }
   handleExportSave() {
     window.alert(`Copy the following string:${btoa(this.mapGameState(this.state))}`)
@@ -73,8 +136,35 @@ class App extends Component {
     // TODO: Implement game load
     // const state = this.unmapGameState(atob(entry))
   }
-  handleStorePurchase() {
+  handleStorePurchase(buyable) {
+    console.log(`Handling purchase of buyable: ${JSON.stringify(buyable)}`)
+    const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
 
+    if (buyable.currency === 'score') {
+      if (this.state.stats.score >= price) {
+        const bought = {
+          ...buyable,
+          purchased: buyable.purchased + 1
+        }
+
+        const storeKey = buyable.type + 's'
+        const old = this.state.store[storeKey]
+
+        this.setState({
+          stats: {
+            ...this.state.stats,
+            score: this.state.stats.score - price
+          },
+          store: {
+            ...this.state.store,
+            [storeKey]: {
+              ...old,
+              [buyable.name]: bought
+            }
+          }
+        })
+      }
+    }
   }
   newGame() {
     const state = this.getDefaultGameState()
@@ -87,9 +177,19 @@ class App extends Component {
   saveGame() {
     localStorage.setItem(LS_ITEM_NAME, this.mapGameState(this.state))
   }
+  tick() {
+    const scoreIncrease = this.getScorePerSecond()
+    console.log(`Score per second: ${scoreIncrease}`)
+
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        score: this.state.stats.score + scoreIncrease
+      }
+    })
+  }
   unmapGameState(mapped) {
-    const previous = JSON.parse(mapped)
-    return previous
+    return JSON.parse(mapped)
     /*
     TODO: I guess this should implement some sort of version/upgrade save protocol
     const stats = previous.stats
@@ -109,8 +209,13 @@ class App extends Component {
     return previous
     */
   }
+  upgradePurchased(upgrade) {
+    const found = this.getUpgrade(upgrade)
+
+    return !found ? false : found.purchased > 0
+  }
   render() {
-    console.log(`State: ${JSON.stringify(this.state)}`)
+    // console.log(`State: ${JSON.stringify(this.state)}`)
     const stats = this.state.stats
     const store = this.state.store
 
