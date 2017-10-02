@@ -7,8 +7,7 @@ import Store from './Store'
 import {Grid, Row, Col} from 'react-bootstrap'
 import logo from './logo.svg';
 import './App.css';
-
-const LS_ITEM_NAME = 'ProgressiveReactSave'
+import Constants from './Constants.js'
 
 class App extends Component {
   constructor(props) {
@@ -109,7 +108,7 @@ class App extends Component {
     return Store
   }
   getGame() {
-    const stored = localStorage.getItem(LS_ITEM_NAME)
+    const stored = localStorage.getItem(Constants.LOCALSTORAGE_ITEM_NAME)
 
     if (stored != null && stored.length > 0) {
       return this.unmapGameState(stored);
@@ -168,14 +167,14 @@ class App extends Component {
   }
   newGame() {
     const state = this.getDefaultGameState()
-    localStorage.setItem(LS_ITEM_NAME, this.mapGameState(state))
+    localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(state))
     this.setState(state)
   }
   mapGameState(state) {
     return JSON.stringify(state)
   }
   saveGame() {
-    localStorage.setItem(LS_ITEM_NAME, this.mapGameState(this.state))
+    localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(this.state))
   }
   tick() {
     const scoreIncrease = this.getScorePerSecond()

@@ -17,10 +17,10 @@ class StorePanel extends Component {
 		const mapBuyable = (buyable, id) => {
 			const className = buyable.name.replace(' ', '-').toLowerCase()
 			const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
-			const tooltip = `${buyable.name}: ${buyable.description}. Costs ${price} ${buyable.currency}.`
+			const tooltip = `${buyable.name}</br>${buyable.description}</br>Next costs ${price} ${buyable.currency}</br>${buyable.purchased} Purchased`
 			return (
-			<div data-tip={tooltip} key={id} className={`buyable ${className}`} onClick={() => this.handlePurchase(buyable)}>
-				<ReactTooltip  />
+			<div data-tip={tooltip} data-for={`buyable${id}`} key={id} className={`buyable ${className}`} onClick={() => this.handlePurchase(buyable)}>
+				<ReactTooltip border={true} id={`buyable${id}`}  html={true}/>
 			</div>
 			)
 		}
