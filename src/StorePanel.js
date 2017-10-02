@@ -1,40 +1,27 @@
 import React, {Component} from 'react'
 import {Row, Panel} from 'react-bootstrap'
-import ReactTooltip from 'react-tooltip'
+import Buyable from './Buyable'
 
 class StorePanel extends Component {
-	constructor(props) {
-		super(props)
-
-		this.handlePurchase = this.handlePurchase.bind(this)
-	}
-	handlePurchase(buyable) {
-		this.props.onPurchase(buyable)
-	}
 	render() {
 		const store = this.props.store
+		const idMap = (buyable, id) => ({
+			...buyable,
+			id: id
+		})
 
-		const mapBuyable = (buyable, id) => {
-			const className = buyable.name.replace(' ', '-').toLowerCase()
-			const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
-			const tooltip = `${buyable.name}</br>${buyable.description}</br>Next costs ${price} ${buyable.currency}</br>${buyable.purchased} Purchased`
-			return (
-			<div data-tip={tooltip} data-for={`buyable${id}`} key={id} className={`buyable ${className}`} onClick={() => this.handlePurchase(buyable)}>
-				<ReactTooltip border={true} id={`buyable${id}`}  html={true}/>
-			</div>
-			)
-		}
+		const mapBuyable = buyable => (<Buyable buyable={buyable} onPurchase={this.props.onPurchase}/>)
 
-		const helpers = Object.values(store.helpers)
+		const helpers = Object.values(store.helpers).map(idMap)
 		const helperElements = helpers.map(mapBuyable)
 
-		const upgrades = Object.values(store.upgrades)
+		const upgrades = Object.values(store.upgrades).filter(u => u.buyable).map(idMap)
 		const upgradeElements = upgrades.map(mapBuyable)
 
-		const towers = Object.values(store.towers)
+		const towers = Object.values(store.towers).map(idMap)
 		const towerElements = towers.map(mapBuyable)
 
-		const specials = Object.values(store.specials)
+		const specials = Object.values(store.specials).map(idMap)
 		const specialElements = specials.map(mapBuyable)
 
 		return (

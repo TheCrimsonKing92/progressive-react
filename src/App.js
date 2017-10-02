@@ -7,7 +7,7 @@ import Store from './Store'
 import {Grid, Row, Col} from 'react-bootstrap'
 import logo from './logo.svg';
 import './App.css';
-import Constants from './Constants.js'
+import Constants from './Constants'
 
 class App extends Component {
   constructor(props) {
@@ -80,9 +80,11 @@ class App extends Component {
     }
   }
   componentDidMount() {
+    this.autoSave = window.setInterval(this.saveGame, 5000)
     this.interval = window.setInterval(this.tick, 1000)
   }
   componentWillUnmount() {
+    window.clearInterval(this.autoSave)
     window.clearInterval(this.interval)
   }
   getDefaultGameState() {
@@ -137,12 +139,15 @@ class App extends Component {
   }
   handleStorePurchase(buyable) {
     console.log(`Handling purchase of buyable: ${JSON.stringify(buyable)}`)
+    if (!buyable.buyable) return
+    
     const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
 
     if (buyable.currency === 'score') {
       if (this.state.stats.score >= price) {
         const bought = {
           ...buyable,
+          buyable: buyable.multiple,
           purchased: buyable.purchased + 1
         }
 
@@ -176,16 +181,26 @@ class App extends Component {
   saveGame() {
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(this.state))
   }
+  saveTick() {
+    console.log('Checking if I should save')
+    this.saveTicks++
+    if (this.saveTicks >= this.saveTickThreshold) {
+      this.saveGame()
+      this.saveTicks = 0
+      console.log('Should have saved')
+    } else {
+      console.log('Shouldnt have saved this time')
+    }
+  }
   tick() {
-    const scoreIncrease = this.getScorePerSecond()
-    console.log(`Score per second: ${scoreIncrease}`)
-
     this.setState({
       stats: {
         ...this.state.stats,
-        score: this.state.stats.score + scoreIncrease
+        score: this.state.stats.score + this.getScorePerSecond()
       }
     })
+
+    this.saveTick()
   }
   unmapGameState(mapped) {
     return JSON.parse(mapped)

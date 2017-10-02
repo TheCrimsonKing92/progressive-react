@@ -28,7 +28,7 @@ const helper = (
   power = 1,
   toxicity = 1) => 
 ({
-  ...buyable(name, description, price, priceGrowth, Constants.CURRENCY.SCORE, true, false),
+  ...buyable(name, description, price, priceGrowth, Constants.CURRENCY.SCORE, true, true),
   power: power,
   toxicity: toxicity,
   type: 'helper'
