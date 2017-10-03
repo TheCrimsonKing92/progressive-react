@@ -16,7 +16,7 @@ class Buyable extends Component {
     const buyable = this.props.buyable
 
     const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
-    let base = `${buyable.name}</br>${buyable.description}</br>${buyable.multiple ? 'Next costs' : 'Costs'} ${price} ${buyable.currency}`
+    const base = `${buyable.name}</br>${buyable.description}</br>${buyable.multiple ? 'Next costs' : 'Costs'} ${price} ${buyable.currency}`
 
     if (!buyable.multiple) return base
     return `${base}</br>${buyable.purchased} Purchased`

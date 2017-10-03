@@ -6,15 +6,16 @@ class GameNav extends Component {
     super(props)
 
     this.handleExportSave = this.emitExportSaveRequest.bind(this)
-    this.emitImportSaveRequest = this.emitImportSaveRequest.bind(this)
+    this.handleImportSave = this.handleImportSave.bind(this)
     this.emitNewGameRequest = this.emitNewGameRequest.bind(this)
     this.handleSaveGame = this.emitSaveGameRequest.bind(this)
+    this.toggleAutosave = this.toggleAutosave.bind(this)
   }
   emitExportSaveRequest() {
     this.props.exportSaveHandle()
   }
-  emitImportSaveRequest() {
-    // TODO: Implement
+  handleImportSave() {
+    this.props.importSaveHandle()
   }
   emitNewGameRequest() {
     this.props.newGameHandle()
@@ -22,7 +23,11 @@ class GameNav extends Component {
   emitSaveGameRequest() {
     this.props.saveGameHandle()
   }
+  toggleAutosave() {
+    this.props.autosaveHandle()
+  }
   render() {
+    const frequency = `${this.props.autosave} Second${this.props.autosave === 1 ? '' : 's'}`
     return (
       <div className="GameNav">
         <Navbar>
@@ -38,6 +43,7 @@ class GameNav extends Component {
               <NavItem eventKey={2} href="#" onClick={this.handleSaveGame}>Save Game</NavItem>
               <NavItem eventKey={3} href="#" onClick={this.handleExportSave}>Export Save</NavItem>
               <NavItem eventKey={4} href="#" onClick={this.handleImportSave}>Import Save</NavItem>
+              <NavItem eventKey={5} href="#" onClick={this.toggleAutosave}>Autosave Every {frequency}</NavItem>
             </Nav>
           </Navbar.Collapse>
         </Navbar>

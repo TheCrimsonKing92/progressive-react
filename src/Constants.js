@@ -1,4 +1,5 @@
 export default {
+  AUTOSAVE_FREQUENCIES: [5, 15, 30, 60],
   CURRENCY: {
     BLOCK: {
       BLUE: 'blue-block',

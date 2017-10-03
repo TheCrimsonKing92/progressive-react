@@ -16,10 +16,12 @@ class App extends Component {
     this.state = this.getGame();
     this.buttonClicked = this.buttonClicked.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
+    this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
     this.newGame = this.newGame.bind(this)
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
+    this.toggleAutosave = this.toggleAutosave.bind(this)
   }
   buttonClicked() {
     this.setState({
@@ -61,7 +63,6 @@ class App extends Component {
 
         total *= audibleBase + (factor * this.getHelper('Djinn').purchased)
       }
-      console.log(`AutoClicker total: ${total}`)
       return total
     } else if (name === 'Hammer') {
       return basic(helper)
@@ -89,8 +90,14 @@ class App extends Component {
   }
   getDefaultGameState() {
     return {
+      options: this.getDefaultOptions(),
       stats: this.getDefaultStats(),
       store: this.getDefaultStore(),
+    }
+  }
+  getDefaultOptions() {
+    return {
+      autosaveFrequency: 5
     }
   }
   getDefaultStats() {
@@ -129,16 +136,13 @@ class App extends Component {
     return this.state.store.upgrades[upgrade]
   }
   handleExportSave() {
-    window.alert(`Copy the following string:${btoa(this.mapGameState(this.state))}`)
+    window.prompt(`Copy the following string`,btoa(this.mapGameState(this.state)))
   }
   handleImportSave() {
     const entry = window.prompt('Paste in your exported string')
-    console.log(`Entry: ${entry}`)
-    // TODO: Implement game load
-    // const state = this.unmapGameState(atob(entry))
+    // TODO implement
   }
   handleStorePurchase(buyable) {
-    console.log(`Handling purchase of buyable: ${JSON.stringify(buyable)}`)
     if (!buyable.buyable) return
     
     const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
@@ -170,26 +174,22 @@ class App extends Component {
       }
     }
   }
+  mapGameState(state) {
+    return JSON.stringify(state)
+  }
   newGame() {
     const state = this.getDefaultGameState()
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(state))
     this.setState(state)
   }
-  mapGameState(state) {
-    return JSON.stringify(state)
-  }
   saveGame() {
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(this.state))
   }
   saveTick() {
-    console.log('Checking if I should save')
     this.saveTicks++
     if (this.saveTicks >= this.saveTickThreshold) {
       this.saveGame()
       this.saveTicks = 0
-      console.log('Should have saved')
-    } else {
-      console.log('Shouldnt have saved this time')
     }
   }
   tick() {
@@ -201,6 +201,18 @@ class App extends Component {
     })
 
     this.saveTick()
+  }
+  toggleAutosave() {
+    const ind = Constants.AUTOSAVE_FREQUENCIES.findIndex(f => f === this.state.options.autosaveFrequency)
+    
+    const next = ind === (Constants.AUTOSAVE_FREQUENCIES.length - 1) ? 0 : ind + 1
+
+    this.setState({
+      options: {
+        ...this.state.options,
+        autosaveFrequency: Constants.AUTOSAVE_FREQUENCIES[next]
+      }
+    })
   }
   unmapGameState(mapped) {
     return JSON.parse(mapped)
@@ -230,9 +242,11 @@ class App extends Component {
   }
   render() {
     // console.log(`State: ${JSON.stringify(this.state)}`)
+    const options = this.state.options
     const stats = this.state.stats
     const store = this.state.store
 
+    const autosave = options.autosaveFrequency
     const blueBlocks = stats.blocks.blue
     const clicks = stats.clicks
     const greenBlocks = stats.blocks.green
@@ -245,7 +259,10 @@ class App extends Component {
         <Grid>
           <Row>
             <GameNav
+              autosave={autosave}
+              autosaveHandle={this.toggleAutosave}
               exportSaveHandle={this.handleExportSave}
+              importSaveHandle={this.handleImportSave}
               newGameHandle={this.newGame}
               saveGameHandle={this.saveGame} />
           </Row>
