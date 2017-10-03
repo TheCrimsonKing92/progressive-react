@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import {findDOMNode} from 'react-dom'
 import ReactTooltip from 'react-tooltip'
 
 class Buyable extends Component {
@@ -9,7 +10,7 @@ class Buyable extends Component {
     this.handlePurchase = this.handlePurchase.bind(this)
   }
   componentWillUnmount() {
-    ReactTooltip.hide()
+    ReactTooltip.hide(findDOMNode(this.refs.tooltip))
   }
   getTooltip() {
     const buyable = this.props.buyable
@@ -26,11 +27,10 @@ class Buyable extends Component {
   render() {
     const className = this.props.buyable.name.replace(' ', '-').toLowerCase()
     const id = this.props.buyable.id
-    const tooltip = this.getTooltip(this.props.buyable)
 
     return (
-      <div data-tip={tooltip} data-for={`buyable${id}`} key={id} className={`buyable ${className}`} onClick={() => this.handlePurchase(this.props.buyable)}>
-        <ReactTooltip border={true} id={`buyable${id}`}  html={true}/>
+      <div data-tip data-for={`buyable${id}`} key={id} className={`buyable ${className}`} onClick={() => this.handlePurchase(this.props.buyable)}>
+        <ReactTooltip ref='tooltip' border={true} getContent={[() => this.getTooltip(), 200]} id={`buyable${id}`}  html={true}/>
       </div>
     )
   }
