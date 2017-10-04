@@ -3,5 +3,5 @@
     width: 45px;
     border-radius: 3em;
     background-color: green;
-    margin-left: 40%;
+    margin-left: calc(50% - 22.5px);
 }
