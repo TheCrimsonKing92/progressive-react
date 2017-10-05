@@ -32,7 +32,7 @@ class Buyable extends Component {
 
     return (
       <div data-tip data-for={`buyable${className}`} key={id} className={`buyable ${className}${fade}`} style={{ 'userSelect': "none"}} onClick={() => this.handlePurchase(this.props.buyable)}>
-        <ReactTooltip ref='tooltip' border={true} getContent={[() => this.getTooltip(), 200]} id={`buyable${className}`}  html={true}/>
+        <ReactTooltip ref='tooltip' border={true} getContent={[() => this.getTooltip(), 150]} id={`buyable${className}`}  html={true}/>
       </div>
     )
   }
