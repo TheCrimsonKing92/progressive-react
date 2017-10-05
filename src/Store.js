@@ -35,39 +35,71 @@ const helper = (
 })
 
 const helpers = {
-  'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 50),
-  'Hammer': helper('Hammer', 'Earns score by smashing the button', 250, Constants.PRICE_GROWTH.HELPER, 5, 2),
-  'Robot': helper('Robot', 'An AI optimizing score production routines', 1000, Constants.PRICE_GROWTH.HELPER, 10, 5),
-  'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 15000, Constants.PRICE_GROWTH.HELPER, 50, 18),
-  'Cloner': helper('Cloner', 'Creates perfect score by cloning parts of the button', 50000, Constants.PRICE_GROWTH.HELPER, 100, 60),
-  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the source', 300000, Constants.PRICE_GROWTH.HELPER, 250, 100),
+  'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 100),
+  'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, Constants.PRICE_GROWTH.HELPER, 5, 2),
+  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, Constants.PRICE_GROWTH.HELPER, 10, 5),
+  'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, Constants.PRICE_GROWTH.HELPER, 50, 18),
+  'Cloner': helper('Cloner', 'Creates perfect score by cloning parts of the button', 75000, Constants.PRICE_GROWTH.HELPER, 100, 60),
+  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the source', 3500000, Constants.PRICE_GROWTH.HELPER, 250, 100),
   'Consumer': helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, Constants.PRICE_GROWTH.HELPER, -1, 0)
 }
+
+const preReq = (
+  type,
+  target,
+  value) =>
+({
+  type: type,
+  target: target,
+  value: value
+})
 
 const upgrade = (
   name = 'Upgrade',
   description = 'An upgrade',
   price = 1,
-  currency = Constants.CURRENCY.SCORE,
   preReqs = null) => 
 ({
-  ...buyable(name, description, price, Constants.PRICE_GROWTH.UPGRADE, currency, false, false),
+  ...buyable(name, description, price, Constants.PRICE_GROWTH.UPGRADE, Constants.CURRENCY.SCORE, preReqs === null, false),
   preReqs: preReqs,
   type: 'upgrade'
 })
 
 const upgrades = {
   'Helping Hand': Object.assign({}, upgrade('Helping Hand', '+1 AutoClicker and power', 200), {buyable: true}),
-  'Click Efficiency': upgrade('Click Efficiency', 'Double AutoClicker and mouse power', 500),
-  'Heavier Hammers': upgrade('Heavier Hammers', 'Double Hammer power', 1250),
-  'Helping Handsier': upgrade('Helping Handsier', '+4 AutoClicker and mouse power', 2500),
-  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+8 power per Hammer and Robot pair', 9000),
-  'Helping Handsiest': upgrade('Helping Handsiest', '+16 AutoClicker and mouse power', 11000),
-  'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000),
-  'Buddy System': upgrade('Buddy System', '+100% Airplane power', 85000),
-  'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000),
-  'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 2500000),
-  'Audible Motivation': upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn')
+  'Click Efficiency': upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
+    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 200),
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
+  ]),
+  'Heavier Hammers': upgrade('Heavier Hammers', '+100% Hammer power', 1250, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 5)
+  ]),
+  'Helping Handsier': upgrade('Helping Handsier', '+4 AutoClicker and mouse power', 2500, [
+    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500)
+  ]),
+  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+12 power per Hammer and Robot pair', 9000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
+  ]),
+  'Helping Handsiest': upgrade('Helping Handsiest', '+16 AutoClicker and mouse power', 11000, [
+    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 750)
+  ]),
+  'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)
+  ]),
+  'Buddy System': upgrade('Buddy System', '+100% Airplane power', 85000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
+  ]),
+  'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
+  ]),
+  'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 2500000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 10)
+  ]),
+  'Audible Motivation': upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn', 5000000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 15),
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 15)
+  ])
 }
 
 const tower = (

@@ -50,6 +50,10 @@
     background-image: url('ExtendedCargo.png')
 }
 
+.faded {
+    opacity: 0.6
+}
+
 .hammer {
     background-image: url('./HammerBig.png')
 }

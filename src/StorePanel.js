@@ -10,12 +10,12 @@ class StorePanel extends Component {
 			id: id
 		})
 
-		const mapBuyable = buyable => (<Buyable buyable={buyable} onPurchase={this.props.onPurchase}/>)
+		const mapBuyable = buyable => (<Buyable buyable={buyable} fade={this.props.upgradeHandling} onPurchase={this.props.onPurchase}/>)
 
 		const helpers = Object.values(store.helpers).map(idMap)
 		const helperElements = helpers.map(mapBuyable)
 
-		const upgrades = Object.values(store.upgrades).filter(u => u.buyable).map(idMap)
+		const upgrades = this.props.upgradeHandling ? Object.values(store.upgrades).filter(u => u.buyable || !u.buyable && u.purchased > 0).map(idMap) : Object.values(store.upgrades).filter(u => u.buyable).map(idMap)
 		const upgradeElements = upgrades.map(mapBuyable)
 
 		const towers = Object.values(store.towers).map(idMap)
@@ -35,7 +35,7 @@ class StorePanel extends Component {
 							{helperElements}
 						</Row>
 					}
-					{upgrades.some(u => u.buyable) &&
+					{(this.props.upgradeHandling || upgrades.some(u => u.buyable)) &&
 					<Row>
 						<p>Upgrades</p>
 						{upgradeElements}
