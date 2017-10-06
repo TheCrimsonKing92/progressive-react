@@ -145,7 +145,9 @@ const special = (
 })
 
 const specials = {
-  'Blue Block': special('Blue Block', 'A blue block', 5, Constants.PRICE_GROWTH.SPECIAL),
+  'Blue Block': special('Blue Block', 'A blue block', 5, Constants.PRICE_GROWTH.SPECIAL, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ]),
   'Green Block': {
     ...special('Green Block', 'A green block', 5, Constants.PRICE_GROWTH.SPECIAL, [
       preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')

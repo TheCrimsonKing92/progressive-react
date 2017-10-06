@@ -201,6 +201,10 @@ class App extends Component {
   evaluateBuyable(buyable, stats = this.state.stats, store = this.state.store) {
     if (!buyable.multiple && buyable.purchased > 0) return false
 
+    if (buyable.type === 'special' && buyable.preReqs !== null) {
+      buyable.preReqs.forEach(p => console.log(`Special preReq: ${JSON.stringify(p)} fulfilled? ${this.preReqFulfilled(p, stats, store)}`))
+    }
+
     return buyable.preReqs === null || this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
   getBlocksBuilt(consumers) {
