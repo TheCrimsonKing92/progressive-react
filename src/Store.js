@@ -40,7 +40,7 @@ const helpers = {
   'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, Constants.PRICE_GROWTH.HELPER, 10, 5),
   'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, Constants.PRICE_GROWTH.HELPER, 50, 18),
   'Cloner': helper('Cloner', 'Creates perfect score by cloning parts of the button', 75000, Constants.PRICE_GROWTH.HELPER, 100, 60),
-  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the source', 3500000, Constants.PRICE_GROWTH.HELPER, 250, 100),
+  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, Constants.PRICE_GROWTH.HELPER, 250, 100),
   'Consumer': helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, Constants.PRICE_GROWTH.HELPER, -1, 0)
 }
 
@@ -93,12 +93,16 @@ const upgrades = {
   'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
   ]),
-  'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 2500000, [
+  'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 10)
   ]),
-  'Audible Motivation': upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn', 5000000, [
+  'Audible Motivation': upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn', 10000000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 15),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 15)
+  ]),
+  'Efficient Operations': upgrade('Efficient Operations', 'Each Robot has a chance to upgrade the base power of Cloners', 20000000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 20),
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 20)
   ])
 }
 
@@ -106,19 +110,26 @@ const tower = (
   name = 'Tower',
   description = 'A tower',
   price = 1,
-  currency = Constants.CURRENCY.BLOCK.BLUE,
   preReqs = null) =>
 ({
-  ...buyable(name, description, price, Constants.PRICE_GROWTH.UPGRADE, currency, false, false),
+  ...buyable(name, description, price, Constants.PRICE_GROWTH.UPGRADE, Constants.CURRENCY.BLOCK.BLUE, false, false),
   preReqs: preReqs,
   type: 'tower'
 })
 
 const towers = {
-  'Click Tower': tower('Click Tower', 'Increases mouse power by 5% of clicks and 1% of helper power', 10000),
-  'Cost Tower': tower('Cost Tower', 'Reduces score costs by 10%', 5000),
-  'Power Tower': tower('Power Tower', 'Increases helper power', 2500),
-  'Toxicity Tower': tower('Toxicity Tower', 'Reduces helper toxicity production', 5000)
+  'Click Tower': tower('Click Tower', 'Increases mouse power by 5% of clicks and 1% of helper power', 10000, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer'),
+  ]),
+  'Cost Tower': tower('Cost Tower', 'Reduces score costs by 10%', 5000, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ]),
+  'Power Tower': tower('Power Tower', 'Increases helper power', 2500, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ]),
+  'Toxicity Tower': tower('Toxicity Tower', 'Reduces helper toxicity production', 5000, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ])
 }
 
 const special = (
@@ -126,19 +137,27 @@ const special = (
   description = 'A special',
   price = 1,
   priceGrowth = Constants.PRICE_GROWTH.SPECIAL,
-  currency = Constants.CURRENCY.BLOCK.GREEN,
   preReqs = null) =>
 ({
-  ...buyable(name, description, price, Constants.PRICE_GROWTH.SPECIAL, currency, false, true),
+  ...buyable(name, description, price, Constants.PRICE_GROWTH.SPECIAL, Constants.CURRENCY.BLOCK.GREEN, false, true),
   preReqs: preReqs,
   type: 'special'
 })
 
 const specials = {
   'Blue Block': special('Blue Block', 'A blue block', 5, Constants.PRICE_GROWTH.SPECIAL),
-  'Green Block': special('Green Block', 'A green block', 5, Constants.PRICE_GROWTH.SPECIAL, Constants.CURRENCY.BLOCK.BLUE),
-  'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%', 150, Constants.PRICE_GROWTH.SPECIAL),
-  'Toxicity Recycling': special('Toxicity Recycling', 'Removes 10 toxicity', 50, Constants.PRICE_GROWTH.SPECIAL)
+  'Green Block': {
+    ...special('Green Block', 'A green block', 5, Constants.PRICE_GROWTH.SPECIAL, [
+      preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+    ]),
+    currency: Constants.CURRENCY.BLOCK.BLUE
+  },
+  'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%', 150, Constants.PRICE_GROWTH.SPECIAL, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ]),
+  'Toxicity Recycling': special('Toxicity Recycling', 'Removes 10 toxicity', 50, Constants.PRICE_GROWTH.SPECIAL, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ])
 }
 
 export default {

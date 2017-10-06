@@ -16,6 +16,7 @@ class App extends Component {
     this.state = this.getGame();
 
     this.buttonClicked = this.buttonClicked.bind(this)
+    this.consume = this.consume.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
@@ -48,6 +49,11 @@ class App extends Component {
 
     if (this.upgradePurchased('Helping Handsiest')) {
       base += 16
+    }
+    
+    if (this.towerPurchased('Click Tower')) {
+      base += this.state.stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
+      base += this.getPositiveHelperOutput() * Constants.CLICK_TOWER.HELPER_RATE
     }
 
     if (this.upgradePurchased('Click Efficiency')) {
@@ -123,6 +129,10 @@ class App extends Component {
 
       return total
     } else if (name === 'Cloner') {
+      if (this.upgradePurchased('Efficient Operations')) {
+        base += this.state.stats.efficientOperations
+      }
+
       total = base * helper.purchased
 
       if (this.upgradePurchased('Cloner Overdrive')) {
@@ -146,10 +156,91 @@ class App extends Component {
     window.clearInterval(this.autoSave)
     window.clearInterval(this.gameTick)
   }
+  consume() {
+    const consumption = this.getConsumption(this.getPositiveHelperOutput())
+    if (consumption !== 0) {
+      const consumers = this.getHelper('Consumer').purchased
+      let greenBuilt, blueBuilt
+      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers)
+
+      let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
+      [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt)
+
+      this.setState({
+        stats: {
+          ...this.state.stats,
+          blocks: {
+            blue: this.state.stats.blocks.blue + blueBlocks,
+            blueFragments: blueBlockFragments,
+            green: this.state.stats.blocks.green + greenBlocks,
+            greenFragments: greenBlockFragments
+          },
+          score: this.state.stats.score + consumption
+        }
+      })
+    }
+  }
+  efficientOperations() {
+    let counter = 0
+    const times = Math.min(this.getHelper('Robot').purchased, this.getHelper('Cloner').purchased)
+    for (let i = 0; i < times; i++) {
+      if (Math.random() > Constants.EFFICIENT_OPERATIONS_FAILURE_RATE) {
+        counter++
+      }
+    }
+
+    if (counter > 0) {
+      this.setState({
+        stats: {
+          ...this.state.stats,
+          efficientOperations: this.state.stats.efficientOperations + counter
+        }
+      })
+    }
+  }
   evaluateBuyable(buyable, stats = this.state.stats, store = this.state.store) {
     if (!buyable.multiple && buyable.purchased > 0) return false
 
     return buyable.preReqs === null || this.preReqsFulfilled(buyable.preReqs, stats, store)
+  }
+  getBlocksBuilt(consumers) {
+    let blueBuilt = 0
+    let greenBuilt = 0
+
+    while (consumers > 0) {
+      const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
+      if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
+        if (blue) {
+          blueBuilt++
+        } else {
+          greenBuilt++
+        }
+      }
+      consumers--
+    }
+
+    return [greenBuilt, blueBuilt]
+  }
+  getBlockStatuses(greenBuilt, blueBuilt) {
+    let green = 0
+    let greenTotal = greenBuilt + this.state.stats.blocks.greenFragments
+    let blue = 0
+    let blueTotal = blueBuilt + this.state.stats.blocks.blueFragments
+
+    while (greenTotal > Constants.BLOCK_FRAGMENT_LIMIT) {
+      greenTotal -= Constants.BLOCK_FRAGMENT_LIMIT
+      green++
+    }
+
+    while (blueTotal > Constants.BLOCK_FRAGMENT_LIMIT) {
+      blueTotal -= Constants.BLOCK_FRAGMENT_LIMIT
+      blue++
+    }
+
+    return [blueTotal, blue, greenTotal, green]
+  }
+  getConsumption(income) {
+    return this.calculateScore(this.getHelper('Consumer'))
   }
   getDefaultGameState() {
     return {
@@ -173,6 +264,8 @@ class App extends Component {
         greenFragments: 0
       },
       clicks: 0,
+      efficientOperations: 0,
+      gatheringPower: 0,
       score: 0,
       toxicity: 0
     }
@@ -192,9 +285,14 @@ class App extends Component {
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
   }
+  getPositiveHelperOutput() {
+    return Object.values(this.state.store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h)).reduce((acc, val) => acc + val, 0)
+  }
   getScorePerSecond() {
-    // TODO: Calculate score per second based on owned helpers
-    return Object.values(this.state.store.helpers).map(h => this.calculateScore(h)).reduce((acc,val) => acc + val, 0)
+    const positiveHelpers = this.getPositiveHelperOutput()
+    const consumption = this.getConsumption()
+
+    return positiveHelpers + consumption
   }
   getSpecial(special, store = this.state.store) {
     return store.specials[special]
@@ -214,35 +312,8 @@ class App extends Component {
   }
   handleStorePurchase(buyable) {
     if (!buyable.buyable || (!buyable.multiple && buyable.purchased > 0)) return
-    
-    const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
 
-    if (buyable.currency === 'score') {
-      if (this.state.stats.score >= price) {
-        const bought = {
-          ...buyable,
-          buyable: buyable.multiple,
-          purchased: buyable.purchased + 1
-        }
-
-        const storeKey = buyable.type + 's'
-        const old = this.state.store[storeKey]
-
-        this.setState({
-          stats: {
-            ...this.state.stats,
-            score: this.state.stats.score - price
-          },
-          store: {
-            ...this.state.store,
-            [storeKey]: {
-              ...old,
-              [buyable.name]: bought
-            }
-          }
-        })
-      }
-    }
+    this.purchase(buyable)
   }
   mapGameState(state) {
     return JSON.stringify(state)
@@ -277,6 +348,98 @@ class App extends Component {
   preReqsFulfilled(preReqs, stats, store) {
     return preReqs.map(p => this.preReqFulfilled(p, stats, store)).reduce((a, v) => a && v, true)
   }
+  purchase(buyable) {
+    const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
+    
+    let statsSplice
+
+    if (buyable.currency === Constants.CURRENCY.SCORE) {
+      if (this.state.stats.score < price) {
+        return
+      }
+
+      statsSplice = {
+        score: this.state.stats.score - price
+      }
+    } else if (buyable.currency === Constants.CURRENCY.BLOCK.BLUE) {
+      if (this.state.stats.blocks.blue < price) {
+        return
+      }
+
+      statsSplice = {
+        blocks: {
+          ...this.state.stats.blocks,
+          blue: this.state.stats.blocks.blue - price
+        }
+      }
+
+      // YUCK
+      if (buyable.name === 'Green Block') {
+        statsSplice = {
+          blocks: {
+            ...statsSplice.blocks,
+            green: this.state.stats.blocks.green + 1
+          }
+        }
+      } else if (buyable.name === 'Toxicity Recyling') {
+        const max = Math.max(0, this.state.stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
+        statsSplice = {
+          ...this.state.stats,
+          blocks: statsSplice.blocks,
+          toxicity: max
+        }
+      }
+    } else if (buyable.currency === Constants.CURRENCY.BLOCK.GREEN) {
+      if (this.state.stats.blocks.green < price) {
+        return
+      }
+
+      statsSplice = {
+        blocks: {
+          ...this.state.stats.blocks,
+          green: this.state.stats.blocks.green - price
+        }
+      }
+      
+      // YUCK
+      if (buyable.name === 'Blue Block') {
+        statsSplice = {
+          blocks: {
+            ...statsSplice.blocks,
+            blue: this.state.stats.blocks.blue + 1
+          }
+        }
+
+        console.log(`StatsSplice: ${JSON.stringify(statsSplice)}`)
+      }
+    } else {
+      console.warn(`Unknown currency ${buyable.currency}`)
+      return
+    }
+
+    const bought = {
+      ...buyable,
+      buyable: buyable.multiple,
+      purchased: buyable.purchased + 1
+    }
+
+    const storeKey = buyable.type + 's'
+    const old = this.state.store[storeKey]
+
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        ...statsSplice
+      },
+      store: {
+        ...this.state.store,
+        [storeKey]: {
+          ...old,
+          [buyable.name]: bought
+        }
+      }
+    })
+  }
   saveGame() {
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(this.state))
   }
@@ -295,10 +458,16 @@ class App extends Component {
       },
       store: {
         ...this.state.store,
-        upgrades: this.unlockUpgrades()
+        specials: this.unlockBuyables('special'),
+        towers: this.unlockBuyables('tower'),
+        upgrades: this.unlockBuyables('upgrade')
       }
     })
 
+    this.consume()
+    if (this.upgradePurchased('Efficient Operations')) {
+      this.efficientOperations()
+    }
     this.saveTick()
   }
   toggleAutosave() {
@@ -321,8 +490,8 @@ class App extends Component {
       }
     })
   }
-  unlockUpgrades() {
-    const copy = Object.assign({}, this.state.store.upgrades)
+  unlockBuyables(type) {
+    const copy = Object.assign({}, this.state.store[type + 's'])
 
     for (let prop in copy) {
       copy[prop].buyable = this.evaluateBuyable(copy[prop])
@@ -361,25 +530,6 @@ class App extends Component {
       stats: stats,
       store: store
     }
-
-    /*
-    TODO: I guess this should implement some sort of version/upgrade save protocol
-    const stats = previous.stats
-    const store = previous.store
-
-    if (!stats.hasOwnProperty('toxicity')) {
-      stats.toxicity = 0
-    }
-
-    if (!stats.hasOwnProperty('blocks')) {
-      stats.blocks = {
-        blue: 0,
-        green: 0
-      }
-    }
-
-    return previous
-    */
   }
   upgradePurchased(upgrade) {
     const found = this.getUpgrade(upgrade)
@@ -416,7 +566,7 @@ class App extends Component {
           </Row>
           <Row>
             <Col xs={12} md={3}>
-              <ButtonPanel clickHandle={this.buttonClicked} clicks={clicks} />
+              <ButtonPanel clickHandle={this.buttonClicked} />
             </Col>
             <Col xs={12} md={5}>
               <StatsPanel

@@ -14,9 +14,10 @@ class Buyable extends Component {
   }
   getTooltip() {
     const buyable = this.props.buyable
-
+    const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
+    
     const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
-    const base = `${buyable.name}</br>${buyable.description}</br>${buyable.multiple ? 'Next costs' : 'Costs'} ${price.toLocaleString()} ${buyable.currency}`
+    const base = `${buyable.name}</br>${buyable.description}</br>${buyable.multiple ? 'Next costs' : 'Costs'} ${price.toLocaleString()} ${currency}`
 
     if (!buyable.multiple) return base
     return `${base}</br>${buyable.purchased} Purchased`

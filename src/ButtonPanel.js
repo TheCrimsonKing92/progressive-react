@@ -20,7 +20,6 @@ class ButtonPanel extends Component {
           <p data-tip="Click to start earning score!">The Button</p>
           <ReactTooltip />
           <TheButton clickHandle={this.handleButtonClick} />
-          <TitleStat title={'Clicks'} stat={this.props.clicks} />
         </Panel>
       </div>
     );

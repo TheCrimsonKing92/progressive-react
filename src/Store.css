@@ -10,6 +10,10 @@
     background-image: url('./AutoClickerBig.png')
 }
 
+.blue-block {
+    background-image: url('./BlueBlockPurchase.png')
+}
+
 .buddy-system {
     background-image: url('./BuddySystem.png')
 }
@@ -30,12 +34,20 @@
     background-image: url('./Cloner.png')
 }
 
+.click-tower {
+    background-image: url('./MouseTower.png')
+}
+
 .cloner-overdrive {
     background-image: url('./ClonerOverdrive.png')
 }
 
 .consumer {
     background-image: url('./Consumer.png')
+}
+
+.cost-tower {
+    background-image: url('./CostTower.png')
 }
 
 .cybernetic-synergy {
@@ -46,12 +58,20 @@
     background-image: url('DjinnBig.png')
 }
 
+.efficient-operations {
+    background-image: url('EfficientOperations.png')
+}
+
 .extended-cargo {
     background-image: url('ExtendedCargo.png')
 }
 
 .faded {
     opacity: 0.6
+}
+
+.green-block {
+    background-color: green;
 }
 
 .hammer {
@@ -66,6 +86,10 @@
     background-image: url('./HelpingHand.png')
 }
 
+.power-tower {
+    background-image: url('./PowerTower.png')
+}
+
 .robot {
     background-image: url('./RobotBig.png')
 }
@@ -76,4 +100,12 @@
 
 .the-awakening {
     background-color: blue
+}
+
+.toxicity-recycling {
+    background-color: orange;
+}
+
+.toxicity-tower {
+    background-color: green
 }

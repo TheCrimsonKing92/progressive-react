@@ -17,6 +17,9 @@ class StatsPanel extends Component {
           <p>Stats</p>
           <Row>
             <Col xs={6} sm={4}>
+              <TitleStat title={'Clicks'} stat={clicks} />
+            </Col> 
+            <Col xs={6} sm={4}>
               <TitleStat title={'Score'} stat={score} />
             </Col>
             <Col xs={6} sm={4}>

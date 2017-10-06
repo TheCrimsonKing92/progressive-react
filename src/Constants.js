@@ -1,5 +1,12 @@
 export default {
   AUTOSAVE_FREQUENCIES: [5, 15, 30, 60],
+  BLOCK_FRAGMENT_LIMIT: 1,
+  BLOCK_GENERATION_BLUE_RATE: 0.76,
+  BLOCK_GENERATION_FAILURE_RATE: 0.02,
+  CLICK_TOWER: {
+    CLICK_RATE: 0.05,
+    HELPER_RATE: 0.01
+  },
   CURRENCY: {
     BLOCK: {
       BLUE: 'blue-block',
@@ -7,6 +14,7 @@ export default {
     },
     SCORE: 'score'
   },
+  EFFICIENT_OPERATIONS_FAILURE_RATE: 0.995,
   LOCALSTORAGE_ITEM_NAME: 'ProgressiveReactSave',
   PREREQ: {
     CLICKS: {
@@ -31,5 +39,6 @@ export default {
     HELPER: 1.07,
     SPECIAL: 1.10,
     UPGRADE: 1.00
-  }
+  },
+  TOXICITY_RECYCLING_POWER: 5
 }
