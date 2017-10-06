@@ -490,6 +490,11 @@ class App extends Component {
       }
     })
   }
+  towerPurchased(tower) {
+    const found = this.getTower(tower)
+    
+    return !found ? false : found.purchased > 0
+  }
   unlockBuyables(type) {
     const copy = Object.assign({}, this.state.store[type + 's'])
 
