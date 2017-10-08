@@ -180,6 +180,20 @@ class App extends Component {
       })
     }
   }
+  consumeOffline(seconds) {
+    const consumers = this.getHelper('Consumer').purchased
+    let totalGreen = 0
+    let totalBlue = 0
+
+    for (let i = 0; i < seconds; i++) {
+      let greenBuilt, blueBuilt
+      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers)
+      totalGreen += greenBuilt
+      totalBlue += blueBuilt
+    }
+
+    return [totalGreen, totalBlue]
+  }
   efficientOperations() {
     let counter = 0
     const times = Math.min(this.getHelper('Robot').purchased, this.getHelper('Cloner').purchased)
@@ -267,6 +281,7 @@ class App extends Component {
       clicks: 0,
       efficientOperations: 0,
       gatheringPower: 0,
+      lastTime: new Date(),
       score: 0,
       toxicity: 0,
       toxicityLimit: 100
@@ -286,6 +301,9 @@ class App extends Component {
   }
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
+  }
+  getOfflineProgress(seconds) {
+    return [this.calculateScore() * seconds, [this.consumeOffline(seconds)]]
   }
   getPositiveHelperOutput() {
     return Object.values(this.state.store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h)).reduce((acc, val) => acc + val, 0)
@@ -539,6 +557,24 @@ class App extends Component {
 
     const options = previous.options
     const stats = previous.stats
+
+    const diff = Math.abs((new Date().getTime() - stats.lastTime.getTime()) / 1000)
+
+    let score, greenBlocks, blueBlocks
+    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff)
+
+    let offlineMessage = `You earned ${score} score while you were offline!`
+
+    if (greenBlocks > 0) {
+      offlineMessage += `</br>You earned ${greenBlocks} green blocks while you were offline!`
+    }
+
+    if (blueBlocks > 0) {
+      offlineMessage += `</br>You earned ${blueBlocks} blue blocks while you were offline!`
+    }
+
+    stats.blocks.blue = stats.blocks.blue + blueBlocks
+    stats.blocks.green = stats.blocks.green + greenBlocks
 
     const defaultStats = this.getDefaultStats()
 
