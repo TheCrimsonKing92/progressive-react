@@ -39,7 +39,7 @@ const helpers = {
   'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, Constants.PRICE_GROWTH.HELPER, 5, 2),
   'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, Constants.PRICE_GROWTH.HELPER, 10, 5),
   'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, Constants.PRICE_GROWTH.HELPER, 50, 18),
-  'Cloner': helper('Cloner', 'Creates perfect score by cloning parts of the button', 75000, Constants.PRICE_GROWTH.HELPER, 100, 60),
+  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 75000, Constants.PRICE_GROWTH.HELPER, 100, 60),
   'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, Constants.PRICE_GROWTH.HELPER, 250, 100),
   'Consumer': helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, Constants.PRICE_GROWTH.HELPER, -1, 0)
 }
@@ -155,6 +155,9 @@ const specials = {
     currency: Constants.CURRENCY.BLOCK.BLUE
   },
   'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%', 150, Constants.PRICE_GROWTH.SPECIAL, [
+    preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
+  ]),
+  'Toxic Capacity': special('Toxic Capacity', 'Increases maximum toxicity', 300, Constants.PRICE_GROWTH.SPECIAL, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ]),
   'Toxicity Recycling': special('Toxicity Recycling', 'Removes 10 toxicity', 50, Constants.PRICE_GROWTH.SPECIAL, [
