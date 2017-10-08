@@ -301,6 +301,18 @@ class App extends Component {
   getSpecial(special, store = this.state.store) {
     return store.specials[special]
   }
+  getTooltip(buyable) {
+    const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
+    const cost = buyable.currentPrice.toLocaleString()
+    const costPhrase = buyable.multiple ? `Next costs ${cost} ${currency}` : `Costs ${cost} ${currency}`
+    
+    const base = `${buyable.name}</br>${buyable.description}</br>${costPhrase}`
+
+    if (!buyable.multiple) return base
+    if (buyable.type !== 'helper') return `${base}</br>${buyable.purchased} Purchased`
+
+    return `${base}</br>${buyable.sps} score per second</br>${buyable.purchased} Purchased`
+  }
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
   }
@@ -318,6 +330,15 @@ class App extends Component {
     if (!buyable.buyable || (!buyable.multiple && buyable.purchased > 0)) return
 
     this.purchase(buyable)
+  }
+  mapCurrentPrice(buyable) {
+    let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
+    
+    if (this.towerPurchased('Cost Tower')) {
+      price *= 0.9
+    }
+
+    return price
   }
   mapGameState(state) {
     return JSON.stringify(state)
@@ -353,7 +374,8 @@ class App extends Component {
     return preReqs.map(p => this.preReqFulfilled(p, stats, store)).reduce((a, v) => a && v, true)
   }
   purchase(buyable) {
-    const price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
+    let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
+    price = this.towerPurchased('Cost Tower') ? price * 0.9 : price
     
     let statsSplice
 
@@ -549,7 +571,34 @@ class App extends Component {
     // console.log(`State: ${JSON.stringify(this.state)}`)
     const options = this.state.options
     const stats = this.state.stats
-    const store = this.state.store
+    let store = this.state.store
+
+    for (let type in store) {
+      let collection = store[type]
+
+      for (let member in collection) {
+        let buyable = collection[member]
+
+        if (buyable.type === 'helper') {
+          buyable = {
+            ...buyable,
+            sps: this.calculateScore(buyable)
+          }
+        }
+
+        buyable = {
+          ...buyable,
+          currentPrice: this.mapCurrentPrice(buyable)
+        }
+
+        buyable = {
+          ...buyable,
+          tooltip: this.getTooltip(buyable)
+        }
+
+        store[type][member] = buyable
+      }
+    }
 
     const autosave = options.autosaveFrequency
     const blueBlocks = stats.blocks.blue

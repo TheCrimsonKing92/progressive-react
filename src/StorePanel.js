@@ -5,13 +5,37 @@ import Buyable from './Buyable'
 class StorePanel extends Component {
 	render() {
 		const store = this.props.store
+		console.log(`Store: ${JSON.stringify(store)}`)
 		const idMap = (buyable, id) => ({
 			...buyable,
 			id: id
 		})
 
+		const towerPurchased = t => {
+			const tower = store.towers[t]
+
+			if (!tower) return false
+
+			return tower.purchased
+		}
+
+		const upgradePurchased = u => {
+			const upgrade = store.upgrades[u]
+
+			if (!upgrade) return false
+
+			return upgrade.purchased
+		}
+
 		const isBuyable = b => b.buyable
-		const mapBuyable = buyable => (<Buyable buyable={buyable} fade={this.props.upgradeHandling} onPurchase={this.props.onPurchase}/>)
+		const mapBuyable = buyable => (
+			<Buyable 
+				buyable={buyable} 
+				fade={this.props.upgradeHandling} 
+				onPurchase={this.props.onPurchase} 
+				towerPurchased={towerPurchased} 
+				upgradePurchased={upgradePurchased}/>
+		)
 
 		const helpers = Object.values(store.helpers).map(idMap)
 		const helperElements = helpers.map(mapBuyable)

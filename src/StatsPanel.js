@@ -23,7 +23,7 @@ class StatsPanel extends Component {
               <TitleStat title={'Score'} stat={score} />
             </Col>
             <Col xs={6} sm={4}>
-              <TitleStat title={'Score Per Second'} stat={scorePerSecond} />
+              <TitleStat title={'Score / s'} stat={scorePerSecond} />
             </Col>
             <Col xs={6} sm={4}>
               <TitleStat title={'Toxicity'} stat={toxicity} />
