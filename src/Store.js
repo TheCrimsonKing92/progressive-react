@@ -157,7 +157,7 @@ const specials = {
   'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%', 150, Constants.PRICE_GROWTH.SPECIAL, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ]),
-  'Toxic Capacity': special('Toxic Capacity', 'Increases maximum toxicity', 300, Constants.PRICE_GROWTH.SPECIAL, [
+  'Toxic Capacity': special('Toxic Capacity', 'Increases maximum toxicity by 5', 300, Constants.PRICE_GROWTH.SPECIAL, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ]),
   'Toxicity Recycling': special('Toxicity Recycling', 'Removes 10 toxicity', 50, Constants.PRICE_GROWTH.SPECIAL, [

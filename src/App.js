@@ -200,12 +200,9 @@ class App extends Component {
   }
   evaluateBuyable(buyable, stats = this.state.stats, store = this.state.store) {
     if (!buyable.multiple && buyable.purchased > 0) return false
+    if (buyable.preReqs === null) return true
 
-    if (buyable.type === 'special' && buyable.preReqs !== null) {
-      buyable.preReqs.forEach(p => console.log(`Special preReq: ${JSON.stringify(p)} fulfilled? ${this.preReqFulfilled(p, stats, store)}`))
-    }
-
-    return buyable.preReqs === null || this.preReqsFulfilled(buyable.preReqs, stats, store)
+    return this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
   getBlocksBuilt(consumers) {
     let blueBuilt = 0
@@ -271,7 +268,8 @@ class App extends Component {
       efficientOperations: 0,
       gatheringPower: 0,
       score: 0,
-      toxicity: 0
+      toxicity: 0,
+      toxicityLimit: 100
     }
   }
   getDefaultStore() {
@@ -407,6 +405,12 @@ class App extends Component {
             green: this.state.stats.blocks.green + 1
           }
         }
+      } else if (buyable.name === 'Toxic Capacity') {
+        statsSplice = {
+          ...this.state.stats,
+          blocks: statsSplice.blocks,
+          toxicityLimit: this.state.stats.toxicityLimit + 5
+        }
       } else if (buyable.name === 'Toxicity Recyling') {
         const max = Math.max(0, this.state.stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
         statsSplice = {
@@ -535,8 +539,14 @@ class App extends Component {
 
     const options = previous.options
     const stats = previous.stats
-    const store = previous.store
 
+    const defaultStats = this.getDefaultStats()
+
+    for (let stat in defaultStats) {
+      stats[stat] = stats.hasOwnProperty(stat) ? stats[stat] : defaultStats[stat]
+    }
+
+    const store = previous.store
     const defaultStore = this.getDefaultStore()
 
     for (let sub in defaultStore) {
@@ -608,7 +618,11 @@ class App extends Component {
     const score = Math.floor(stats.score).toLocaleString()
     const scorePerSecond = this.getScorePerSecond().toLocaleString()
     const toxicity = stats.toxicity
+    const toxicityLimit = stats.toxicityLimit
     const upgradeHandling = options.upgradeHandling
+
+    const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
+    const upgradeText = `Purchased Upgrades ${upgradeHandling ? 'Fade' : 'Disappear'}`
 
     return (
       <div className="App">
@@ -619,8 +633,8 @@ class App extends Component {
               <NavItem eventKey={2} href="#" onClick={this.saveGame}>Save Game</NavItem>
               <NavItem eventKey={3} href="#" onClick={this.handleExportSave}>Export Save</NavItem>
               <NavItem eventKey={4} href="#" onClick={this.handleImportSave}>Import Save</NavItem>
-              <NavItem eventKey={5} href="#" onClick={this.toggleAutosave}>Autosave Every {`${autosave} Second${autosave === 1 ? '' : 's'}`}</NavItem>
-              <NavItem eventKey={6} href="#" onClick={this.toggleUpgradeHandling}>Purchased Upgrades {upgradeHandling ? 'Fade' : 'Disappear'}</NavItem>
+              <NavItem eventKey={5} href="#" onClick={this.toggleAutosave}>{autosaveText}</NavItem>
+              <NavItem eventKey={6} href="#" onClick={this.toggleUpgradeHandling}>{upgradeText}</NavItem>
             </GameNav>
           </Row>
           <Row>
@@ -635,7 +649,8 @@ class App extends Component {
                 greenBlocks={greenBlocks}
                 score={score}
                 scorePerSecond={scorePerSecond}
-                toxicity={toxicity} />
+                toxicity={toxicity}
+                toxicityLimit={toxicityLimit} />
             </Col>
             <Col xs={12} md={4}>
               <StorePanel onPurchase={this.handleStorePurchase} store={store} upgradeHandling={upgradeHandling}/>

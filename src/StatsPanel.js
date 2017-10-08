@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {Row, Col, Panel} from 'react-bootstrap'
 import TitleStat from './TitleStat'
+import TooltipTitleStat from './TooltipTitleStat'
 
 class StatsPanel extends Component {
   render() {
@@ -11,6 +12,9 @@ class StatsPanel extends Component {
     const score = this.props.score
     const scorePerSecond = this.props.scorePerSecond
     const toxicity = this.props.toxicity
+    const toxicityLimit = this.props.toxicityLimit
+
+    const toxicityTooltip = `At max toxicity (${this.props.toxicityLimit}), helpers produce no score.</br>At half toxicity, helpers produce 10% less score</br>`
 
     return (
       <div className="StatsPanel">
@@ -30,7 +34,7 @@ class StatsPanel extends Component {
               <TitleStat title={'Score / s'} stat={scorePerSecond} />
             </Col>
             <Col xs={6} sm={4}>
-              <TitleStat title={'Toxicity'} stat={toxicity} />
+              <TooltipTitleStat title={'Toxicity'} stat={toxicity} tooltip={toxicityTooltip} />
             </Col>
             <Col xs={6} sm={4}>
               <TitleStat title={'Blue Blocks'} stat={blueBlocks} />

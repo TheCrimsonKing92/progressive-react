@@ -5,7 +5,6 @@ import Buyable from './Buyable'
 class StorePanel extends Component {
 	render() {
 		const store = this.props.store
-		console.log(`Store: ${JSON.stringify(store)}`)
 		const idMap = (buyable, id) => ({
 			...buyable,
 			id: id
