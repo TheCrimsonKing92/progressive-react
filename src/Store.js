@@ -66,23 +66,23 @@ const upgrade = (
 })
 
 const upgrades = {
-  'Helping Hand': Object.assign({}, upgrade('Helping Hand', '+1 AutoClicker and power', 200), {buyable: true}),
+  'Helping Hand': Object.assign({}, upgrade('Helping Hand', '+1 AutoClicker and mouse power', 200), {buyable: true}),
   'Click Efficiency': upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 200),
+    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 150),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
   ]),
   'Heavier Hammers': upgrade('Heavier Hammers', '+100% Hammer power', 1250, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 5)
   ]),
-  'Helping Handsier': upgrade('Helping Handsier', '+4 AutoClicker and mouse power', 2500, [
+  'Helping Handsier': upgrade('Helping Handsier', '+2 AutoClicker and mouse power', 2500, [
+    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 300)
+  ]),
+  'Helping Handsiest': upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500)
   ]),
   'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+12 power per Hammer and Robot pair', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
-  ]),
-  'Helping Handsiest': upgrade('Helping Handsiest', '+16 AutoClicker and mouse power', 11000, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 750)
   ]),
   'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)

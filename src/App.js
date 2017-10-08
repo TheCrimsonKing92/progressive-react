@@ -44,11 +44,11 @@ class App extends Component {
     }
 
     if (this.upgradePurchased('Helping Handsier')) {
-      base += 4
+      base += 2
     }
 
     if (this.upgradePurchased('Helping Handsiest')) {
-      base += 16
+      base += 6
     }
     
     if (this.towerPurchased('Click Tower')) {
@@ -74,11 +74,11 @@ class App extends Component {
       }
 
       if (this.upgradePurchased('Helping Handsier')) {
-        base += 4
+        base += 2
       }
 
       if (this.upgradePurchased('Helping Handsiest')) {
-        base += 16
+        base += 6
       }
 
       total = base * helper.purchased
@@ -603,6 +603,7 @@ class App extends Component {
     const autosave = options.autosaveFrequency
     const blueBlocks = stats.blocks.blue
     const clicks = stats.clicks
+    const clickScore = this.calculateClickScore()
     const greenBlocks = stats.blocks.green
     const score = Math.floor(stats.score).toLocaleString()
     const scorePerSecond = this.getScorePerSecond().toLocaleString()
@@ -630,6 +631,7 @@ class App extends Component {
               <StatsPanel
                 blueBlocks={blueBlocks}
                 clicks={clicks}
+                clickScore={clickScore}
                 greenBlocks={greenBlocks}
                 score={score}
                 scorePerSecond={scorePerSecond}

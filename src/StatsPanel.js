@@ -6,6 +6,7 @@ class StatsPanel extends Component {
   render() {
     const blueBlocks = this.props.blueBlocks
     const clicks = this.props.clicks
+    const clickScore = this.props.clickScore
     const greenBlocks = this.props.greenBlocks
     const score = this.props.score
     const scorePerSecond = this.props.scorePerSecond
@@ -21,6 +22,9 @@ class StatsPanel extends Component {
             </Col> 
             <Col xs={6} sm={4}>
               <TitleStat title={'Score'} stat={score} />
+            </Col>
+            <Col xs={6} sm={4}>
+              <TitleStat title={'Score / click'} stat={clickScore} />
             </Col>
             <Col xs={6} sm={4}>
               <TitleStat title={'Score / s'} stat={scorePerSecond} />
