@@ -180,8 +180,8 @@ class App extends Component {
       })
     }
   }
-  consumeOffline(seconds) {
-    const consumers = this.getHelper('Consumer').purchased
+  consumeOffline(seconds, store) {
+    const consumers = this.getHelper('Consumer', store).purchased
     let totalGreen = 0
     let totalBlue = 0
 
@@ -255,7 +255,7 @@ class App extends Component {
     return [blueTotal, blue, greenTotal, green]
   }
   getConsumption(income, store = this.state.store) {
-    return this.calculateScore(this.getHelper('Consumer'), store)
+    return this.calculateScore(this.getHelper('Consumer', store), store)
   }
   getDefaultGameState() {
     return {
@@ -303,14 +303,14 @@ class App extends Component {
     return store.helpers[helper]
   }
   getOfflineProgress(seconds, store) {
-    return [this.getScorePerSecond(store) * seconds, [this.consumeOffline(seconds)]]
+    return [this.getScorePerSecond(store) * seconds, this.consumeOffline(seconds, store)]
   }
   getPositiveHelperOutput(store = this.state.store) {
-    return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h)).reduce((acc, val) => acc + val, 0)
+    return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h, store)).reduce((acc, val) => acc + val, 0)
   }
   getScorePerSecond(store = this.state.store) {
     const positiveHelpers = this.getPositiveHelperOutput(store)
-    const consumption = this.getConsumption(store)
+    const consumption = this.getConsumption(positiveHelpers, store)
 
     return positiveHelpers + consumption
   }
@@ -457,8 +457,6 @@ class App extends Component {
             blue: this.state.stats.blocks.blue + 1
           }
         }
-
-        console.log(`StatsSplice: ${JSON.stringify(statsSplice)}`)
       }
     } else {
       console.warn(`Unknown currency ${buyable.currency}`)
@@ -490,6 +488,12 @@ class App extends Component {
   }
   saveGame() {
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(this.state))
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        lastTime: new Date()
+      }
+    })
   }
   saveTick() {
     this.saveTicks++
@@ -556,35 +560,38 @@ class App extends Component {
     const previous = JSON.parse(mapped)
 
     const options = previous.options
-    previous.stats.lastTime = new Date(previous.stats.lastTime)
-    const stats = previous.stats
+    const stats = previous.stats    
+    const store = previous.store
 
-    console.log(`Type of lastTime; ${typeof stats.lastTime}`)
-    const diff = Math.abs((new Date().getTime() - stats.lastTime.getTime()) / 1000)
+    const diff = Math.floor(Math.abs((new Date().getTime() - new Date(previous.stats.lastTime).getTime()) / 1000))
+    console.log(`Difference in seconds: ${diff}`)
 
-    let score, greenBlocks, blueBlocks
-    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff)
+    if (diff > 59) {
+      let score, greenBlocks, blueBlocks
+      [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff, store)
 
-    let offlineMessage = `You earned ${score} score while you were offline!`
+      stats.score = stats.score + score
+    
+      let offlineMessage = `While offline for ${diff} seconds, you earned ${score} score!`
 
-    if (greenBlocks > 0) {
-      offlineMessage += `</br>You earned ${greenBlocks} green blocks while you were offline!`
+      if (blueBlocks > 0) {
+        stats.blocks.blue += blueBlocks
+        offlineMessage += `</br>During that time your consumers produced ${blueBlocks} blue blocks!`
+      }
+
+      if (greenBlocks > 0) {
+        stats.blocks.green += greenBlocks
+        offlineMessage += `</br>During that time your consumers produce ${greenBlocks} green blocks!`
+      }
+
+      alert(offlineMessage)
     }
-
-    if (blueBlocks > 0) {
-      offlineMessage += `</br>You earned ${blueBlocks} blue blocks while you were offline!`
-    }
-
-    stats.blocks.blue = stats.blocks.blue + blueBlocks
-    stats.blocks.green = stats.blocks.green + greenBlocks
 
     const defaultStats = this.getDefaultStats()
 
     for (let stat in defaultStats) {
       stats[stat] = stats.hasOwnProperty(stat) ? stats[stat] : defaultStats[stat]
     }
-
-    const store = previous.store
     const defaultStore = this.getDefaultStore()
 
     for (let sub in defaultStore) {
