@@ -62,47 +62,47 @@ class App extends Component {
 
     return base
   }
-  calculateScore(helper) {
+  calculateScore(helper, store = this.state.store) {
     const name = helper.name
     let base = helper.power
     let total = 0
     const basic = h => h.power * h.purchased
 
     if (name === 'AutoClicker') {
-      if (this.upgradePurchased('Helping Hand')) {
+      if (this.upgradePurchased('Helping Hand', store)) {
         base++
       }
 
-      if (this.upgradePurchased('Helping Handsier')) {
+      if (this.upgradePurchased('Helping Handsier', store)) {
         base += 2
       }
 
-      if (this.upgradePurchased('Helping Handsiest')) {
+      if (this.upgradePurchased('Helping Handsiest', store)) {
         base += 6
       }
 
       total = base * helper.purchased
 
-      if (this.upgradePurchased('Click Efficiency')) {
+      if (this.upgradePurchased('Click Efficiency', store)) {
         total *= 2
       }
 
-      if (this.upgradePurchased('Audible Motiviation')) {
+      if (this.upgradePurchased('Audible Motiviation', store)) {
         const audibleBase = 1.00
         const factor = .01
 
-        total *= audibleBase + (factor * this.getHelper('Djinn').purchased)
+        total *= audibleBase + (factor * this.getHelper('Djinn', store).purchased)
       }
       return total
     } else if (name === 'Hammer') {
-      if (this.upgradePurchased('Heavier Hammers')) {
+      if (this.upgradePurchased('Heavier Hammers', store)) {
         base *= 2
       }
 
       total = base * helper.purchased
 
-      if (this.upgradePurchased('Cybernetic Synergy')) {
-        const bound = Math.min(helper.purchased, this.getHelper('Robot').purchased)
+      if (this.upgradePurchased('Cybernetic Synergy', store)) {
+        const bound = Math.min(helper.purchased, this.getHelper('Robot', store).purchased)
         total += (5 * bound)
       }
 
@@ -110,8 +110,8 @@ class App extends Component {
     } else if (name === 'Robot') {
       total = base * helper.purchased
 
-      if (this.upgradePurchased('Cybernetic Synergy')) {
-        const bound = Math.min(helper.purchased, this.getHelper('Hammer').purchased)
+      if (this.upgradePurchased('Cybernetic Synergy', store)) {
+        const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
         total += (7 * bound)
       }
 
@@ -119,23 +119,23 @@ class App extends Component {
     } else if (name === 'Airplane') {
       total = base * helper.purchased
 
-      if (this.upgradePurchased('Extended Cargo')) {
+      if (this.upgradePurchased('Extended Cargo', store)) {
         total *= 1.25
       }
 
-      if (this.upgradePurchased('Buddy System')) {
+      if (this.upgradePurchased('Buddy System', store)) {
         total *= 2
       }
 
       return total
     } else if (name === 'Cloner') {
-      if (this.upgradePurchased('Efficient Operations')) {
+      if (this.upgradePurchased('Efficient Operations', store)) {
         base += this.state.stats.efficientOperations
       }
 
       total = base * helper.purchased
 
-      if (this.upgradePurchased('Cloner Overdrive')) {
+      if (this.upgradePurchased('Cloner Overdrive', store)) {
         total *= 1.4
       }
 
@@ -254,8 +254,8 @@ class App extends Component {
 
     return [blueTotal, blue, greenTotal, green]
   }
-  getConsumption(income) {
-    return this.calculateScore(this.getHelper('Consumer'))
+  getConsumption(income, store = this.state.store) {
+    return this.calculateScore(this.getHelper('Consumer'), store)
   }
   getDefaultGameState() {
     return {
@@ -302,15 +302,15 @@ class App extends Component {
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
   }
-  getOfflineProgress(seconds) {
-    return [this.calculateScore() * seconds, [this.consumeOffline(seconds)]]
+  getOfflineProgress(seconds, store) {
+    return [this.getScorePerSecond(store) * seconds, [this.consumeOffline(seconds)]]
   }
-  getPositiveHelperOutput() {
-    return Object.values(this.state.store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h)).reduce((acc, val) => acc + val, 0)
+  getPositiveHelperOutput(store = this.state.store) {
+    return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h)).reduce((acc, val) => acc + val, 0)
   }
-  getScorePerSecond() {
-    const positiveHelpers = this.getPositiveHelperOutput()
-    const consumption = this.getConsumption()
+  getScorePerSecond(store = this.state.store) {
+    const positiveHelpers = this.getPositiveHelperOutput(store)
+    const consumption = this.getConsumption(store)
 
     return positiveHelpers + consumption
   }
@@ -556,8 +556,10 @@ class App extends Component {
     const previous = JSON.parse(mapped)
 
     const options = previous.options
+    previous.stats.lastTime = new Date(previous.stats.lastTime)
     const stats = previous.stats
 
+    console.log(`Type of lastTime; ${typeof stats.lastTime}`)
     const diff = Math.abs((new Date().getTime() - stats.lastTime.getTime()) / 1000)
 
     let score, greenBlocks, blueBlocks
@@ -608,8 +610,8 @@ class App extends Component {
       store: store
     }
   }
-  upgradePurchased(upgrade) {
-    const found = this.getUpgrade(upgrade)
+  upgradePurchased(upgrade, store) {
+    const found = this.getUpgrade(upgrade, store)
 
     return !found ? false : found.purchased > 0
   }
