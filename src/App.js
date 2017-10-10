@@ -381,12 +381,12 @@ class App extends Component {
 
     if (blueBlocks > 0) {
       stats.blocks.blue += blueBlocks
-      offlineMessage += `</br>During that time your consumers produced ${blueBlocks} blue blocks!`
+      offlineMessage += `\nDuring that time your consumers produced ${blueBlocks} blue blocks!`
     }
 
     if (greenBlocks > 0) {
       stats.blocks.green += greenBlocks
-      offlineMessage += `</br>During that time your consumers produce ${greenBlocks} green blocks!`
+      offlineMessage += `\nDuring that time your consumers produce ${greenBlocks} green blocks!`
     }
 
     alert(offlineMessage)
