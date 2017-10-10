@@ -16,6 +16,7 @@ export default {
   },
   EFFICIENT_OPERATIONS_FAILURE_RATE: 0.995,
   LOCALSTORAGE_ITEM_NAME: 'ProgressiveReactSave',
+  OFFLINE_PROGRESS_MINIMUM: 60,
   PREREQ: {
     CLICKS: {
       NUMBER: 'number-clicks'

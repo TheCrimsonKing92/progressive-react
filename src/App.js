@@ -157,7 +157,7 @@ class App extends Component {
     window.clearInterval(this.gameTick)
   }
   consume() {
-    const consumption = this.getConsumption(this.getPositiveHelperOutput())
+    const consumption = this.getConsumption()
     if (consumption !== 0) {
       const consumers = this.getHelper('Consumer').purchased
       let greenBuilt, blueBuilt
@@ -254,7 +254,7 @@ class App extends Component {
 
     return [blueTotal, blue, greenTotal, green]
   }
-  getConsumption(income, store = this.state.store) {
+  getConsumption(store = this.state.store) {
     return this.calculateScore(this.getHelper('Consumer', store), store)
   }
   getDefaultGameState() {
@@ -310,9 +310,12 @@ class App extends Component {
   }
   getScorePerSecond(store = this.state.store) {
     const positiveHelpers = this.getPositiveHelperOutput(store)
-    const consumption = this.getConsumption(positiveHelpers, store)
+    const consumption = this.getConsumption(store)
 
     return positiveHelpers + consumption
+  }
+  getSecondsSinceLoad(last) {
+    return Math.floor(Math.abs((new Date().getTime() - new Date(last).getTime()) / 1000))
   }
   getSpecial(special, store = this.state.store) {
     return store.specials[special]
@@ -363,6 +366,30 @@ class App extends Component {
     const state = this.getDefaultGameState()
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(state))
     this.setState(state)
+  }
+  offlineProgress(stats, store) {    
+    const diff = this.getSecondsSinceLoad(stats.lastTime)
+    
+    if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
+    
+    let score, greenBlocks, blueBlocks
+    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff, store)
+
+    stats.score = stats.score + score
+  
+    let offlineMessage = `While offline for ${diff} seconds, you earned ${score} score!`
+
+    if (blueBlocks > 0) {
+      stats.blocks.blue += blueBlocks
+      offlineMessage += `</br>During that time your consumers produced ${blueBlocks} blue blocks!`
+    }
+
+    if (greenBlocks > 0) {
+      stats.blocks.green += greenBlocks
+      offlineMessage += `</br>During that time your consumers produce ${greenBlocks} green blocks!`
+    }
+
+    alert(offlineMessage)
   }
   preReqFulfilled(preReq, stats = this.state.stats, store = this.state.store) {
     const type = preReq.type
@@ -506,7 +533,7 @@ class App extends Component {
     this.setState({
       stats: {
         ...this.state.stats,
-        score: this.state.stats.score + this.getScorePerSecond()
+        score: this.state.stats.score + this.getPositiveHelperOutput()
       },
       store: {
         ...this.state.store,
@@ -563,29 +590,7 @@ class App extends Component {
     const stats = previous.stats    
     const store = previous.store
 
-    const diff = Math.floor(Math.abs((new Date().getTime() - new Date(previous.stats.lastTime).getTime()) / 1000))
-    console.log(`Difference in seconds: ${diff}`)
-
-    if (diff > 59) {
-      let score, greenBlocks, blueBlocks
-      [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff, store)
-
-      stats.score = stats.score + score
-    
-      let offlineMessage = `While offline for ${diff} seconds, you earned ${score} score!`
-
-      if (blueBlocks > 0) {
-        stats.blocks.blue += blueBlocks
-        offlineMessage += `</br>During that time your consumers produced ${blueBlocks} blue blocks!`
-      }
-
-      if (greenBlocks > 0) {
-        stats.blocks.green += greenBlocks
-        offlineMessage += `</br>During that time your consumers produce ${greenBlocks} green blocks!`
-      }
-
-      alert(offlineMessage)
-    }
+    this.offlineProgress(stats, store)
 
     const defaultStats = this.getDefaultStats()
 
