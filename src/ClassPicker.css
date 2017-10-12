@@ -1,0 +1,15 @@
+.builder {
+  background-image: url('./Builder.png')
+}
+
+.master {
+  background-image: url('./Master.png')
+}
+
+.mechanic {
+  background-image: url('./Mechanic.png')
+}
+
+.thief {
+  background-image: url('./Thief.png')
+}

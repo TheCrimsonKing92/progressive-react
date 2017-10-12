@@ -3,6 +3,24 @@ export default {
   BLOCK_FRAGMENT_LIMIT: 100,
   BLOCK_GENERATION_BLUE_RATE: 0.76,
   BLOCK_GENERATION_FAILURE_RATE: 0.02,
+  CLASSES: {
+    BUILDER: {
+      name: 'Builder',
+      description: 'Builds blocks (for advanced purchases) faster'
+    },
+    MASTER: {
+      name: 'Master',
+      description: 'Increased score from mouse clicks and AutoClickers'
+    },
+    MECHANIC: {
+      name: 'Mechanic',
+      description: 'Improved returns from robot-based upgrades'
+    },
+    THIEF: {
+      name: 'Thief',
+      description: `Receives 'five-fingered discount' on all store prices`
+    }
+  },
   CLICK_TOWER: {
     CLICK_RATE: 0.05,
     HELPER_RATE: 0.01

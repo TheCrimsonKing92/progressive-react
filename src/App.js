@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ButtonPanel from './ButtonPanel'
+import ClassPicker from './ClassPicker'
 import GameNav from './GameNav'
 import StatsPanel from './StatsPanel'
 import StorePanel from './StorePanel'
@@ -21,6 +22,7 @@ class App extends Component {
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
     this.newGame = this.newGame.bind(this)
+    this.onClassClick = this.onClassClick.bind(this)
     this.preReqFulfilled = this.preReqFulfilled.bind(this)
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
@@ -62,13 +64,16 @@ class App extends Component {
 
     return base
   }
-  calculateScore(helper, store = this.state.store) {
+  calculateScore(helper, store = this.state.store, stats = this.state.stats) {
     const name = helper.name
     let base = helper.power
     let total = 0
     const basic = h => h.power * h.purchased
 
     if (name === 'AutoClicker') {
+      if (this.isClass(Constants.CLASSES.MASTER)) {
+        base++
+      }
       if (this.upgradePurchased('Helping Hand', store)) {
         base++
       }
@@ -102,8 +107,10 @@ class App extends Component {
       total = base * helper.purchased
 
       if (this.upgradePurchased('Cybernetic Synergy', store)) {
+        let power = 5
+        if (this.isClass(Constants.CLASSES.MECHANIC)) power *= 2
         const bound = Math.min(helper.purchased, this.getHelper('Robot', store).purchased)
-        total += (5 * bound)
+        total += (power * bound)
       }
 
       return total
@@ -111,8 +118,10 @@ class App extends Component {
       total = base * helper.purchased
 
       if (this.upgradePurchased('Cybernetic Synergy', store)) {
+        let power = 7
+        if (this.isClass(Constants.CLASSES.MECHANIC)) power *= 2
         const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
-        total += (7 * bound)
+        total += (power * bound)
       }
 
       return total
@@ -226,9 +235,17 @@ class App extends Component {
       const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
         if (blue) {
-          blueBuilt++
+          if (this.isClass(Constants.CLASSES.BUILDER)) {
+            blueBuilt += 2
+          } else {
+            blueBuilt += 1
+          }
         } else {
-          greenBuilt++
+          if (this.isClass(Constants.CLASSES.BUILDER)) {
+            greenBuilt += 2
+          } else {
+            greenBuilt += 1
+          }
         }
       }
       consumers--
@@ -254,8 +271,8 @@ class App extends Component {
 
     return [blueTotal, blue, greenTotal, green]
   }
-  getConsumption(store = this.state.store) {
-    return this.calculateScore(this.getHelper('Consumer', store), store)
+  getConsumption(store = this.state.store, stats = this.state.stats) {
+    return this.calculateScore(this.getHelper('Consumer', store), store, stats)
   }
   getDefaultGameState() {
     return {
@@ -282,6 +299,7 @@ class App extends Component {
       efficientOperations: 0,
       gatheringPower: 0,
       lastTime: new Date(),
+      selectedClass: null,
       score: 0,
       toxicity: 0,
       toxicityLimit: 100
@@ -302,15 +320,15 @@ class App extends Component {
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
   }
-  getOfflineProgress(seconds, store) {
-    return [this.getScorePerSecond(store) * seconds, this.consumeOffline(seconds, store)]
+  getOfflineProgress(seconds, store, stats) {
+    return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store)]
   }
-  getPositiveHelperOutput(store = this.state.store) {
-    return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h, store)).reduce((acc, val) => acc + val, 0)
+  getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
+    return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h, store, stats)).reduce((acc, val) => acc + val, 0)
   }
-  getScorePerSecond(store = this.state.store) {
+  getScorePerSecond(store = this.state.store, stats = this.state.stats) {
     const positiveHelpers = this.getPositiveHelperOutput(store)
-    const consumption = this.getConsumption(store)
+    const consumption = this.getConsumption(store, stats)
 
     return positiveHelpers + consumption
   }
@@ -325,7 +343,14 @@ class App extends Component {
     const cost = buyable.currentPrice.toLocaleString()
     const costPhrase = buyable.multiple ? `Next costs ${cost} ${currency}` : `Costs ${cost} ${currency}`
     
-    const base = `${buyable.name}</br>${buyable.description}</br>${costPhrase}`
+    // YUCK, SPECIAL CASE HANDLING
+    let description = buyable.description
+
+    if (this.isClass(Constants.CLASSES.MECHANIC) && buyable.name === 'Cybernetic Synergy') {
+      description = description.replace('+12', '+24')
+    }
+
+    const base = `${buyable.name}</br>${description}</br>${costPhrase}`
 
     if (!buyable.multiple) return base
     if (buyable.type !== 'helper') return `${base}</br>${buyable.purchased} Purchased`
@@ -350,6 +375,9 @@ class App extends Component {
 
     this.purchase(buyable)
   }
+  isClass(c) {
+    return this.state.stats.selectedClass === c.name
+  }
   mapCurrentPrice(buyable) {
     let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
     
@@ -373,7 +401,7 @@ class App extends Component {
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
     
     let score, greenBlocks, blueBlocks
-    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff, store)
+    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff, store, stats)
 
     stats.score = stats.score + score
   
@@ -390,6 +418,15 @@ class App extends Component {
     }
 
     alert(offlineMessage)
+  }
+  onClassClick(name) {
+    console.log(`Selected class ${name}`)
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        selectedClass: name
+      }
+    })
   }
   preReqFulfilled(preReq, stats = this.state.stats, store = this.state.store) {
     const type = preReq.type
@@ -687,25 +724,29 @@ class App extends Component {
               <NavItem eventKey={6} href="#" onClick={this.toggleUpgradeHandling}>{upgradeText}</NavItem>
             </GameNav>
           </Row>
-          <Row>
-            <Col xs={12} md={3}>
-              <ButtonPanel clickHandle={this.buttonClicked} />
-            </Col>
-            <Col xs={12} md={5}>
-              <StatsPanel
-                blueBlocks={blueBlocks}
-                clicks={clicks}
-                clickScore={clickScore}
-                greenBlocks={greenBlocks}
-                score={score}
-                scorePerSecond={scorePerSecond}
-                toxicity={toxicity}
-                toxicityLimit={toxicityLimit} />
-            </Col>
-            <Col xs={12} md={4}>
-              <StorePanel onPurchase={this.handleStorePurchase} store={store} upgradeHandling={upgradeHandling}/>
-            </Col>
-          </Row>
+          { this.state.stats.selectedClass !== null ? (
+              <Row>
+                <Col xs={12} md={3}>
+                  <ButtonPanel clickHandle={this.buttonClicked} />
+                </Col>
+                <Col xs={12} md={5}>
+                  <StatsPanel
+                    blueBlocks={blueBlocks}
+                    clicks={clicks}
+                    clickScore={clickScore}
+                    greenBlocks={greenBlocks}
+                    score={score}
+                    scorePerSecond={scorePerSecond}
+                    toxicity={toxicity}
+                    toxicityLimit={toxicityLimit} />
+                </Col>
+                <Col xs={12} md={4}>
+                  <StorePanel onPurchase={this.handleStorePurchase} store={store} upgradeHandling={upgradeHandling}/>
+                </Col>
+              </Row>
+            ) : <ClassPicker classes={Object.values(Constants.CLASSES)} onClassClick={this.onClassClick}/>
+          }
+          
         </Grid>
       </div>
     );
