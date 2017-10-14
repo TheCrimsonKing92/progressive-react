@@ -71,7 +71,7 @@ class App extends Component {
     const basic = h => h.power * h.purchased
 
     if (name === 'AutoClicker') {
-      if (this.isClass(Constants.CLASSES.MASTER)) {
+      if (this.isClass(Constants.CLASSES.MASTER, stats)) {
         base++
       }
       if (this.upgradePurchased('Helping Hand', store)) {
@@ -108,7 +108,7 @@ class App extends Component {
 
       if (this.upgradePurchased('Cybernetic Synergy', store)) {
         let power = 5
-        if (this.isClass(Constants.CLASSES.MECHANIC)) power *= 2
+        if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
         const bound = Math.min(helper.purchased, this.getHelper('Robot', store).purchased)
         total += (power * bound)
       }
@@ -119,7 +119,7 @@ class App extends Component {
 
       if (this.upgradePurchased('Cybernetic Synergy', store)) {
         let power = 7
-        if (this.isClass(Constants.CLASSES.MECHANIC)) power *= 2
+        if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
         const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
         total += (power * bound)
       }
@@ -165,12 +165,12 @@ class App extends Component {
     window.clearInterval(this.autoSave)
     window.clearInterval(this.gameTick)
   }
-  consume() {
+  consume(stats = this.state.stats) {
     const consumption = this.getConsumption()
     if (consumption !== 0) {
       const consumers = this.getHelper('Consumer').purchased
       let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers)
+      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers, stats)
 
       let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
       [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt)
@@ -189,14 +189,14 @@ class App extends Component {
       })
     }
   }
-  consumeOffline(seconds, store) {
+  consumeOffline(seconds, store, stats) {
     const consumers = this.getHelper('Consumer', store).purchased
     let totalGreen = 0
     let totalBlue = 0
 
     for (let i = 0; i < seconds; i++) {
       let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers)
+      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers, stats)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
@@ -227,7 +227,7 @@ class App extends Component {
 
     return this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
-  getBlocksBuilt(consumers) {
+  getBlocksBuilt(consumers, stats = this.state.stats) {
     let blueBuilt = 0
     let greenBuilt = 0
 
@@ -235,13 +235,13 @@ class App extends Component {
       const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
         if (blue) {
-          if (this.isClass(Constants.CLASSES.BUILDER)) {
+          if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
             blueBuilt += 2
           } else {
             blueBuilt += 1
           }
         } else {
-          if (this.isClass(Constants.CLASSES.BUILDER)) {
+          if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
             greenBuilt += 2
           } else {
             greenBuilt += 1
@@ -321,13 +321,13 @@ class App extends Component {
     return store.helpers[helper]
   }
   getOfflineProgress(seconds, store, stats) {
-    return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store)]
+    return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store, stats)]
   }
   getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
     return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h, store, stats)).reduce((acc, val) => acc + val, 0)
   }
   getScorePerSecond(store = this.state.store, stats = this.state.stats) {
-    const positiveHelpers = this.getPositiveHelperOutput(store)
+    const positiveHelpers = this.getPositiveHelperOutput(store, stats)
     const consumption = this.getConsumption(store, stats)
 
     return positiveHelpers + consumption
@@ -338,7 +338,7 @@ class App extends Component {
   getSpecial(special, store = this.state.store) {
     return store.specials[special]
   }
-  getTooltip(buyable) {
+  getTooltip(buyable, stats = this.state.stats) {
     const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
     const cost = buyable.currentPrice.toLocaleString()
     const costPhrase = buyable.multiple ? `Next costs ${cost} ${currency}` : `Costs ${cost} ${currency}`
@@ -346,7 +346,7 @@ class App extends Component {
     // YUCK, SPECIAL CASE HANDLING
     let description = buyable.description
 
-    if (this.isClass(Constants.CLASSES.MECHANIC) && buyable.name === 'Cybernetic Synergy') {
+    if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Cybernetic Synergy') {
       description = description.replace('+12', '+24')
     }
 
@@ -375,8 +375,8 @@ class App extends Component {
 
     this.purchase(buyable)
   }
-  isClass(c) {
-    return this.state.stats.selectedClass === c.name
+  isClass(c, stats = this.state.stats) {
+    return stats.selectedClass === c.name
   }
   mapCurrentPrice(buyable) {
     let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
@@ -690,7 +690,7 @@ class App extends Component {
 
         buyable = {
           ...buyable,
-          tooltip: this.getTooltip(buyable)
+          tooltip: this.getTooltip(buyable, stats)
         }
 
         store[type][member] = buyable
