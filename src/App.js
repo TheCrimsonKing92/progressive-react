@@ -383,17 +383,17 @@ class App extends Component {
     return stats.selectedClass === c.name
   }
   mapCurrentPrice(buyable) {
-    let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
-
+    let basePrice = buyable.price
+    
     if (this.isClass(Constants.CLASSES.THIEF)) {
-      price *= 0.9
+      basePrice *= 0.9
     }
     
     if (this.towerPurchased('Cost Tower')) {
-      price *= 0.9
+      basePrice *= 0.9
     }
 
-    return price
+    return Math.floor(basePrice * Math.pow(buyable.priceGrowth, buyable.purchased))
   }
   mapGameState(state) {
     return JSON.stringify(state)
