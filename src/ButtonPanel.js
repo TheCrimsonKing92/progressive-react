@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {Panel} from 'react-bootstrap'
 import ReactTooltip from 'react-tooltip'
 import TheButton from './TheButton'
-import TitleStat from './TitleStat'
 
 class ButtonPanel extends Component {
   render() {
