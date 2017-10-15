@@ -384,6 +384,10 @@ class App extends Component {
   }
   mapCurrentPrice(buyable) {
     let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
+
+    if (this.isClass(Constants.CLASSES.THIEF)) {
+      price *= 0.9
+    }
     
     if (this.towerPurchased('Cost Tower')) {
       price *= 0.9
