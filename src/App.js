@@ -357,7 +357,7 @@ class App extends Component {
       description = description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
     }
 
-    const base = `${buyable.name}</br>${description}</br>${costPhrase}`
+    const base = buyable.buyable ? `${buyable.name}</br>${description}</br>${costPhrase}` : `${buyable.name}</br>${description}`
 
     if (!buyable.multiple) return base
     if (buyable.type !== 'helper') return `${base}</br>${buyable.purchased} Purchased`
