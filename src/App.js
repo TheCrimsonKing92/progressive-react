@@ -253,19 +253,21 @@ class App extends Component {
 
     return [greenBuilt, blueBuilt]
   }
-  getBlockStatuses(greenBuilt, blueBuilt) {
+  getBlockStatuses(greenBuilt, blueBuilt, builder) {
     let green = 0
     let greenTotal = greenBuilt + this.state.stats.blocks.greenFragments
     let blue = 0
     let blueTotal = blueBuilt + this.state.stats.blocks.blueFragments
 
-    while (greenTotal > Constants.BLOCK_FRAGMENT_LIMIT) {
-      greenTotal -= Constants.BLOCK_FRAGMENT_LIMIT
+    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
+
+    while (greenTotal > limit) {
+      greenTotal -= limit
       green++
     }
 
-    while (blueTotal > Constants.BLOCK_FRAGMENT_LIMIT) {
-      blueTotal -= Constants.BLOCK_FRAGMENT_LIMIT
+    while (blueTotal > limit) {
+      blueTotal -= limit
       blue++
     }
 
@@ -347,7 +349,9 @@ class App extends Component {
     let description = buyable.description
 
     if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Cybernetic Synergy') {
-      description = description.replace('+12', '+24')
+      description = description.replace('+12', '+24').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`)
+    } else if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Efficient Operations') {
+      description = description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
     }
 
     const base = `${buyable.name}</br>${description}</br>${costPhrase}`
