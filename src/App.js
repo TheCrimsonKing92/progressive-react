@@ -169,8 +169,10 @@ class App extends Component {
     const consumption = this.getConsumption()
     if (consumption !== 0) {
       const consumers = this.getHelper('Consumer').purchased
+
+      const builder = this.isClass(Constants.CLASSES.BUILDER, stats)
       let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers, stats)
+      [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
 
       let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
       [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt)
@@ -196,7 +198,7 @@ class App extends Component {
 
     for (let i = 0; i < seconds; i++) {
       let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlocksBuilt(consumers, stats)
+      [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
@@ -227,7 +229,7 @@ class App extends Component {
 
     return this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
-  getBlocksBuilt(consumers, stats = this.state.stats) {
+  getBlockFragmentsBuilt(consumers, stats = this.state.stats) {
     let blueBuilt = 0
     let greenBuilt = 0
 
@@ -387,17 +389,21 @@ class App extends Component {
   }
   mapCurrentPrice(buyable) {
     let basePrice = buyable.price
-    const thief = this.isClass(Constants.CLASSES.THIEF)
-    
-    if (thief) {
-      basePrice *= 0.9
-    }
-    
-    if (this.towerPurchased('Cost Tower')) {
-      basePrice *= 0.9
+    let growth = buyable.priceGrowth
+
+    if (buyable.currency === Constants.CURRENCY.SCORE) {
+      const thief = this.isClass(Constants.CLASSES.THIEF)
+      
+      if (thief) {
+        basePrice *= 0.9
+        growth = Constants.PRICE_GROWTH.HELPER_THIEF
+      }
+      
+      if (this.towerPurchased('Cost Tower')) {
+        basePrice *= 0.9
+      }
     }
 
-    const growth = thief ? Constants.PRICE_GROWTH.HELPER_THIEF : buyable.priceGrowth
     return Math.floor(basePrice * Math.pow(growth, buyable.purchased))
   }
   mapGameState(state) {
