@@ -37,6 +37,11 @@ export default {
   EFFICIENT_OPERATIONS_FAILURE_RATE_MECHANIC: 0.99,
   LOCALSTORAGE_ITEM_NAME: 'ProgressiveReactSave',
   OFFLINE_PROGRESS_MINIMUM: 60,
+  POWER: {
+    HELPING_HAND: 1,
+    HELPING_HANDSIER: 2,
+    HELPING_HANDSIEST: 6
+  },
   PREREQ: {
     CLICKS: {
       NUMBER: 'number-clicks'
@@ -58,6 +63,7 @@ export default {
   },
   PRICE_GROWTH: {
     HELPER: 1.07,
+    HELPER_THIEF: 1.06,
     SPECIAL: 1.10,
     UPGRADE: 1.00
   },

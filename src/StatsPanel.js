@@ -11,6 +11,7 @@ class StatsPanel extends Component {
     const greenBlocks = this.props.greenBlocks
     const score = this.props.score
     const scorePerSecond = this.props.scorePerSecond
+    const selectedClass = this.props.selectedClass
     const toxicity = this.props.toxicity
     const toxicityLimit = this.props.toxicityLimit
 
@@ -21,6 +22,9 @@ class StatsPanel extends Component {
         <Panel>
           <p>Stats</p>
           <Row>
+            <Col xs={6} sm={4}>
+              <TitleStat title={'Class'} stat={selectedClass} />
+            </Col>
             <Col xs={6} sm={4}>
               <TitleStat title={'Clicks'} stat={clicks} />
             </Col> 

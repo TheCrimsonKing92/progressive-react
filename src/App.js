@@ -42,20 +42,20 @@ class App extends Component {
     let base = 1
 
     if (this.upgradePurchased('Helping Hand')) {
-      base++
+      base += Constants.POWER.HELPING_HAND
     }
 
     if (this.upgradePurchased('Helping Handsier')) {
-      base += 2
+      base += Constants.POWER.HELPING_HANDSIER
     }
 
     if (this.upgradePurchased('Helping Handsiest')) {
-      base += 6
+      base += Constants.POWER.HELPING_HANDSIEST
     }
     
     if (this.towerPurchased('Click Tower')) {
       base += this.state.stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
-      base += this.getPositiveHelperOutput() * Constants.CLICK_TOWER.HELPER_RATE
+      base += this.getClickTowerBonus()
     }
 
     if (this.upgradePurchased('Click Efficiency')) {
@@ -273,6 +273,9 @@ class App extends Component {
 
     return [blueTotal, blue, greenTotal, green]
   }
+  getClickTowerBonus() {
+    return this.getPositiveHelperOutput() * Constants.CLICK_TOWER.HELPER_RATE
+  }
   getConsumption(store = this.state.store, stats = this.state.stats) {
     return this.calculateScore(this.getHelper('Consumer', store), store, stats)
   }
@@ -384,8 +387,9 @@ class App extends Component {
   }
   mapCurrentPrice(buyable) {
     let basePrice = buyable.price
+    const thief = this.isClass(Constants.CLASSES.THIEF)
     
-    if (this.isClass(Constants.CLASSES.THIEF)) {
+    if (thief) {
       basePrice *= 0.9
     }
     
@@ -393,7 +397,8 @@ class App extends Component {
       basePrice *= 0.9
     }
 
-    return Math.floor(basePrice * Math.pow(buyable.priceGrowth, buyable.purchased))
+    const growth = thief ? Constants.PRICE_GROWTH.HELPER_THIEF : buyable.priceGrowth
+    return Math.floor(basePrice * Math.pow(growth, buyable.purchased))
   }
   mapGameState(state) {
     return JSON.stringify(state)
@@ -462,8 +467,7 @@ class App extends Component {
     return preReqs.map(p => this.preReqFulfilled(p, stats, store)).reduce((a, v) => a && v, true)
   }
   purchase(buyable) {
-    let price = Math.floor(buyable.price * Math.pow(buyable.priceGrowth, buyable.purchased))
-    price = this.towerPurchased('Cost Tower') ? price * 0.9 : price
+    const price = buyable.currentPrice
     
     let statsSplice
 
@@ -712,6 +716,7 @@ class App extends Component {
     const greenBlocks = stats.blocks.green
     const score = Math.floor(stats.score).toLocaleString()
     const scorePerSecond = this.getScorePerSecond().toLocaleString()
+    const selectedClass = stats.selectedClass
     const toxicity = stats.toxicity
     const toxicityLimit = stats.toxicityLimit
     const upgradeHandling = options.upgradeHandling
@@ -745,6 +750,7 @@ class App extends Component {
                     greenBlocks={greenBlocks}
                     score={score}
                     scorePerSecond={scorePerSecond}
+                    selectedClass={selectedClass}
                     toxicity={toxicity}
                     toxicityLimit={toxicityLimit} />
                 </Col>
