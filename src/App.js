@@ -203,7 +203,10 @@ class App extends Component {
       totalBlue += blueBuilt
     }
 
-    return [totalGreen, totalBlue]
+    let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
+    [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatusesOffline(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
+
+    return [greenBlocks, blueBlocks]
   }
   efficientOperations() {
     let counter = 0
@@ -260,6 +263,26 @@ class App extends Component {
     let greenTotal = greenBuilt + this.state.stats.blocks.greenFragments
     let blue = 0
     let blueTotal = blueBuilt + this.state.stats.blocks.blueFragments
+
+    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
+
+    while (greenTotal > limit) {
+      greenTotal -= limit
+      green++
+    }
+
+    while (blueTotal > limit) {
+      blueTotal -= limit
+      blue++
+    }
+
+    return [blueTotal, blue, greenTotal, green]
+  }
+  getBlockStatusesOffline(greenBuilt, blueBuilt, builder) {
+    let green = 0
+    let greenTotal = greenBuilt
+    let blue = 0
+    let blueTotal = blueBuilt
 
     const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
 
@@ -424,16 +447,16 @@ class App extends Component {
 
     stats.score = stats.score + score
   
-    let offlineMessage = `While offline for ${diff} seconds, you earned ${score} score!`
+    let offlineMessage = `While offline for ${diff.toLocaleString()} seconds, you earned ${score.toLocaleString()} score!`
 
     if (blueBlocks > 0) {
       stats.blocks.blue += blueBlocks
-      offlineMessage += `\nDuring that time your consumers produced ${blueBlocks} blue blocks!`
+      offlineMessage += `\nDuring that time your consumers produced ${blueBlocks.toLocaleString()} blue blocks!`
     }
 
     if (greenBlocks > 0) {
       stats.blocks.green += greenBlocks
-      offlineMessage += `\nDuring that time your consumers produce ${greenBlocks} green blocks!`
+      offlineMessage += `\nDuring that time your consumers produce ${greenBlocks.toLocaleString()} green blocks!`
     }
 
     alert(offlineMessage)
@@ -718,7 +741,7 @@ class App extends Component {
     const autosave = options.autosaveFrequency
     const blueBlocks = stats.blocks.blue
     const clicks = stats.clicks
-    const clickScore = this.calculateClickScore()
+    const clickScore = Math.floor(this.calculateClickScore()).toLocaleString()
     const greenBlocks = stats.blocks.green
     const score = Math.floor(stats.score).toLocaleString()
     const scorePerSecond = this.getScorePerSecond().toLocaleString()
