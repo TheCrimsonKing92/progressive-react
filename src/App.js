@@ -67,6 +67,10 @@ class App extends Component {
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
     const name = helper.name
     let base = helper.power
+    if (this.towerPurchased('Power Tower', store)) {
+      const greater = Math.max(Math.floor(base * 1.1), 1)
+      base += greater
+    }
     let total = 0
     const basic = h => h.power * h.purchased
 
@@ -139,7 +143,7 @@ class App extends Component {
       return total
     } else if (name === 'Cloner') {
       if (this.upgradePurchased('Efficient Operations', store)) {
-        base += this.state.stats.efficientOperations
+        base += stats.efficientOperations
       }
 
       total = base * helper.purchased
@@ -150,7 +154,16 @@ class App extends Component {
 
       return total
     } else if (name === 'Djinn') {
-      return basic(helper)
+      total = base * helper.purchased
+      
+      if (this.upgradePurchased('Audible Motiviation', store)) {
+        const audibleBase = 1.00
+        const factor = .02
+
+        total *= audibleBase + (factor * this.getHelper('AutoClicker', store).purchased)
+      }
+
+      return total
     } else if (name === 'Consumer') {
       return helper.purchased === 0 ? 0 : (-1 * Math.pow(2, helper.purchased - 1))
     } else {
@@ -410,7 +423,15 @@ class App extends Component {
   isClass(c, stats = this.state.stats) {
     return stats.selectedClass === c.name
   }
+  mapBlockPurchasePrice(buyable) {
+    return buyable.price + buyable.purchased
+  }
   mapCurrentPrice(buyable) {
+    if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
+      if (buyable.name === 'Blue Block' || buyable.name === 'Green Block') {
+        return this.mapBlockPurchasePrice(buyable)
+      }
+    }
     let basePrice = buyable.price
     let growth = buyable.priceGrowth
 
@@ -647,8 +668,8 @@ class App extends Component {
       }
     })
   }
-  towerPurchased(tower) {
-    const found = this.getTower(tower)
+  towerPurchased(tower, store = this.state.store) {
+    const found = this.getTower(tower, store)
     
     return !found ? false : found.purchased > 0
   }

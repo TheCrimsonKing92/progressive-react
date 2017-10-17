@@ -1,9 +1,15 @@
 export default {
   AUTOSAVE_FREQUENCIES: [5, 15, 30, 60],
   BLOCK_FRAGMENT_LIMIT: 100,
-  BLOCK_FRAGMENT_LIMIT_BUILDER: 75,
+  BLOCK_FRAGMENT_LIMIT_BUILDER: 65,
   BLOCK_GENERATION_BLUE_RATE: 0.76,
   BLOCK_GENERATION_FAILURE_RATE: 0.02,
+  BUYABLE_TYPE: {
+    HELPER: 'helper',
+    SPECIAL: 'special',
+    TOWER: 'tower',
+    UPGRADE: 'upgrade'
+  },
   CLASSES: {
     BUILDER: {
       name: 'Builder',
