@@ -17,6 +17,8 @@ class App extends Component {
     this.state = this.getGame();
 
     this.buttonClicked = this.buttonClicked.bind(this)
+    this.cheat = this.cheat.bind(this)
+    window.cheat = this.cheat
     this.consume = this.consume.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
@@ -28,6 +30,33 @@ class App extends Component {
     this.tick = this.tick.bind(this)
     this.toggleAutosave = this.toggleAutosave.bind(this)
     this.toggleUpgradeHandling = this.toggleUpgradeHandling.bind(this)
+  }
+  awakening() {
+    const current = this.state.stats.awakening
+    if (current >= Constants.AWAKENING_POWER_LIMIT) {
+      console.log(`Already at awakening power limit of ${Constants.AWAKENING_POWER_LIMIT}`)
+      return
+    }
+
+    const tick = this.state.stats.awakeningTick
+    if (tick < Constants.AWAKENING_POWER_TICKS) {
+      this.setState({
+        stats: {
+          ...this.state.stats,
+          awakeningTick: tick + 1
+        }
+      })
+      return
+    }
+
+    console.log(`Awakening factor: ${this.state.stats.awakening}`)
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        awakening: current + Constants.AWAKENING_POWER_GROWTH,
+        awakeningTick: 0
+      }
+    })
   }
   buttonClicked() {
     this.setState({
@@ -96,11 +125,11 @@ class App extends Component {
         total *= 2
       }
 
-      if (this.upgradePurchased('Audible Motiviation', store)) {
+      if (this.upgradePurchased('Audible Motivation', store)) {
         const audibleBase = 1.00
-        const factor = .01
+        const factor = .01 * this.getHelper('Djinn', store).purchased
 
-        total *= audibleBase + (factor * this.getHelper('Djinn', store).purchased)
+        total = Math.floor(total * (audibleBase + factor))
       }
       return total
     } else if (name === 'Hammer') {
@@ -154,13 +183,24 @@ class App extends Component {
 
       return total
     } else if (name === 'Djinn') {
-      total = base * helper.purchased
-      
-      if (this.upgradePurchased('Audible Motiviation', store)) {
-        const audibleBase = 1.00
-        const factor = .02
+      if (this.upgradePurchased('The Awakening', store)) {
+        base *= 0.75
+      }
 
-        total *= audibleBase + (factor * this.getHelper('AutoClicker', store).purchased)
+      total = base * helper.purchased
+
+      if (this.upgradePurchased('The Awakening', store)) {
+        const awakeningBase = 1.00
+        const factor = Constants.AWAKENING_POWER_SCALE * stats.awakening
+
+        total = Math.floor(total * (awakeningBase + factor))
+      }
+      
+      if (this.upgradePurchased('Audible Motivation', store)) {
+        const audibleBase = 1.00
+        const factor = .02 * this.getHelper('AutoClicker', store).purchased
+
+        total = Math.floor(total * (audibleBase + factor))
       }
 
       return total
@@ -169,6 +209,14 @@ class App extends Component {
     } else {
       return 0
     }
+  }
+  cheat() {
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        score: this.state.stats.score * 1000000
+      }
+    })
   }
   componentDidMount() {
     this.autoSave = window.setInterval(this.saveGame, 5000)
@@ -332,6 +380,8 @@ class App extends Component {
   }
   getDefaultStats() {
     return {
+      awakening: 0,
+      awakeningTick: 0,
       blocks: {
         blue: 0,
         blueFragments: 0,
@@ -340,7 +390,6 @@ class App extends Component {
       },
       clicks: 0,
       efficientOperations: 0,
-      gatheringPower: 0,
       lastTime: new Date(),
       selectedClass: null,
       score: 0,
@@ -646,6 +695,9 @@ class App extends Component {
     if (this.upgradePurchased('Efficient Operations')) {
       this.efficientOperations()
     }
+    if (this.upgradePurchased('The Awakening')) {
+      this.awakening()
+    }
     this.saveTick()
   }
   toggleAutosave() {
@@ -764,6 +816,7 @@ class App extends Component {
     const clicks = stats.clicks
     const clickScore = Math.floor(this.calculateClickScore()).toLocaleString()
     const greenBlocks = stats.blocks.green
+    const justClasses = Object.values(Constants.CLASSES)
     const score = Math.floor(stats.score).toLocaleString()
     const scorePerSecond = this.getScorePerSecond().toLocaleString()
     const selectedClass = stats.selectedClass
@@ -808,7 +861,7 @@ class App extends Component {
                   <StorePanel onPurchase={this.handleStorePurchase} store={store} upgradeHandling={upgradeHandling}/>
                 </Col>
               </Row>
-            ) : <ClassPicker classes={Object.values(Constants.CLASSES)} onClassClick={this.onClassClick}/>
+            ) : <ClassPicker classes={justClasses} onClassClick={this.onClassClick}/>
           }
           
         </Grid>
