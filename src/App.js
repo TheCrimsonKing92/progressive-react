@@ -741,7 +741,7 @@ class App extends Component {
         if (buyable.type === 'helper') {
           buyable = {
             ...buyable,
-            sps: this.calculateScore(buyable)
+            sps: this.calculateScore(buyable).toLocaleString()
           }
         }
 
