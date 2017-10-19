@@ -93,6 +93,9 @@ const upgrades = {
   'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
   ]),
+  'Aria Hammera': upgrade('Aria Hammera', '+1 Hammer power per 15 Hammers', 600000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 15)
+  ]),
   'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 10)
   ]),

@@ -129,6 +129,9 @@ class App extends Component {
       }
       return total
     } else if (name === 'Hammer') {
+      if (this.upgradePurchased('Aria Hammera', store)) {
+        base += (helper.purchased / 15)
+      }
       if (this.upgradePurchased('Heavier Hammers', store)) {
         base *= 2
       }
