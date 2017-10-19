@@ -510,7 +510,7 @@ class App extends Component {
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(state))
     this.setState(state)
   }
-  offlineProgress(stats, store) {
+  offlineProgress(stats = this.state.stats, store = this.state.store) {
     if (stats.selectedClass === null) return
     if (this.helpersBought(store) === 0) return
     const diff = this.getSecondsSinceLoad(stats.lastTime)
@@ -683,6 +683,8 @@ class App extends Component {
     }
   }
   tick() {
+    this.offlineProgress()
+
     this.setState({
       stats: {
         ...this.state.stats,
