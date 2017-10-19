@@ -72,7 +72,7 @@ export default {
     }
   },
   PRICE_GROWTH: {
-    HELPER: 1.07,
+    HELPER: 1.08,
     HELPER_THIEF: 1.06,
     SPECIAL: 1.10,
     UPGRADE: 1.00

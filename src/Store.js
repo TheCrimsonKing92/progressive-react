@@ -37,7 +37,7 @@ const helper = (
 const helpers = {
   'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 100),
   'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, Constants.PRICE_GROWTH.HELPER, 5, 2),
-  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, Constants.PRICE_GROWTH.HELPER, 12, 5),
+  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, Constants.PRICE_GROWTH.HELPER, 14, 5),
   'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, Constants.PRICE_GROWTH.HELPER, 40, 18),
   'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, Constants.PRICE_GROWTH.HELPER, 100, 60),
   'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, Constants.PRICE_GROWTH.HELPER, 350, 100),
@@ -80,7 +80,7 @@ const upgrades = {
   'Helping Handsiest': upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500)
   ]),
-  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+12 power per Hammer and Robot pair', 9000, [
+  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
   ]),

@@ -147,7 +147,7 @@ class App extends Component {
       total = base * helper.purchased
 
       if (this.upgradePurchased('Cybernetic Synergy', store)) {
-        let power = 7
+        let power = 9
         if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
         const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
         total += (power * bound)
@@ -201,7 +201,18 @@ class App extends Component {
 
       return total
     } else if (name === 'Consumer') {
-      return helper.purchased === 0 ? 0 : (-1 * Math.pow(2, helper.purchased - 1))
+      if (helper.purchased === 0) return 0
+
+      let base = -1 * Math.pow(2, helper.purchased - 1)
+      const tamers = this.getSpecial('Tamer', store).purchased
+
+      if (tamers === 0) return base
+
+      for (let count = 0; count < tamers; count++) {
+        base *= 0.95
+      }
+
+      return Math.ceil(base)
     } else {
       return 0
     }
@@ -210,6 +221,11 @@ class App extends Component {
     this.setState({
       stats: {
         ...this.state.stats,
+        blocks: {
+          ...this.state.stats.blocks,
+          blue: this.state.stats.blocks.blue * 1000000,
+          green: this.state.stats.blocks.green * 1000000
+        },
         score: this.state.stats.score * 1000000
       }
     })
@@ -435,7 +451,7 @@ class App extends Component {
     let description = buyable.description
 
     if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Cybernetic Synergy') {
-      description = description.replace('+12', '+24').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`)
+      description = description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`)
     } else if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Efficient Operations') {
       description = description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
     }
