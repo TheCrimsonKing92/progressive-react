@@ -469,6 +469,9 @@ class App extends Component {
 
     this.purchase(buyable)
   }
+  helpersBought(store) {
+    return Object.values(store.helpers).reduce((a, v) => a + v.purchased, 0)
+  }
   isClass(c, stats = this.state.stats) {
     return stats.selectedClass === c.name
   }
@@ -507,7 +510,9 @@ class App extends Component {
     localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(state))
     this.setState(state)
   }
-  offlineProgress(stats, store) {    
+  offlineProgress(stats, store) {
+    if (stats.selectedClass === null) return
+    if (this.helpersBought(store) === 0) return
     const diff = this.getSecondsSinceLoad(stats.lastTime)
     
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
