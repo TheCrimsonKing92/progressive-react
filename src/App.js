@@ -546,6 +546,8 @@ class App extends Component {
       offlineMessage += `\nDuring that time your consumers produce ${greenBlocks.toLocaleString()} green blocks!`
     }
 
+    stats.lastTime = new Date()
+
     alert(offlineMessage)
   }
   onClassClick(name) {
