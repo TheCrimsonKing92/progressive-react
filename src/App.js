@@ -756,8 +756,6 @@ class App extends Component {
     const stats = previous.stats    
     const store = previous.store
 
-    this.offlineProgress(stats, store)
-
     const defaultStats = this.getDefaultStats()
 
     for (let stat in defaultStats) {
@@ -781,6 +779,8 @@ class App extends Component {
     for (let prop in store.upgrades) {
       store.upgrades[prop].buyable = this.evaluateBuyable(store.upgrades[prop], stats, store)
     }
+    
+    this.offlineProgress(stats, store)
 
     return {
       options: options,
