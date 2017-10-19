@@ -33,10 +33,7 @@ class App extends Component {
   }
   awakening() {
     const current = this.state.stats.awakening
-    if (current >= Constants.AWAKENING_POWER_LIMIT) {
-      console.log(`Already at awakening power limit of ${Constants.AWAKENING_POWER_LIMIT}`)
-      return
-    }
+    if (current >= Constants.AWAKENING_POWER_LIMIT) return
 
     const tick = this.state.stats.awakeningTick
     if (tick < Constants.AWAKENING_POWER_TICKS) {
@@ -49,7 +46,6 @@ class App extends Component {
       return
     }
 
-    console.log(`Awakening factor: ${this.state.stats.awakening}`)
     this.setState({
       stats: {
         ...this.state.stats,
@@ -537,7 +533,6 @@ class App extends Component {
     alert(offlineMessage)
   }
   onClassClick(name) {
-    console.log(`Selected class ${name}`)
     this.setState({
       stats: {
         ...this.state.stats,
@@ -546,25 +541,17 @@ class App extends Component {
     })
   }
   preReqFulfilled(preReq, stats = this.state.stats, store = this.state.store) {
-    const type = preReq.type
-
-    if (type === Constants.PREREQ.HELPER.NUMBER) {
-      return this.getHelper(preReq.target, store).purchased >= preReq.value
-    } else if (type === Constants.PREREQ.HELPER.PURCHASED) {
-      return this.getHelper(preReq.target, store).purchased > 0
-    } else if (type === Constants.PREREQ.CLICKS.NUMBER) {
-      return stats.clicks >= preReq.value
-    } else if (type === Constants.PREREQ.SPECIAL.NUMBER) {
-      return this.getSpecial(preReq.target, store).purchased >= preReq.value
-    } else if (type === Constants.PREREQ.SPECIAL.PURCHASED) {
-      return this.getSpecial(preReq.target, store).purchased > 0
-    } else if (type === Constants.PREREQ.TOWER.PURCHASED) {
-      return this.getTower(preReq.target, store).purchased > 0
-    } else if (type === Constants.PREREQ.UPGRADE.PURCHASED) {
-      return this.getUpgrade(preReq.target, store).purchased > 0
-    } else {
-      console.warn(`Unknown preReq type ${type}`)
-      return false
+    switch (preReq.type) {
+      case Constants.PREREQ.HELPER.NUMBER: return this.getHelper(preReq.target, store).purchased >= preReq.value
+      case Constants.PREREQ.HELPER.PURCHASED: return this.getHelper(preReq.target, store).purchased > 0
+      case Constants.PREREQ.CLICKS.NUMBER: return stats.clicks > preReq.value
+      case Constants.PREREQ.SPECIAL.NUMBER: return this.getSpecial(preReq.target, store).purchased >= preReq.value
+      case Constants.PREREQ.SPECIAL.PURCHASED: return this.getSpecial(preReq.target, store).purchased > 0
+      case Constants.PREREQ.TOWER.PURCHASED: return this.getTower(preReq.target, store).purchased > 0
+      case Constants.PREREQ.UPGRADE.PURCHASED: return this.getUpgrade(preReq.target, store).purchased > 0
+      default:
+        console.warn(`Unknown preReq type ${preReq.type}`)
+        return false
     }
   }
   preReqsFulfilled(preReqs, stats, store) {
@@ -786,7 +773,6 @@ class App extends Component {
     return !found ? false : found.purchased > 0
   }
   render() {
-    // console.log(`State: ${JSON.stringify(this.state)}`)
     const options = this.state.options
     const stats = this.state.stats
     let store = this.state.store
