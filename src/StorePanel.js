@@ -27,6 +27,7 @@ class StorePanel extends Component {
 		}
 
 		const isBuyable = b => b.buyable
+		const isOneTimeBuyable = b => b.buyable || (!b.buyable && b.purchased > 0)
 		const mapBuyable = buyable => (
 			<Buyable 
 				buyable={buyable} 
@@ -36,13 +37,16 @@ class StorePanel extends Component {
 				upgradePurchased={upgradePurchased}/>
 		)
 
+
 		const helpers = Object.values(store.helpers).map(idMap)
 		const helperElements = helpers.map(mapBuyable)
 
-		const upgrades = this.props.upgradeHandling ? Object.values(store.upgrades).filter(u => u.buyable || !u.buyable && u.purchased > 0).map(idMap) : Object.values(store.upgrades).filter(u => u.buyable).map(idMap)
+		const upgrades = this.props.upgradeHandling ? Object.values(store.upgrades).filter(isOneTimeBuyable).map(idMap)
+																								: Object.values(store.upgrades).filter(isBuyable).map(idMap)
 		const upgradeElements = upgrades.map(mapBuyable)
 
-		const towers = Object.values(store.towers).filter(isBuyable).map(idMap)
+		const towers = this.props.purchaseHandling ? Object.values(store.towers).filter(isOneTimeBuyable).map(idMap) 
+																							 : Object.values(store.towers).filter(isBuyable).map(idMap)
 		const towerElements = towers.map(mapBuyable)
 
 		const specials = Object.values(store.specials).filter(isBuyable).map(idMap)
@@ -52,13 +56,10 @@ class StorePanel extends Component {
 			<div className="StorePanel">
 				<Panel>
 					<p>The Store</p>
-					{
-						helpers.some(h => h.buyable) &&
-						<Row>
-							<p>Helpers</p>
-							{helperElements}
-						</Row>
-					}
+					<Row>
+						<p>Helpers</p>
+						{helperElements}
+					</Row>
 					{(this.props.upgradeHandling || upgrades.some(u => u.buyable)) &&
 					<Row>
 						<p>Upgrades</p>

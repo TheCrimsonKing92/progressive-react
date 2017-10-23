@@ -16,8 +16,9 @@ class Buyable extends Component {
   }
   render() {
     const className = this.props.buyable.name.replace(' ', '-').toLowerCase()
+    const isFadeable = type => (type === 'tower' || type === 'upgrade')
     
-    const fade = this.props.buyable.type === 'upgrade' && this.props.fade && !this.props.buyable.buyable ? ' faded' : ''
+    const fade = isFadeable(this.props.buyable.type) && this.props.fade && !this.props.buyable.buyable ? ' faded' : ''
 
     return (
       <div data-tip data-for={`buyable${className}`} key={this.props.buyable.id} className={`buyable ${className}${fade}`} style={{ 'userSelect': "none"}} onClick={() => this.handlePurchase(this.props.buyable)}>

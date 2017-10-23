@@ -29,7 +29,7 @@ class App extends Component {
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
     this.toggleAutosave = this.toggleAutosave.bind(this)
-    this.toggleUpgradeHandling = this.toggleUpgradeHandling.bind(this)
+    this.togglePurchaseHandling = this.togglePurchaseHandling.bind(this)
   }
   awakening() {
     const current = this.state.stats.awakening
@@ -145,7 +145,7 @@ class App extends Component {
         total += (power * bound)
       }
 
-      return total
+      return Math.floor(total)
     } else if (name === 'Robot') {
       total = base * helper.purchased
 
@@ -390,6 +390,7 @@ class App extends Component {
   getDefaultOptions() {
     return {
       autosaveFrequency: 5,
+      purchaseHandling: true,
       upgradeHandling: true
     }
   }
@@ -727,18 +728,18 @@ class App extends Component {
       }
     })
   }
-  toggleUpgradeHandling() {
-    this.setState({
-      options: {
-        ...this.state.options,
-        upgradeHandling: !this.state.options.upgradeHandling
-      }
-    })
-  }
   towerPurchased(tower, store = this.state.store) {
     const found = this.getTower(tower, store)
     
     return !found ? false : found.purchased > 0
+  }
+  togglePurchaseHandling() {
+    this.setState({
+      options: {
+        ...this.state.options,
+        purchaseHandling: !this.state.options.purchaseHandling
+      }
+    })
   }
   unlockBuyables(type) {
     const copy = Object.assign({}, this.state.store[type + 's'])
@@ -831,15 +832,15 @@ class App extends Component {
     const clickScore = Math.floor(this.calculateClickScore()).toLocaleString()
     const greenBlocks = stats.blocks.green
     const justClasses = Object.values(Constants.CLASSES)
+    const purchaseHandling = options.purchaseHandling
     const score = Math.floor(stats.score).toLocaleString()
     const scorePerSecond = this.getScorePerSecond().toLocaleString()
     const selectedClass = stats.selectedClass
     const toxicity = stats.toxicity
     const toxicityLimit = stats.toxicityLimit
-    const upgradeHandling = options.upgradeHandling
 
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
-    const upgradeText = `Purchased Upgrades ${upgradeHandling ? 'Fade' : 'Disappear'}`
+    const purchaseText = `One-Time Buyables ${purchaseHandling ? 'Fade' : 'Disappear'}`
 
     return (
       <div className="App">
@@ -851,7 +852,7 @@ class App extends Component {
               <NavItem eventKey={3} href="#" onClick={this.handleExportSave}>Export Save</NavItem>
               <NavItem eventKey={4} href="#" onClick={this.handleImportSave}>Import Save</NavItem>
               <NavItem eventKey={5} href="#" onClick={this.toggleAutosave}>{autosaveText}</NavItem>
-              <NavItem eventKey={6} href="#" onClick={this.toggleUpgradeHandling}>{upgradeText}</NavItem>
+              <NavItem eventKey={6} href="#" onClick={this.togglePurchaseHandling}>{purchaseText}</NavItem>
             </GameNav>
           </Row>
           { this.state.stats.selectedClass !== null ? (
@@ -872,7 +873,7 @@ class App extends Component {
                     toxicityLimit={toxicityLimit} />
                 </Col>
                 <Col xs={12} md={4}>
-                  <StorePanel onPurchase={this.handleStorePurchase} store={store} upgradeHandling={upgradeHandling}/>
+                  <StorePanel onPurchase={this.handleStorePurchase} purchaseHandling={purchaseHandling} store={store} />
                 </Col>
               </Row>
             ) : <ClassPicker classes={justClasses} onClassClick={this.onClassClick}/>
