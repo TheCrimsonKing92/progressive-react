@@ -280,8 +280,7 @@ class App extends Component {
       totalBlue += blueBuilt
     }
 
-    let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
-    [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatusesOffline(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
+    let [blueBlocks, greenBlocks] = this.getBlockStatusesOffline(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
 
     return [greenBlocks, blueBlocks]
   }
@@ -373,7 +372,7 @@ class App extends Component {
       blue++
     }
 
-    return [blueTotal, blue, greenTotal, green]
+    return [blue, green]
   }
   getClickTowerBonus() {
     return this.getPositiveHelperOutput() * Constants.CLICK_TOWER.HELPER_RATE
