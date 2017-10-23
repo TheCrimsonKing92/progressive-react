@@ -243,29 +243,30 @@ class App extends Component {
   }
   consume(stats = this.state.stats) {
     const consumption = this.getConsumption()
-    if (consumption !== 0) {
-      const consumers = this.getHelper('Consumer').purchased
 
-      const builder = this.isClass(Constants.CLASSES.BUILDER, stats)
-      let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
+    if (consumption === 0) return
+    
+    const consumers = this.getHelper('Consumer').purchased
+    
+    const builder = this.isClass(Constants.CLASSES.BUILDER, stats)
+    let greenBuilt, blueBuilt
+    [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
 
-      let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
-      [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt)
+    let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
+    [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt)
 
-      this.setState({
-        stats: {
-          ...this.state.stats,
-          blocks: {
-            blue: this.state.stats.blocks.blue + blueBlocks,
-            blueFragments: blueBlockFragments,
-            green: this.state.stats.blocks.green + greenBlocks,
-            greenFragments: greenBlockFragments
-          },
-          score: this.state.stats.score + consumption
-        }
-      })
-    }
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        blocks: {
+          blue: this.state.stats.blocks.blue + blueBlocks,
+          blueFragments: blueBlockFragments,
+          green: this.state.stats.blocks.green + greenBlocks,
+          greenFragments: greenBlockFragments
+        },
+        score: this.state.stats.score + consumption
+      }
+    })
   }
   consumeOffline(seconds, store, stats) {
     const consumers = this.getHelper('Consumer', store).purchased
