@@ -206,16 +206,13 @@ class App extends Component {
     } else if (name === 'Consumer') {
       if (helper.purchased === 0) return 0
 
-      let base = -1 * Math.pow(2, helper.purchased - 1)
+
+      const initial = base * Math.pow(1.5, helper.purchased - 1)
       const tamers = this.getSpecial('Tamer', store).purchased
 
-      if (tamers === 0) return base
+      if (tamers === 0) return Math.ceil(initial)
 
-      for (let count = 0; count < tamers; count++) {
-        base *= 0.95
-      }
-
-      return Math.ceil(base)
+      return Math.ceil(initial * Math.pow(0.95, tamers))
     } else {
       return 0
     }

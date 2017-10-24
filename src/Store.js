@@ -41,7 +41,7 @@ const helpers = {
   'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, Constants.PRICE_GROWTH.HELPER, 40, 18),
   'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, Constants.PRICE_GROWTH.HELPER, 100, 60),
   'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, Constants.PRICE_GROWTH.HELPER, 350, 100),
-  'Consumer': helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, Constants.PRICE_GROWTH.HELPER, -1, 0)
+  'Consumer': helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, Constants.PRICE_GROWTH.HELPER, -5, 0)
 }
 
 const preReq = (
@@ -157,7 +157,7 @@ const specials = {
     ]),
     currency: Constants.CURRENCY.BLOCK.BLUE
   },
-  'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%</br>One per consumer owned', 150, Constants.PRICE_GROWTH.SPECIAL, [
+  'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%', 150, Constants.PRICE_GROWTH.SPECIAL, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ]),
   'Toxic Capacity': special('Toxic Capacity', 'Increases maximum toxicity by 5', 300, Constants.PRICE_GROWTH.SPECIAL, [
