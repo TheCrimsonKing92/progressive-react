@@ -827,10 +827,10 @@ class App extends Component {
     }
 
     const autosave = options.autosaveFrequency
-    const blueBlocks = stats.blocks.blue
-    const clicks = stats.clicks
+    const blueBlocks = stats.blocks.blue.toLocaleString()
+    const clicks = stats.clicks.toLocaleString()
     const clickScore = Math.floor(this.calculateClickScore()).toLocaleString()
-    const greenBlocks = stats.blocks.green
+    const greenBlocks = stats.blocks.green.toLocaleString()
     const justClasses = Object.values(Constants.CLASSES)
     const purchaseHandling = options.purchaseHandling
     const score = Math.floor(stats.score).toLocaleString()
