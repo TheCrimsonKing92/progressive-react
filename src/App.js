@@ -238,7 +238,7 @@ class App extends Component {
     window.clearInterval(this.autoSave)
     window.clearInterval(this.gameTick)
   }
-  consume(stats = this.state.stats) {
+  consume(stats = this.state.stats, store = this.state.store) {
     const consumption = this.getConsumption()
 
     if (consumption === 0) return
@@ -246,7 +246,7 @@ class App extends Component {
     const consumers = this.getHelper('Consumer').purchased
     
     let greenBuilt, blueBuilt
-    [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
+    [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
 
     let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
     [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt, this.isClass(Constants.CLASSES.BUILDER, stats))
@@ -271,7 +271,7 @@ class App extends Component {
 
     for (let i = 0; i < seconds; i++) {
       let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
+      [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
@@ -304,17 +304,17 @@ class App extends Component {
 
     return this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
-  getBlockFragmentsBuilt(consumers, stats = this.state.stats) {
+  getBlockFragmentsBuilt(consumers, stats = this.state.stats, store = this.state.store) {
     let blueBuilt = 0
     let greenBuilt = 0
-    let bonus = this.getSpecial('Better Building').purchased
+    let bonus = this.getSpecial('Better Building', store).purchased
 
     while (consumers > 0) {
       const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
         if (blue) {
           if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            blueBuilt += (2 + bonus)            
+            blueBuilt += (2 + bonus)          
           } else {
             blueBuilt += (1 + bonus)
           }
