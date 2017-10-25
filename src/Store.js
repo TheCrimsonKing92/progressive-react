@@ -142,7 +142,7 @@ const special = (
   priceGrowth = Constants.PRICE_GROWTH.SPECIAL,
   preReqs = null) =>
 ({
-  ...buyable(name, description, price, Constants.PRICE_GROWTH.SPECIAL, Constants.CURRENCY.BLOCK.GREEN, false, true),
+  ...buyable(name, description, price, priceGrowth, Constants.CURRENCY.BLOCK.GREEN, false, true),
   preReqs: preReqs,
   type: 'special'
 })
