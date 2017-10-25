@@ -245,12 +245,11 @@ class App extends Component {
     
     const consumers = this.getHelper('Consumer').purchased
     
-    const builder = this.isClass(Constants.CLASSES.BUILDER, stats)
     let greenBuilt, blueBuilt
     [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats)
 
     let blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks
-    [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt)
+    [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt, this.isClass(Constants.CLASSES.BUILDER, stats))
 
     this.setState({
       stats: {
@@ -308,21 +307,22 @@ class App extends Component {
   getBlockFragmentsBuilt(consumers, stats = this.state.stats) {
     let blueBuilt = 0
     let greenBuilt = 0
+    let bonus = this.getSpecial('Better Building').purchased
 
     while (consumers > 0) {
       const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
         if (blue) {
           if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            blueBuilt += 2
+            blueBuilt += (2 + bonus)            
           } else {
-            blueBuilt += 1
+            blueBuilt += (1 + bonus)
           }
         } else {
           if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            greenBuilt += 2
+            greenBuilt += (2 + bonus)
           } else {
-            greenBuilt += 1
+            greenBuilt += (1 + bonus)
           }
         }
       }

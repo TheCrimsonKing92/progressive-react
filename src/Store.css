@@ -14,6 +14,10 @@
     background-image: url('./AutoClickerBig.png')
 }
 
+.better-building {
+    background-color: magenta
+}
+
 .blue-block {
     background-image: url('./BlueBlockPurchase.png')
 }
