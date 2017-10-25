@@ -180,7 +180,7 @@ class App extends Component {
         total *= 1.4
       }
 
-      return total
+      return Math.floor(total)
     } else if (name === 'Djinn') {
       if (this.upgradePurchased('The Awakening', store)) {
         base *= 0.75
