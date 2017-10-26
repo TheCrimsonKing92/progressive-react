@@ -98,140 +98,18 @@ class App extends Component {
     return base
   }
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
-    const purchased = helper.purchased
-    if (purchased === 0) return 0
+    if (helper.purchased === 0) return 0
 
-    const name = helper.name
-    let base = helper.power
+    const getHelper = name => this.getHelper(name, store)
+    const getSpecial = name => this.getSpecial(name, store)
+    const isClass = name => this.isClass(name, stats)
+    const towerPurchased = name => this.towerPurchased(name, store)
+    const upgradePurchased = name => this.upgradePurchased(name, store)
 
-    if (this.towerPurchased('Power Tower', store)) {
-      const greater = Math.max(Math.floor(base * 1.1), 1)
-      base += greater
-    }
-    let total = 0
-
-    switch(name) {
-      case 'AutoClicker':
-        if (this.isClass(Constants.CLASSES.MASTER, stats)) {
-          base++
-        }
-        if (this.upgradePurchased('Helping Hand', store)) {
-          base++
-        }
-
-        if (this.upgradePurchased('Helping Handsier', store)) {
-          base += 2
-        }
-
-        if (this.upgradePurchased('Helping Handsiest', store)) {
-          base += 6
-        }
-
-        total = base * purchased
-
-        if (this.upgradePurchased('Click Efficiency', store)) {
-          total *= 2
-        }
-
-        if (this.upgradePurchased('Audible Motivation', store)) {
-          const audibleBase = 1.00
-          const factor = .01 * this.getHelper('Djinn', store).purchased
-
-          total *= (audibleBase + factor)
-        }
-
-        return Math.floor(total)
-
-      case 'Hammer':
-        if (this.upgradePurchased('Aria Hammera', store)) {
-          base += (helper.purchased / 15)
-        }
-        if (this.upgradePurchased('Heavier Hammers', store)) {
-          base *= 2
-        }
-
-        total = base * purchased
-
-        if (this.upgradePurchased('Cybernetic Synergy', store)) {
-          let power = 5
-          if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
-          const bound = Math.min(helper.purchased, this.getHelper('Robot', store).purchased)
-          total += (power * bound)
-        }
-
-        return Math.floor(total)
-      
-      case 'Robot':
-        total = base * purchased
-      
-        if (this.upgradePurchased('Cybernetic Synergy', store)) {
-          let power = 9
-          if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
-          const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
-          total += (power * bound)
-        }
-  
-        return Math.floor(total)
-
-      case 'Airplane':
-        total = base * purchased
-        
-        if (this.upgradePurchased('Extended Cargo', store)) {
-          total *= 1.25
-        }
-  
-        if (this.upgradePurchased('Buddy System', store)) {
-          total *= 2
-        }
-  
-        return Math.floor(total)
-
-      case 'Cloner':
-        if (this.upgradePurchased('Efficient Operations', store)) {
-          base += stats.efficientOperations
-        }
-
-        total = base * purchased
-
-        if (this.upgradePurchased('Cloner Overdrive', store)) {
-          total *= 1.4
-        }
-
-        return Math.floor(total)
-
-      case 'Djinn':
-        if (this.upgradePurchased('The Awakening', store)) {
-          base *= 0.75
-        }
-
-        total = base * purchased
-
-        if (this.upgradePurchased('The Awakening', store)) {
-          const awakeningBase = 1.00
-          const factor = Constants.AWAKENING_POWER_SCALE * stats.awakening
-
-          total *= (awakeningBase + factor)
-        }
-        
-        if (this.upgradePurchased('Audible Motivation', store)) {
-          const audibleBase = 1.00
-          const factor = .02 * this.getHelper('AutoClicker', store).purchased
-
-          total *= (audibleBase + factor)
-        }
-
-        return Math.floor(total)
-
-      case 'Consumer':
-        const initial = base * Math.pow(1.5, helper.purchased - 1)
-        const tamers = this.getSpecial('Tamer', store).purchased
-  
-        if (tamers === 0) return Math.ceil(initial)  
-        return Math.ceil(initial * Math.pow(0.95, tamers))
-
-      default:
-        console.warn(`Unknown helper ${name}`)
-        return 0
+    switch(helper.name) {      
+      case 'Cloner': return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, stats.efficientOperations)
+      case 'Djinn': return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, stats.awakening)
+      default : return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased)
     }
   }
   cheat() {

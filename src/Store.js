@@ -24,24 +24,198 @@ const helper = (
   name = 'Helper',
   description = 'A helper',
   price = 1,
-  priceGrowth = Constants.PRICE_GROWTH.HELPER,
   power = 1,
-  toxicity = 1) => 
+  formula) => 
 ({
-  ...buyable(name, description, price, priceGrowth, Constants.CURRENCY.SCORE, true, true),
+  ...buyable(name, description, price, Constants.PRICE_GROWTH.HELPER, Constants.CURRENCY.SCORE, true, true),
   power: power,
-  toxicity: toxicity,
-  type: 'helper'
+  type: 'helper',
+  formula: formula || function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) { return this.power * this.purchased }
 })
 
 const helpers = {
-  'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 100),
-  'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, Constants.PRICE_GROWTH.HELPER, 5, 2),
-  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, Constants.PRICE_GROWTH.HELPER, 14, 5),
-  'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, Constants.PRICE_GROWTH.HELPER, 40, 18),
-  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, Constants.PRICE_GROWTH.HELPER, 100, 60),
-  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, Constants.PRICE_GROWTH.HELPER, 350, 100),
-  'Consumer': helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, Constants.PRICE_GROWTH.HELPER, -5, 0)
+  'AutoClicker': {
+    ...helper('AutoClicker', 'Weakly clicks the button for you', 100),
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+      let base = this.power
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+
+      const purchased = this.purchased
+  
+      if (isClass(Constants.CLASSES.MASTER)) {
+        base++
+      }
+      if (upgradePurchased('Helping Hand')) {
+        base++
+      }
+  
+      if (upgradePurchased('Helping Handsier')) {
+        base += 2
+      }
+  
+      if (upgradePurchased('Helping Handsiest')) {
+        base += 6
+      }
+  
+      let total = base * purchased
+  
+      if (upgradePurchased('Click Efficiency')) {
+        total *= 2
+      }
+  
+      if (upgradePurchased('Audible Motivation')) {
+        const audibleBase = 1.00
+        const factor = .01 * getHelper('Djinn').purchased
+  
+        total *= (audibleBase + factor)
+      }
+  
+      return Math.floor(total)
+    }
+  },
+  'Hammer': {
+    ...helper('Hammer', 'Earns score by smashing the button', 500, 5),
+    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+      let base = this.power
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased
+      if (upgradePurchased('Aria Hammera')) {
+        base += (helper.purchased / 15)
+      }
+      if (upgradePurchased('Heavier Hammers')) {
+        base *= 2
+      }
+
+      let total = base * purchased
+
+      if (upgradePurchased('Cybernetic Synergy')) {
+        let power = 5
+        if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
+        const bound = Math.min(helper.purchased, this.getHelper('Robot').purchased)
+        total += (power * bound)
+      }
+
+      return Math.floor(total)
+    }
+  },
+  'Robot': {
+    ...helper('Robot', 'An AI optimizing score production routines', 1500, 14),
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+      let base = this.power
+      
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased
+      let total = base * purchased
+      
+        if (upgradePurchased('Cybernetic Synergy')) {
+          let power = 9
+          if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
+          const bound = Math.min(helper.purchased, getHelper('Hammer').purchased)
+          total += (power * bound)
+        }
+  
+        return Math.floor(total)
+    }
+  },
+  'Airplane': {
+    ...helper('Airplane', 'An allied airplane to drop score en masse', 20000, 40),
+    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+      let base = this.power      
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased
+      let total = base * purchased
+      
+      if (upgradePurchased('Extended Cargo')) {
+        total *= 1.25
+      }
+
+      if (upgradePurchased('Buddy System')) {
+        total *= 2
+      }
+
+      return Math.floor(total)
+    }
+  },
+  'Cloner': {
+    ...helper('Cloner', 'Creates score by cloning parts of the button', 100000, 100),
+    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, efficientOperations) {
+      let base = this.power      
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased
+      if (this.upgradePurchased('Efficient Operations')) {
+        base += efficientOperations
+      }
+
+      let total = base * purchased
+
+      if (this.upgradePurchased('Cloner Overdrive')) {
+        total *= 1.4
+      }
+
+      return Math.floor(total)
+    }
+  },
+  'Djinn': {
+    ...helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, 350),
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, awakening) {
+      let base = this.power      
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased    
+      if (upgradePurchased('The Awakening')) {
+        base *= 0.75
+      }
+
+      let total = base * purchased
+
+      if (upgradePurchased('The Awakening')) {
+        const awakeningBase = 1.00
+        const factor = Constants.AWAKENING_POWER_SCALE * awakening
+
+        total *= (awakeningBase + factor)
+      }
+      
+      if (upgradePurchased('Audible Motivation')) {
+        const audibleBase = 1.00
+        const factor = .02 * getHelper('AutoClicker').purchased
+
+        total *= (audibleBase + factor)
+      }
+
+      return Math.floor(total)
+    }
+  },
+  'Consumer': {
+    ...helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, -5),
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+      const initial = this.power * Math.pow(1.5, this.purchased - 1)
+      const tamers = getSpecial('Tamer').purchased
+
+      if (tamers === 0) return Math.ceil(initial)  
+      return Math.ceil(initial * Math.pow(0.95, tamers))
+    }
+  }
 }
 
 const preReq = (
