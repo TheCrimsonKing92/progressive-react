@@ -1,14 +1,19 @@
+// React dependencies
 import React, { Component } from 'react';
+import {Grid, Row, Col, NavItem} from 'react-bootstrap'
+// Misc dependencies
+import abbreviate from 'number-abbreviate'
+// Constants
+import Constants from './Constants'
+// Components
 import ButtonPanel from './ButtonPanel'
 import ClassPicker from './ClassPicker'
 import GameNav from './GameNav'
 import StatsPanel from './StatsPanel'
 import StorePanel from './StorePanel'
 import Store from './Store'
-import {Grid, Row, Col, NavItem} from 'react-bootstrap'
-import logo from './logo.svg';
+// CSS
 import './App.css';
-import Constants from './Constants'
 
 class App extends Component {
   constructor(props) {
@@ -30,6 +35,9 @@ class App extends Component {
     this.tick = this.tick.bind(this)
     this.toggleAutosave = this.toggleAutosave.bind(this)
     this.togglePurchaseHandling = this.togglePurchaseHandling.bind(this)
+  }
+  abbreviateNumber(value) {
+    return abbreviate(value, 2)
   }
   awakening() {
     const current = this.state.stats.awakening
@@ -90,131 +98,140 @@ class App extends Component {
     return base
   }
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
+    const purchased = helper.purchased
+    if (purchased === 0) return 0
+
     const name = helper.name
     let base = helper.power
+
     if (this.towerPurchased('Power Tower', store)) {
       const greater = Math.max(Math.floor(base * 1.1), 1)
       base += greater
     }
     let total = 0
-    const basic = h => h.power * h.purchased
 
-    if (name === 'AutoClicker') {
-      if (this.isClass(Constants.CLASSES.MASTER, stats)) {
-        base++
-      }
-      if (this.upgradePurchased('Helping Hand', store)) {
-        base++
-      }
+    switch(name) {
+      case 'AutoClicker':
+        if (this.isClass(Constants.CLASSES.MASTER, stats)) {
+          base++
+        }
+        if (this.upgradePurchased('Helping Hand', store)) {
+          base++
+        }
 
-      if (this.upgradePurchased('Helping Handsier', store)) {
-        base += 2
-      }
+        if (this.upgradePurchased('Helping Handsier', store)) {
+          base += 2
+        }
 
-      if (this.upgradePurchased('Helping Handsiest', store)) {
-        base += 6
-      }
+        if (this.upgradePurchased('Helping Handsiest', store)) {
+          base += 6
+        }
 
-      total = base * helper.purchased
+        total = base * purchased
 
-      if (this.upgradePurchased('Click Efficiency', store)) {
-        total *= 2
-      }
+        if (this.upgradePurchased('Click Efficiency', store)) {
+          total *= 2
+        }
 
-      if (this.upgradePurchased('Audible Motivation', store)) {
-        const audibleBase = 1.00
-        const factor = .01 * this.getHelper('Djinn', store).purchased
+        if (this.upgradePurchased('Audible Motivation', store)) {
+          const audibleBase = 1.00
+          const factor = .01 * this.getHelper('Djinn', store).purchased
 
-        total = Math.floor(total * (audibleBase + factor))
-      }
-      return total
-    } else if (name === 'Hammer') {
-      if (this.upgradePurchased('Aria Hammera', store)) {
-        base += (helper.purchased / 15)
-      }
-      if (this.upgradePurchased('Heavier Hammers', store)) {
-        base *= 2
-      }
+          total *= (audibleBase + factor)
+        }
 
-      total = base * helper.purchased
+        return Math.floor(total)
 
-      if (this.upgradePurchased('Cybernetic Synergy', store)) {
-        let power = 5
-        if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
-        const bound = Math.min(helper.purchased, this.getHelper('Robot', store).purchased)
-        total += (power * bound)
-      }
+      case 'Hammer':
+        if (this.upgradePurchased('Aria Hammera', store)) {
+          base += (helper.purchased / 15)
+        }
+        if (this.upgradePurchased('Heavier Hammers', store)) {
+          base *= 2
+        }
 
-      return Math.floor(total)
-    } else if (name === 'Robot') {
-      total = base * helper.purchased
+        total = base * purchased
 
-      if (this.upgradePurchased('Cybernetic Synergy', store)) {
-        let power = 9
-        if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
-        const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
-        total += (power * bound)
-      }
+        if (this.upgradePurchased('Cybernetic Synergy', store)) {
+          let power = 5
+          if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
+          const bound = Math.min(helper.purchased, this.getHelper('Robot', store).purchased)
+          total += (power * bound)
+        }
 
-      return total
-    } else if (name === 'Airplane') {
-      total = base * helper.purchased
-
-      if (this.upgradePurchased('Extended Cargo', store)) {
-        total *= 1.25
-      }
-
-      if (this.upgradePurchased('Buddy System', store)) {
-        total *= 2
-      }
-
-      return total
-    } else if (name === 'Cloner') {
-      if (this.upgradePurchased('Efficient Operations', store)) {
-        base += stats.efficientOperations
-      }
-
-      total = base * helper.purchased
-
-      if (this.upgradePurchased('Cloner Overdrive', store)) {
-        total *= 1.4
-      }
-
-      return Math.floor(total)
-    } else if (name === 'Djinn') {
-      if (this.upgradePurchased('The Awakening', store)) {
-        base *= 0.75
-      }
-
-      total = base * helper.purchased
-
-      if (this.upgradePurchased('The Awakening', store)) {
-        const awakeningBase = 1.00
-        const factor = Constants.AWAKENING_POWER_SCALE * stats.awakening
-
-        total = Math.floor(total * (awakeningBase + factor))
-      }
+        return Math.floor(total)
       
-      if (this.upgradePurchased('Audible Motivation', store)) {
-        const audibleBase = 1.00
-        const factor = .02 * this.getHelper('AutoClicker', store).purchased
+      case 'Robot':
+        total = base * purchased
+      
+        if (this.upgradePurchased('Cybernetic Synergy', store)) {
+          let power = 9
+          if (this.isClass(Constants.CLASSES.MECHANIC, stats)) power *= 2
+          const bound = Math.min(helper.purchased, this.getHelper('Hammer', store).purchased)
+          total += (power * bound)
+        }
+  
+        return Math.floor(total)
 
-        total = Math.floor(total * (audibleBase + factor))
-      }
+      case 'Airplane':
+        total = base * purchased
+        
+        if (this.upgradePurchased('Extended Cargo', store)) {
+          total *= 1.25
+        }
+  
+        if (this.upgradePurchased('Buddy System', store)) {
+          total *= 2
+        }
+  
+        return Math.floor(total)
 
-      return total
-    } else if (name === 'Consumer') {
-      if (helper.purchased === 0) return 0
+      case 'Cloner':
+        if (this.upgradePurchased('Efficient Operations', store)) {
+          base += stats.efficientOperations
+        }
 
+        total = base * purchased
 
-      const initial = base * Math.pow(1.5, helper.purchased - 1)
-      const tamers = this.getSpecial('Tamer', store).purchased
+        if (this.upgradePurchased('Cloner Overdrive', store)) {
+          total *= 1.4
+        }
 
-      if (tamers === 0) return Math.ceil(initial)
+        return Math.floor(total)
 
-      return Math.ceil(initial * Math.pow(0.95, tamers))
-    } else {
-      return 0
+      case 'Djinn':
+        if (this.upgradePurchased('The Awakening', store)) {
+          base *= 0.75
+        }
+
+        total = base * purchased
+
+        if (this.upgradePurchased('The Awakening', store)) {
+          const awakeningBase = 1.00
+          const factor = Constants.AWAKENING_POWER_SCALE * stats.awakening
+
+          total *= (awakeningBase + factor)
+        }
+        
+        if (this.upgradePurchased('Audible Motivation', store)) {
+          const audibleBase = 1.00
+          const factor = .02 * this.getHelper('AutoClicker', store).purchased
+
+          total *= (audibleBase + factor)
+        }
+
+        return Math.floor(total)
+
+      case 'Consumer':
+        const initial = base * Math.pow(1.5, helper.purchased - 1)
+        const tamers = this.getSpecial('Tamer', store).purchased
+  
+        if (tamers === 0) return Math.ceil(initial)  
+        return Math.ceil(initial * Math.pow(0.95, tamers))
+
+      default:
+        console.warn(`Unknown helper ${name}`)
+        return 0
     }
   }
   cheat() {
@@ -445,7 +462,7 @@ class App extends Component {
   }
   getTooltip(buyable, stats = this.state.stats) {
     const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
-    const cost = buyable.currentPrice.toLocaleString()
+    const cost = this.abbreviateNumber(buyable.currentPrice)
     const costPhrase = buyable.multiple ? `Next costs ${cost} ${currency}` : `Costs ${cost} ${currency}`
     
     // YUCK, SPECIAL CASE HANDLING
@@ -535,16 +552,16 @@ class App extends Component {
 
     stats.score = stats.score + score
   
-    let offlineMessage = `While offline for ${diff.toLocaleString()} seconds, you earned ${score.toLocaleString()} score!`
+    let offlineMessage = `While offline for ${this.abbreviateNumber(diff)} seconds, you earned ${this.abbreviateNumber(score)} score!`
 
     if (blueBlocks > 0) {
       stats.blocks.blue += blueBlocks
-      offlineMessage += `\nDuring that time your consumers produced ${blueBlocks.toLocaleString()} blue blocks!`
+      offlineMessage += `\nDuring that time your consumers produced ${this.abbreviateNumber(blueBlocks)} blue blocks!`
     }
 
     if (greenBlocks > 0) {
       stats.blocks.green += greenBlocks
-      offlineMessage += `\nDuring that time your consumers produce ${greenBlocks.toLocaleString()} green blocks!`
+      offlineMessage += `\nDuring that time your consumers produce ${this.abbreviateNumber(greenBlocks)} green blocks!`
     }
 
     stats.lastTime = new Date()
@@ -805,7 +822,7 @@ class App extends Component {
         if (buyable.type === 'helper') {
           buyable = {
             ...buyable,
-            sps: this.calculateScore(buyable).toLocaleString()
+            sps: this.abbreviateNumber(this.calculateScore(buyable))
           }
         }
 
@@ -824,14 +841,14 @@ class App extends Component {
     }
 
     const autosave = options.autosaveFrequency
-    const blueBlocks = stats.blocks.blue.toLocaleString()
-    const clicks = stats.clicks.toLocaleString()
-    const clickScore = Math.floor(this.calculateClickScore()).toLocaleString()
-    const greenBlocks = stats.blocks.green.toLocaleString()
+    const blueBlocks = this.abbreviateNumber(stats.blocks.blue)
+    const clicks = this.abbreviateNumber(stats.clicks)
+    const clickScore = this.abbreviateNumber(Math.floor(this.calculateClickScore()))
+    const greenBlocks = this.abbreviateNumber(stats.blocks.green)
     const justClasses = Object.values(Constants.CLASSES)
     const purchaseHandling = options.purchaseHandling
-    const score = Math.floor(stats.score).toLocaleString()
-    const scorePerSecond = this.getScorePerSecond().toLocaleString()
+    const score = this.abbreviateNumber(Math.floor(stats.score))
+    const scorePerSecond = this.abbreviateNumber(this.getScorePerSecond())
     const selectedClass = stats.selectedClass
     const toxicity = stats.toxicity
     const toxicityLimit = stats.toxicityLimit
