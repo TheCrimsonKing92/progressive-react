@@ -78,6 +78,10 @@
     opacity: 0.6
 }
 
+.fleet-beacon {
+    background-color: blueviolet
+}
+
 .green-block {
     background-image: url('./GreenBlock.png');
 }
