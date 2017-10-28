@@ -324,7 +324,10 @@ class App extends Component {
     return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store, stats)]
   }
   getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
-    return Object.values(store.helpers).filter(h => h.name !== 'Consumer').map(h => this.calculateScore(h, store, stats)).reduce((acc, val) => acc + val, 0)
+    return Object.values(store.helpers)
+                 .filter(h => h.name !== 'Consumer')
+                 .map(h => this.calculateScore(h, store, stats))
+                 .reduce((acc, val) => acc + val, 0)
   }
   getScorePerSecond(store = this.state.store, stats = this.state.stats) {
     const positiveHelpers = this.getPositiveHelperOutput(store, stats)

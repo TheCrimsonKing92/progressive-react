@@ -87,7 +87,7 @@ const helpers = {
       
       const purchased = this.purchased
       if (upgradePurchased('Aria Hammera')) {
-        base += (helper.purchased / 15)
+        base += (purchased / 15)
       }
       if (upgradePurchased('Heavier Hammers')) {
         base *= 2
@@ -98,7 +98,7 @@ const helpers = {
       if (upgradePurchased('Cybernetic Synergy')) {
         let power = 5
         if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
-        const bound = Math.min(helper.purchased, this.getHelper('Robot').purchased)
+        const bound = Math.min(purchased, getHelper('Robot').purchased)
         total += (power * bound)
       }
 
@@ -117,14 +117,14 @@ const helpers = {
       const purchased = this.purchased
       let total = base * purchased
       
-        if (upgradePurchased('Cybernetic Synergy')) {
-          let power = 9
-          if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
-          const bound = Math.min(helper.purchased, getHelper('Hammer').purchased)
-          total += (power * bound)
-        }
-  
-        return Math.floor(total)
+      if (upgradePurchased('Cybernetic Synergy')) {
+        let power = 9
+        if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
+        const bound = Math.min(purchased, getHelper('Hammer').purchased)
+        total += (power * bound)
+      }
+
+      return Math.floor(total)
     }
   },
   'Airplane': {
@@ -160,13 +160,13 @@ const helpers = {
       }
       
       const purchased = this.purchased
-      if (this.upgradePurchased('Efficient Operations')) {
+      if (upgradePurchased('Efficient Operations')) {
         base += efficientOperations
       }
 
       let total = base * purchased
 
-      if (this.upgradePurchased('Cloner Overdrive')) {
+      if (upgradePurchased('Cloner Overdrive')) {
         total *= 1.4
       }
 
