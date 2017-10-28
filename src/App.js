@@ -19,6 +19,8 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.abbreviator = new abbreviate(Constants.ABBREVIATIONS)
+
     this.state = this.getGame();
 
     this.buttonClicked = this.buttonClicked.bind(this)
@@ -37,7 +39,7 @@ class App extends Component {
     this.togglePurchaseHandling = this.togglePurchaseHandling.bind(this)
   }
   abbreviateNumber(value) {
-    return abbreviate(value, 2)
+    return this.abbreviator.abbreviate(value, 2)
   }
   awakening() {
     const current = this.state.stats.awakening
@@ -105,12 +107,12 @@ class App extends Component {
     const isClass = name => this.isClass(name, stats)
     const towerPurchased = name => this.towerPurchased(name, store)
     const upgradePurchased = name => this.upgradePurchased(name, store)
-
-    switch(helper.name) {      
-      case 'Cloner': return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, stats.efficientOperations)
-      case 'Djinn': return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, stats.awakening)
-      default : return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased)
+    const magic = { 
+      awakening: stats.awakening, 
+      efficientOperations: stats.efficientOperations
     }
+
+    return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
   }
   cheat() {
     this.setState({
@@ -381,7 +383,8 @@ class App extends Component {
     this.purchase(buyable)
   }
   helpersBought(store) {
-    return Object.values(store.helpers).reduce((a, v) => a + v.purchased, 0)
+    return Object.values(store.helpers)
+                 .some(h => h.purchased > 0)
   }
   isClass(c, stats = this.state.stats) {
     return stats.selectedClass === c.name
@@ -423,7 +426,7 @@ class App extends Component {
   }
   offlineProgress(stats = this.state.stats, store = this.state.store) {
     if (stats.selectedClass === null) return
-    if (this.helpersBought(store) === 0) return
+    if (!this.helpersBought(store)) return
     const diff = this.getSecondsSinceLoad(stats.lastTime)
     
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
@@ -442,7 +445,7 @@ class App extends Component {
 
     if (greenBlocks > 0) {
       stats.blocks.green += greenBlocks
-      offlineMessage += `\nDuring that time your consumers produce ${this.abbreviateNumber(greenBlocks)} green blocks!`
+      offlineMessage += `\nDuring that time your consumers produced ${this.abbreviateNumber(greenBlocks)} green blocks!`
     }
 
     stats.lastTime = new Date()
@@ -472,7 +475,8 @@ class App extends Component {
     }
   }
   preReqsFulfilled(preReqs, stats, store) {
-    return preReqs.map(p => this.preReqFulfilled(p, stats, store)).reduce((a, v) => a && v, true)
+    return preReqs.map(p => this.preReqFulfilled(p, stats, store))
+                  .every(b => b === true)
   }
   purchase(buyable) {
     const price = buyable.currentPrice

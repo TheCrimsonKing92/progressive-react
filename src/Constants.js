@@ -1,4 +1,5 @@
 export default {
+  ABBREVIATIONS: ['k', 'm', 'b', 't', 'q', 'qi', 's'],
   AUTOSAVE_FREQUENCIES: [5, 15, 30, 60],
   AWAKENING_POWER_GROWTH: 1,
   AWAKENING_POWER_LIMIT: 500,

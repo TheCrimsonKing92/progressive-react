@@ -30,13 +30,13 @@ const helper = (
   ...buyable(name, description, price, Constants.PRICE_GROWTH.HELPER, Constants.CURRENCY.SCORE, true, true),
   power: power,
   type: 'helper',
-  formula: formula || function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) { return this.power * this.purchased }
+  formula: formula || function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) { return this.power * this.purchased }
 })
 
 const helpers = {
   'AutoClicker': {
     ...helper('AutoClicker', 'Weakly clicks the button for you', 100),
-    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
 
       if (towerPurchased('Power Tower')) {
@@ -78,7 +78,7 @@ const helpers = {
   },
   'Hammer': {
     ...helper('Hammer', 'Earns score by smashing the button', 500, 5),
-    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
 
       if (towerPurchased('Power Tower')) {
@@ -107,7 +107,7 @@ const helpers = {
   },
   'Robot': {
     ...helper('Robot', 'An AI optimizing score production routines', 1500, 14),
-    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
       
       if (towerPurchased('Power Tower')) {
@@ -129,7 +129,7 @@ const helpers = {
   },
   'Airplane': {
     ...helper('Airplane', 'An allied airplane to drop score en masse', 20000, 40),
-    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power      
 
       if (towerPurchased('Power Tower')) {
@@ -152,7 +152,7 @@ const helpers = {
   },
   'Cloner': {
     ...helper('Cloner', 'Creates score by cloning parts of the button', 100000, 100),
-    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, efficientOperations) {
+    formula: function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power      
 
       if (towerPurchased('Power Tower')) {
@@ -161,7 +161,7 @@ const helpers = {
       
       const purchased = this.purchased
       if (upgradePurchased('Efficient Operations')) {
-        base += efficientOperations
+        base += magic.efficientOperations
       }
 
       let total = base * purchased
@@ -175,7 +175,7 @@ const helpers = {
   },
   'Djinn': {
     ...helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, 350),
-    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, awakening) {
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power      
 
       if (towerPurchased('Power Tower')) {
@@ -191,7 +191,7 @@ const helpers = {
 
       if (upgradePurchased('The Awakening')) {
         const awakeningBase = 1.00
-        const factor = Constants.AWAKENING_POWER_SCALE * awakening
+        const factor = Constants.AWAKENING_POWER_SCALE * magic.awakening
 
         total *= (awakeningBase + factor)
       }
@@ -208,7 +208,7 @@ const helpers = {
   },
   'Consumer': {
     ...helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, -5),
-    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased) {
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       const initial = this.power * Math.pow(1.5, this.purchased - 1)
       const tamers = getSpecial('Tamer').purchased
 
