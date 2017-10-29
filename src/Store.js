@@ -262,7 +262,7 @@ const upgrades = {
   ]),
   'Helping Handsiest': upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
-    preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handiser')
+    preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handsier')
   ]),
   'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
