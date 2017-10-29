@@ -464,7 +464,7 @@ class App extends Component {
     switch (preReq.type) {
       case Constants.PREREQ.HELPER.NUMBER: return this.getHelper(preReq.target, store).purchased >= preReq.value
       case Constants.PREREQ.HELPER.PURCHASED: return this.getHelper(preReq.target, store).purchased > 0
-      case Constants.PREREQ.CLICKS.NUMBER: return stats.clicks > preReq.value
+      case Constants.PREREQ.CLICKS.NUMBER: return stats.clicks >= preReq.value
       case Constants.PREREQ.SPECIAL.NUMBER: return this.getSpecial(preReq.target, store).purchased >= preReq.value
       case Constants.PREREQ.SPECIAL.PURCHASED: return this.getSpecial(preReq.target, store).purchased > 0
       case Constants.PREREQ.TOWER.PURCHASED: return this.getTower(preReq.target, store).purchased > 0
