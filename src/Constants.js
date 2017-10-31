@@ -28,6 +28,10 @@ export default {
       name: 'Mechanic',
       description: 'Improved returns from robot-based upgrades'
     },
+    MEDIC: {
+      name: 'Medic',
+      description: 'Passive toxicity removal'
+    },
     THIEF: {
       name: 'Thief',
       description: `Receives 'five-fingered discount' on all store prices`
