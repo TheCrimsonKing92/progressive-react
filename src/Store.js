@@ -87,7 +87,7 @@ const helpers = {
       
       const purchased = this.purchased
       if (upgradePurchased('Aria Hammera')) {
-        base += (purchased / 15)
+        base += Math.floor(purchased / 15)
       }
       if (upgradePurchased('Heavier Hammers')) {
         base *= 2
@@ -216,12 +216,16 @@ const helpers = {
   },
   'Consumer': {
     ...helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, -5),
+    toxicity: 2,
     formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       const initial = this.power * Math.pow(1.5, this.purchased - 1)
       const tamers = getSpecial('Tamer').purchased
 
       if (tamers === 0) return Math.ceil(initial)  
       return Math.ceil(initial * Math.pow(0.95, tamers))
+    },
+    toxicFormula: function() {
+      return this.toxicity * this.purchased
     }
   }
 }

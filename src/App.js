@@ -27,6 +27,7 @@ class App extends Component {
     this.cheat = this.cheat.bind(this)
     window.cheat = this.cheat
     this.consume = this.consume.bind(this)
+    this.dumpClicked = this.dumpClicked.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
@@ -176,6 +177,14 @@ class App extends Component {
     let [blueBlocks, greenBlocks] = this.getBlockStatusesOffline(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
 
     return [greenBlocks, blueBlocks]
+  }
+  dumpClicked() {
+    this.setState({
+      stats:{
+        ...this.state.stats,
+        toxicity: Math.max(this.state.stats.toxicity - 1, 0)
+      }
+    })
   }
   efficientOperations() {
     let counter = 0
@@ -367,6 +376,12 @@ class App extends Component {
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
   }
+  getToxicityOutput(stats = this.state.stats) {
+    return this.getHelper('Consumer', stats).toxicFormula()
+  }
+  getToxicityRemaining(stats = this.state.stats) {
+    return stats.toxicityLimit - stats.toxicity
+  }
   getUpgrade(upgrade, store = this.state.store) {
     return store.upgrades[upgrade]
   }
@@ -430,9 +445,11 @@ class App extends Component {
     const diff = this.getSecondsSinceLoad(stats.lastTime)
     
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
+
+    const seconds = Math.min(this.getToxicityRemaining(stats), diff)
     
     let score, greenBlocks, blueBlocks
-    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(diff, store, stats)
+    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(seconds, store, stats)
 
     stats.score = stats.score + score
   
@@ -757,7 +774,7 @@ class App extends Component {
           { this.state.stats.selectedClass !== null ? (
               <Row>
                 <Col xs={12} md={3}>
-                  <ButtonPanel clickHandle={this.buttonClicked} />
+                  <ButtonPanel buttonHandle={this.buttonClicked} dumpHandle={this.dumpClicked} />
                 </Col>
                 <Col xs={12} md={5}>
                   <StatsPanel
