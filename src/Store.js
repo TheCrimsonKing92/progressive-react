@@ -215,7 +215,7 @@ const helpers = {
     }
   },
   'Consumer': {
-    ...helper('Consumer', 'An anti-helper that consumes score to produce blocks.</br> WARNING: These can produce negative score gain!', 5000, -5),
+    ...helper('Consumer', 'An anti-helper that consumes score to produce blocks', 5000, -5),
     toxicity: 2,
     formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       const initial = this.power * Math.pow(1.5, this.purchased - 1)
