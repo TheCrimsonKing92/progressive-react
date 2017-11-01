@@ -224,6 +224,13 @@ const helpers = {
       if (tamers === 0) return Math.ceil(initial)  
       return Math.ceil(initial * Math.pow(0.95, tamers))
     },
+    nextFormula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      const initial = this.power * Math.pow(1.5, this.purchased)
+      const tamers = getSpecial('Tamer').purchased
+
+      if (tamers === 0) return Math.ceil(initial)
+      return Math.ceil(initial * Math.pow(0.95, tamers))
+    },
     toxicFormula: function() {
       return this.toxicity * this.purchased
     }
