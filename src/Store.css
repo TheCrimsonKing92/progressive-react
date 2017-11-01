@@ -82,6 +82,10 @@
     background-color: blueviolet
 }
 
+.garbage-truck {
+    background-color: #35513a
+}
+
 .green-block {
     background-image: url('./GreenBlock.png');
 }

@@ -110,7 +110,9 @@ class App extends Component {
     const upgradePurchased = name => this.upgradePurchased(name, store)
     const magic = { 
       awakening: stats.awakening, 
-      efficientOperations: stats.efficientOperations
+      efficientOperations: stats.efficientOperations,
+      isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
+      isToxic: (stats.toxicity >= stats.toxicityLimit)
     }
 
     return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
@@ -137,10 +139,6 @@ class App extends Component {
     window.clearInterval(this.gameTick)
   }
   consume(stats = this.state.stats, store = this.state.store) {
-    const consumption = this.getConsumption(store, stats)
-
-    if (consumption === 0) return
-    
     const consumers = this.getHelper('Consumer', store).purchased
     
     let [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
@@ -155,8 +153,7 @@ class App extends Component {
           blueFragments: blueBlockFragments,
           green: stats.blocks.green + greenBlocks,
           greenFragments: greenBlockFragments
-        },
-        score: stats.score + consumption
+        }
       }
     })
   }
@@ -176,11 +173,47 @@ class App extends Component {
 
     return [greenBlocks, blueBlocks]
   }
+  consumePreReqs(stats = this.state.stats, store = this.state.store) {
+    const consumers = this.getHelper('Consumer', store)
+
+    if (consumers.purchased < 1) return false
+
+    const decrease = this.getToxicityDecrease(stats, store)
+    const increase = this.getToxicityIncrease(store)
+    const toxicity = this.getToxicityRemaining(stats)
+
+    if ((decrease + toxicity) < increase) {
+      const next = Math.max((stats.toxicity - decrease), 0)
+      this.setState({
+        stats: {
+          ...stats,
+          toxicity: next
+        }
+      })
+      return false
+    }
+
+    const cost = this.getConsumption(store, stats)
+
+    const remainder = stats.score + cost
+
+    if (remainder < 0) return false
+
+    this.setState({
+      stats: {
+        ...stats,
+        score: remainder,
+        toxicity: Math.max(stats.toxicity + (increase - decrease), 0)
+      }
+    })
+
+    return true
+  }
   dumpClicked() {
     this.setState({
       stats:{
         ...this.state.stats,
-        toxicity: Math.max(this.state.stats.toxicity - 1, 0)
+        toxicity: Math.max(this.state.stats.toxicity - Constants.DUMP_POWER, 0)
       }
     })
   }
@@ -383,7 +416,9 @@ class App extends Component {
     const upgradePurchased = name => this.upgradePurchased(name, store)
     const magic = { 
       awakening: stats.awakening, 
-      efficientOperations: stats.efficientOperations
+      efficientOperations: stats.efficientOperations,
+      isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
+      isToxic: (stats.toxicity >= stats.toxicityLimit)
     }
 
     const next = `${this.abbreviateNumber(buyable.nextFormula(getHelper, 
@@ -398,8 +433,15 @@ class App extends Component {
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
   }
-  getToxicityPerSecond(stats = this.state.stats) {
-    return this.getHelper('Consumer', stats).toxicFormula()
+  getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
+    const fromHelpers = Object.values(store.helpers).filter(h => h.toxicity < 0).reduce((a, v) => a - v.toxicFormula(), 0)
+    return fromHelpers + (this.isClass(Constants.CLASSES.MEDIC, stats) ? Constants.MEDIC_PASSIVE_POWER : 0)
+  }
+  getToxicityIncrease(store = this.state.store) {
+    return this.getHelper('Consumer', store).toxicFormula(name => this.towerPurchased(name, store))
+  }
+  getToxicityPerSecond(stats = this.stats.stats, store = this.state.store) {
+    return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
   }
   getToxicityRemaining(stats = this.state.stats) {
     return stats.toxicityLimit - stats.toxicity
@@ -645,7 +687,7 @@ class App extends Component {
       }
     })
 
-    if (this.getHelper('Consumer').purchased > 0) {
+    if (this.consumePreReqs()) {
       this.consume()
     }
     if (this.upgradePurchased('Efficient Operations')) {
@@ -778,6 +820,7 @@ class App extends Component {
     const selectedClass = stats.selectedClass
     const toxicity = stats.toxicity
     const toxicityLimit = stats.toxicityLimit
+    const toxicityPerSecond = this.abbreviateNumber(this.getToxicityPerSecond(stats, store))
 
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
     const purchaseText = `One-Time Buyables ${purchaseHandling ? 'Fade' : 'Disappear'}`
@@ -810,7 +853,8 @@ class App extends Component {
                     scorePerSecond={scorePerSecond}
                     selectedClass={selectedClass}
                     toxicity={toxicity}
-                    toxicityLimit={toxicityLimit} />
+                    toxicityLimit={toxicityLimit}
+                    toxicityPerSecond={toxicityPerSecond} />
                 </Col>
                 <Col xs={12} md={4}>
                   <StorePanel onPurchase={this.handleStorePurchase} purchaseHandling={purchaseHandling} store={store} />

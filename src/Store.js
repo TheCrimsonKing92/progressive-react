@@ -61,6 +61,12 @@ const helpers = {
       }
   
       let total = base * purchased
+
+      if (magic.isHalfToxic) {
+        total *= 0.9
+      } else if (magic.isToxic) {
+        total *= 0.5
+      }
   
       if (upgradePurchased('Click Efficiency')) {
         total *= 2
@@ -94,6 +100,12 @@ const helpers = {
       }
 
       let total = base * purchased
+      
+      if (magic.isHalfToxic) {
+        total *= 0.9
+      } else if (magic.isToxic) {
+        total *= 0.5
+      }
 
       if (upgradePurchased('Cybernetic Synergy')) {
         let power = 5
@@ -115,7 +127,13 @@ const helpers = {
       }
       
       const purchased = this.purchased
-      let total = base * purchased
+      let total = base * purchased      
+
+      if (magic.isHalfToxic) {
+        total *= 0.9
+      } else if (magic.isToxic) {
+        total *= 0.5
+      }
       
       if (upgradePurchased('Cybernetic Synergy')) {
         let power = 9
@@ -137,7 +155,13 @@ const helpers = {
       }
       
       const purchased = this.purchased
-      let total = base * purchased
+      let total = base * purchased      
+
+      if (magic.isHalfToxic) {
+        total *= 0.9
+      } else if (magic.isToxic) {
+        total *= 0.5
+      }
       
       if (upgradePurchased('Extended Cargo')) {
         total *= 1.25
@@ -172,7 +196,13 @@ const helpers = {
         base += magic.efficientOperations
       }
 
-      let total = base * purchased
+      let total = base * purchased      
+
+      if (magic.isHalfToxic) {
+        total *= 0.9
+      } else if (magic.isToxic) {
+        total *= 0.5
+      }
 
       if (upgradePurchased('Cloner Overdrive')) {
         total *= 1.4
@@ -195,7 +225,13 @@ const helpers = {
         base *= 0.75
       }
 
-      let total = base * purchased
+      let total = base * purchased      
+
+      if (magic.isHalfToxic) {
+        total *= 0.9
+      } else if (magic.isToxic) {
+        total *= 0.5
+      }
 
       if (upgradePurchased('The Awakening')) {
         const awakeningBase = 1.00
@@ -231,7 +267,21 @@ const helpers = {
       if (tamers === 0) return Math.ceil(initial)
       return Math.ceil(initial * Math.pow(0.95, tamers))
     },
-    toxicFormula: function() {
+    toxicFormula: function(towerPurchased) {
+      const base = this.toxicity * this.purchased
+
+      if (!towerPurchased('Toxicity Tower')) return base
+
+      return base * 0.9
+    }
+  },
+  'Garbage Truck': {
+    ...helper('Garbage Truck', 'An anti-consumer that pushes toxicity into The Dump', 15000, -50),
+    toxicity: -1,
+    formula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      return this.power * this.purchased
+    },
+    toxicFormula: function(towerPurchased) {
       return this.toxicity * this.purchased
     }
   }
@@ -328,7 +378,7 @@ const towers = {
   'Power Tower': tower('Power Tower', 'Increases helper power', 2500, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ]),
-  'Toxicity Tower': tower('Toxicity Tower', 'Reduces helper toxicity production', 5000, [
+  'Toxicity Tower': tower('Toxicity Tower', 'Reduces toxicity production', 5000, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ])
 }
