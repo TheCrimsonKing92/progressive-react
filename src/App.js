@@ -353,25 +353,28 @@ class App extends Component {
   getTooltip(buyable, stats = this.state.stats, store = this.state.store) {
     const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
     const cost = this.abbreviateNumber(buyable.currentPrice)
-    const costPhrase = buyable.multiple ? `Next costs ${cost} ${currency}` : `Costs ${cost} ${currency}`
+    const costPhrase = `Costs ${cost} ${currency}`
     
     // YUCK, SPECIAL CASE HANDLING
     let description = buyable.description
 
-    if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Cybernetic Synergy') {
-      description = description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`)
-    } else if (this.isClass(Constants.CLASSES.MECHANIC, stats) && buyable.name === 'Efficient Operations') {
-      description = description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
+    if (this.isClass(Constants.CLASSES.MECHANIC, stats)){
+      if (buyable.name === 'Cybernetic Synergy') {
+        description = description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`)
+      } else if (buyable.name === 'Efficient Operations') {
+        description = description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
+      }
     }
 
-    const base = buyable.buyable ? `${buyable.name}</br>${description}</br>${costPhrase}` : `${buyable.name}</br>${description}`
+    const title = buyable.multiple ? `${buyable.name} - ${buyable.purchased}` : buyable.name
 
-    if (!buyable.multiple) return base
-    if (buyable.type !== 'helper') return `${base}</br>${buyable.purchased} Purchased`
+    const base = buyable.buyable ? `${title}</br>${description}</br>${costPhrase}` : `${title}</br>${description}`
 
-    if (buyable.name !== 'Consumer') {
-      return `${base}</br>${buyable.sps} score per second</br>${buyable.purchased} Purchased`
-    }
+    if (buyable.type !== 'helper') return base
+
+    const withSps = `${base}</br>${buyable.sps} score per second`
+
+    if (buyable.name !== 'Consumer') return withSps
 
     const getHelper = name => this.getHelper(name, store)
     const getSpecial = name => this.getSpecial(name, store)
@@ -383,7 +386,14 @@ class App extends Component {
       efficientOperations: stats.efficientOperations
     }
 
-    return `${base}</br>${buyable.sps} score per second</br>${this.abbreviateNumber(buyable.nextFormula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic))} score per second next</br>${buyable.purchased} Purchased`
+    const next = `${this.abbreviateNumber(buyable.nextFormula(getHelper, 
+                                                              getSpecial, 
+                                                              isClass, 
+                                                              towerPurchased, 
+                                                              upgradePurchased, 
+                                                              magic))} score per second next`
+
+    return `${withSps}</br>${next}`
   }
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
