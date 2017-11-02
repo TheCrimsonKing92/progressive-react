@@ -136,9 +136,17 @@ class App extends Component {
       }
     })
   }
+  checkServiceWorkerStatus() {
+    if (!window.hasOwnProperty('serviceWorkerStatus') || window.serviceWorkerStatus === 0) {
+      toastr.success('You have the latest version of Progressive Game!')
+    } else {
+      toastr.warning('Please refresh for the latest Progressive Game')
+    }
+  }
   componentDidMount() {
     this.autoSave = window.setInterval(this.saveGame, 5000)
     this.gameTick = window.setInterval(this.tick, 1000)
+    this.checkServiceWorkerStatus()
   }
   componentWillUnmount() {
     window.clearInterval(this.autoSave)
