@@ -397,7 +397,7 @@ const special = (
 
 const specials = {
   'Better Building': {
-    ...special('Better Building', 'Increases consumer production', 200, 1.3, [
+    ...special('Better Building', 'Speeds block production', 200, 1.3, [
       preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
     ]),
     currency: Constants.CURRENCY.BLOCK.BLUE
