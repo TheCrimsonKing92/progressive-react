@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import {Grid, Row, Col, NavItem} from 'react-bootstrap'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
+import toastr from 'toastr'
 // Constants
 import Constants from './Constants'
 // Components
@@ -18,6 +19,11 @@ import './App.css';
 class App extends Component {
   constructor(props) {
     super(props);
+    
+    toastr.options.closeButton = true
+    toastr.options.timeout = 15
+    toastr.options.extendedTimeOut = 30
+    toastr.options.progressBar = true
 
     this.abbreviator = new abbreviate(Constants.ABBREVIATIONS)
 
@@ -521,17 +527,17 @@ class App extends Component {
 
     if (blueBlocks > 0) {
       stats.blocks.blue += blueBlocks
-      offlineMessage += `\nDuring that time your consumers produced ${this.abbreviateNumber(blueBlocks)} blue blocks!`
+      offlineMessage += `</br>During that time your consumers produced ${this.abbreviateNumber(blueBlocks)} blue blocks!`
     }
 
     if (greenBlocks > 0) {
       stats.blocks.green += greenBlocks
-      offlineMessage += `\nDuring that time your consumers produced ${this.abbreviateNumber(greenBlocks)} green blocks!`
+      offlineMessage += `</br>During that time your consumers produced ${this.abbreviateNumber(greenBlocks)} green blocks!`
     }
 
     stats.lastTime = new Date()
 
-    alert(offlineMessage)
+    toastr.success(offlineMessage, )
   }
   onClassClick(name) {
     this.setState({
@@ -763,8 +769,6 @@ class App extends Component {
       store.upgrades[prop].buyable = this.evaluateBuyable(store.upgrades[prop], stats, store)
     }
     
-    this.offlineProgress(stats, store)
-
     return {
       options: options,
       stats: stats,
@@ -861,8 +865,7 @@ class App extends Component {
                 </Col>
               </Row>
             ) : <ClassPicker classes={justClasses} onClassClick={this.onClassClick}/>
-          }
-          
+          }          
         </Grid>
       </div>
     );
