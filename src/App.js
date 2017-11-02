@@ -109,17 +109,7 @@ class App extends Component {
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
     if (helper.purchased === 0) return 0
 
-    const getHelper = name => this.getHelper(name, store)
-    const getSpecial = name => this.getSpecial(name, store)
-    const isClass = name => this.isClass(name, stats)
-    const towerPurchased = name => this.towerPurchased(name, store)
-    const upgradePurchased = name => this.upgradePurchased(name, store)
-    const magic = { 
-      awakening: stats.awakening, 
-      efficientOperations: stats.efficientOperations,
-      isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
-      isToxic: (stats.toxicity >= stats.toxicityLimit)
-    }
+    const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
 
     return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
   }
@@ -375,6 +365,21 @@ class App extends Component {
   }
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
+  }  
+  getHelperFunctions(stats, store) {
+    const getHelper = name => this.getHelper(name, store)
+    const getSpecial = name => this.getSpecial(name, store)
+    const isClass = name => this.isClass(name, stats)
+    const towerPurchased = name => this.towerPurchased(name, store)
+    const upgradePurchased = name => this.upgradePurchased(name, store)
+    const magic = { 
+      awakening: stats.awakening, 
+      efficientOperations: stats.efficientOperations,
+      isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
+      isToxic: (stats.toxicity >= stats.toxicityLimit)
+    }
+
+    return { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }
   }
   getOfflineProgress(seconds, store, stats) {
     return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store, stats)]
@@ -423,17 +428,7 @@ class App extends Component {
 
     if (buyable.name !== 'Consumer') return withSps
 
-    const getHelper = name => this.getHelper(name, store)
-    const getSpecial = name => this.getSpecial(name, store)
-    const isClass = name => this.isClass(name, stats)
-    const towerPurchased = name => this.towerPurchased(name, store)
-    const upgradePurchased = name => this.upgradePurchased(name, store)
-    const magic = { 
-      awakening: stats.awakening, 
-      efficientOperations: stats.efficientOperations,
-      isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
-      isToxic: (stats.toxicity >= stats.toxicityLimit)
-    }
+    const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
 
     const next = `${this.abbreviateNumber(buyable.nextFormula(getHelper, 
                                                               getSpecial, 
