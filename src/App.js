@@ -1,6 +1,7 @@
 // React dependencies
 import React, { Component } from 'react';
 import {Grid, Row, Col, NavItem} from 'react-bootstrap'
+import Modal from 'react-modal'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
 import toastr from 'toastr'
@@ -32,6 +33,7 @@ class App extends Component {
     this.buttonClicked = this.buttonClicked.bind(this)
     this.cheat = this.cheat.bind(this)
     window.cheat = this.cheat
+    this.closeModal = this.closeModal.bind(this)
     this.consume = this.consume.bind(this)
     this.dumpClicked = this.dumpClicked.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
@@ -39,6 +41,7 @@ class App extends Component {
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
     this.newGame = this.newGame.bind(this)
     this.onClassClick = this.onClassClick.bind(this)
+    this.openModal = this.openModal.bind(this)
     this.preReqFulfilled = this.preReqFulfilled.bind(this)
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
@@ -133,7 +136,15 @@ class App extends Component {
       toastr.warning('Please refresh for the latest Progressive Game')
     }
   }
+  closeModal() {
+    this.setState({
+      ui: {
+        modalOpen: false
+      }
+    })
+  }
   componentDidMount() {
+    Modal.setAppElement('.App')
     this.autoSave = window.setInterval(this.saveGame, 5000)
     this.gameTick = window.setInterval(this.tick, 1000)
     this.checkServiceWorkerStatus()
@@ -323,6 +334,7 @@ class App extends Component {
       options: this.getDefaultOptions(),
       stats: this.getDefaultStats(),
       store: this.getDefaultStore(),
+      ui: this.getDefaultUi()
     }
   }
   getDefaultOptions() {
@@ -353,6 +365,11 @@ class App extends Component {
   }
   getDefaultStore() {
     return Store
+  }
+  getDefaultUi() {
+    return {
+      modalOpen: false
+    }
   }
   getGame() {
     const stored = localStorage.getItem(Constants.LOCALSTORAGE_ITEM_NAME)
@@ -505,7 +522,10 @@ class App extends Component {
     return Math.floor(basePrice * Math.pow(growth, buyable.purchased))
   }
   mapGameState(state) {
-    return JSON.stringify(state)
+    return JSON.stringify({
+      ...state,
+      ui: this.getDefaultUi()
+    })
   }
   newGame() {
     const state = this.getDefaultGameState()
@@ -547,6 +567,13 @@ class App extends Component {
       stats: {
         ...this.state.stats,
         selectedClass: name
+      }
+    })
+  }
+  openModal() {
+    this.setState({
+      ui: {
+        modalOpen: true
       }
     })
   }
@@ -747,6 +774,7 @@ class App extends Component {
     const options = previous.options
     const stats = previous.stats    
     const store = previous.store
+    let ui = previous.ui
 
     const defaultStats = this.getDefaultStats()
 
@@ -771,11 +799,22 @@ class App extends Component {
     for (let prop in store.upgrades) {
       store.upgrades[prop].buyable = this.evaluateBuyable(store.upgrades[prop], stats, store)
     }
+
+    const defaultUi = this.getDefaultUi()
+
+    if (typeof ui === 'undefined') {
+      ui = defaultUi
+    } else {
+      for (let sub in defaultUi) {
+        ui[sub] = ui.hasOwnProperty(sub) ? ui[sub] : defaultUi[sub]
+      }
+    }    
     
     return {
       options: options,
       stats: stats,
-      store: store
+      store: store,
+      ui: ui
     }
   }
   upgradePurchased(upgrade, store) {
@@ -787,6 +826,7 @@ class App extends Component {
     const options = this.state.options
     const stats = this.state.stats
     let store = this.state.store
+    const modalOpen = this.state.ui.modalOpen
 
     for (let type in store) {
       let collection = store[type]
@@ -832,12 +872,33 @@ class App extends Component {
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
     const purchaseText = `One-Time Buyables ${purchaseHandling ? 'Fade' : 'Disappear'}`
 
+    // TODO implement modal styles
+
     return (
-      <div className="App">
+      <div className="App">        
         <Grid>
           <Row>
+            <Col xsOffset={3} xs={6}>
+              <Modal isOpen={modalOpen}>
+                <Row>
+                  <Col xs={12}>
+                    <p>Are you sure you want to start a new game?</p>
+                  </Col>              
+                </Row>
+                <Row>
+                  <Col xs={12} md={6}>
+                    <button onClick={this.closeModal}>No</button>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <button onClick={this.newGame}>Yes</button>
+                  </Col>
+                </Row>
+              </Modal>
+            </Col>
+          </Row>          
+          <Row>
             <GameNav>
-              <NavItem eventKey={1} href="#" onClick={this.newGame}>New Game</NavItem>
+              <NavItem eventKey={1} href="#" onClick={this.openModal}>New Game</NavItem>
               <NavItem eventKey={2} href="#" onClick={this.saveGame}>Save Game</NavItem>
               <NavItem eventKey={3} href="#" onClick={this.handleExportSave}>Export Save</NavItem>
               <NavItem eventKey={4} href="#" onClick={this.handleImportSave}>Import Save</NavItem>

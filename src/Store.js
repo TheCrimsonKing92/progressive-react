@@ -272,7 +272,7 @@ const helpers = {
 
       if (!towerPurchased('Toxicity Tower')) return base
 
-      return base * 0.9
+      return Math.floor(base * 0.9)
     }
   },
   'Garbage Truck': {
@@ -282,7 +282,7 @@ const helpers = {
       return this.power * this.purchased
     },
     toxicFormula: function(towerPurchased) {
-      return this.toxicity * this.purchased
+      return Math.ceil(this.toxicity * this.purchased)
     }
   }
 }
