@@ -178,7 +178,7 @@ class App extends Component {
     let totalBlue = 0
 
     for (let i = 0; i < seconds; i++) {
-      let [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
+      const [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
@@ -374,7 +374,7 @@ class App extends Component {
     return { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }
   }
   getOfflineLimit(toxicityRemaining, toxicityPerSecond, originalSeconds) {
-    if (toxicityPerSecond < 0) return [originalSeconds, false]
+    if (toxicityPerSecond < 1) return [originalSeconds, false]
 
     return [Math.floor(toxicityRemaining / toxicityPerSecond), true]
   }
@@ -516,10 +516,14 @@ class App extends Component {
     if (stats.selectedClass === null) return
     if (!this.helpersBought(store)) return
     const diff = this.getSecondsSinceLoad(stats.lastTime)
+
+    console.log(`Seconds since load: ${diff}`)
     
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
 
     const [seconds, toxic] = this.getOfflineLimit(this.getToxicityRemaining(stats), this.getToxicityPerSecond(stats, store), diff)
+
+    console.log(`Seconds and toxic after offline limit calculation? ${seconds}, ${toxic}`)
 
     if (toxic) stats.toxicity = stats.toxicityLimit
     
