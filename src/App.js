@@ -22,8 +22,8 @@ class App extends Component {
     super(props);
     
     toastr.options.closeButton = true
-    toastr.options.timeout = 15
-    toastr.options.extendedTimeOut = 30
+    toastr.options.timeout = 30
+    toastr.options.extendedTimeOut = 60
     toastr.options.progressBar = true
 
     this.abbreviator = new abbreviate(Constants.ABBREVIATIONS)
@@ -156,18 +156,18 @@ class App extends Component {
   consume(stats = this.state.stats, store = this.state.store) {
     const consumers = this.getHelper('Consumer', store).purchased
     
-    let [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
+    const [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
 
-    let [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt, this.isClass(Constants.CLASSES.BUILDER, stats))
+    const [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt, this.isClass(Constants.CLASSES.BUILDER, stats))
 
     this.setState({
       stats: {
         ...stats,
         blocks: {
           blue: stats.blocks.blue + blueBlocks,
-          blueFragments: blueBlockFragments,
+          blueFragments: stats.blocks.blueFragments + blueBlockFragments,
           green: stats.blocks.green + greenBlocks,
-          greenFragments: greenBlockFragments
+          greenFragments: stats.blocks.greenFragments + greenBlockFragments
         }
       }
     })
@@ -178,15 +178,12 @@ class App extends Component {
     let totalBlue = 0
 
     for (let i = 0; i < seconds; i++) {
-      let greenBuilt, blueBuilt
-      [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
+      let [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
 
-    let [blueBlocks, greenBlocks] = this.getBlockStatusesOffline(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
-
-    return [greenBlocks, blueBlocks]
+    return this.getBlockStatuses(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
   }
   consumePreReqs(stats = this.state.stats, store = this.state.store) {
     const consumers = this.getHelper('Consumer', store)
@@ -283,45 +280,23 @@ class App extends Component {
 
     return [greenBuilt, blueBuilt]
   }
-  getBlockStatuses(greenBuilt, blueBuilt, builder) {
+  getBlockStatuses(greenFragments, blueFragments, builder) {
     let green = 0
-    let greenTotal = greenBuilt + this.state.stats.blocks.greenFragments
     let blue = 0
-    let blueTotal = blueBuilt + this.state.stats.blocks.blueFragments
 
     const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
 
-    while (greenTotal > limit) {
-      greenTotal -= limit
+    while (greenFragments > limit) {
+      greenFragments -= limit
       green++
     }
 
-    while (blueTotal > limit) {
-      blueTotal -= limit
+    while (blueFragments > limit) {
+      blueFragments -= limit
       blue++
     }
 
-    return [blueTotal, blue, greenTotal, green]
-  }
-  getBlockStatusesOffline(greenBuilt, blueBuilt, builder) {
-    let green = 0
-    let greenTotal = greenBuilt
-    let blue = 0
-    let blueTotal = blueBuilt
-
-    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
-
-    while (greenTotal > limit) {
-      greenTotal -= limit
-      green++
-    }
-
-    while (blueTotal > limit) {
-      blueTotal -= limit
-      blue++
-    }
-
-    return [blue, green]
+    return [blueFragments, blue, greenFragments, green]
   }
   getClickTowerBonus() {
     return this.getPositiveHelperOutput() * Constants.CLICK_TOWER.HELPER_RATE
@@ -397,6 +372,11 @@ class App extends Component {
     }
 
     return { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }
+  }
+  getOfflineLimit(toxicityRemaining, toxicityPerSecond, originalSeconds) {
+    if (toxicityPerSecond < 0) return [originalSeconds, false]
+
+    return [Math.floor(toxicityRemaining / toxicityPerSecond), true]
   }
   getOfflineProgress(seconds, store, stats) {
     return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store, stats)]
@@ -539,28 +519,31 @@ class App extends Component {
     
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
 
-    const seconds = Math.min(this.getToxicityRemaining(stats), diff)
-    
-    let score, greenBlocks, blueBlocks
-    [score, [greenBlocks, blueBlocks]] = this.getOfflineProgress(seconds, store, stats)
+    const [seconds, toxic] = this.getOfflineLimit(this.getToxicityRemaining(stats), this.getToxicityPerSecond(stats, store), diff)
 
-    stats.score = stats.score + score
+    if (toxic) stats.toxicity = stats.toxicityLimit
+    
+    const [score, [blueFragments, blueBlocks, greenFragments, greenBlocks]] = this.getOfflineProgress(seconds, store, stats)
+
+    stats.score += score
   
     let offlineMessage = `While offline for ${this.abbreviateNumber(diff)} seconds, you earned ${this.abbreviateNumber(score)} score!`
 
     if (blueBlocks > 0) {
       stats.blocks.blue += blueBlocks
+      stats.blocks.blueFragments += blueFragments
       offlineMessage += `</br>During that time your consumers produced ${this.abbreviateNumber(blueBlocks)} blue blocks!`
     }
 
     if (greenBlocks > 0) {
       stats.blocks.green += greenBlocks
+      stats.blocks.greenFragments += greenFragments
       offlineMessage += `</br>During that time your consumers produced ${this.abbreviateNumber(greenBlocks)} green blocks!`
     }
 
     stats.lastTime = new Date()
 
-    toastr.success(offlineMessage, )
+    toastr.success(offlineMessage, '')
   }
   onClassClick(name) {
     this.setState({
