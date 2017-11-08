@@ -858,7 +858,18 @@ class App extends Component {
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
     const purchaseText = `One-Time Buyables ${purchaseHandling ? 'Fade' : 'Disappear'}`
 
-    // TODO implement modal styles
+    const statsPanel = {
+      blueBlocks,
+      clicks,
+      clickScore,
+      greenBlocks,
+      score,
+      scorePerSecond,
+      selectedClass,
+      toxicity,
+      toxicityLimit,
+      toxicityPerSecond
+    }
 
     return (
       <div className="App">        
@@ -898,17 +909,7 @@ class App extends Component {
                   <ButtonPanel buttonHandle={this.buttonClicked} dumpHandle={this.dumpClicked} />
                 </Col>
                 <Col xs={12} md={5}>
-                  <StatsPanel
-                    blueBlocks={blueBlocks}
-                    clicks={clicks}
-                    clickScore={clickScore}
-                    greenBlocks={greenBlocks}
-                    score={score}
-                    scorePerSecond={scorePerSecond}
-                    selectedClass={selectedClass}
-                    toxicity={toxicity}
-                    toxicityLimit={toxicityLimit}
-                    toxicityPerSecond={toxicityPerSecond} />
+                  <StatsPanel {...statsPanel} />
                 </Col>
                 <Col xs={12} md={4}>
                   <StorePanel onPurchase={this.handleStorePurchase} purchaseHandling={purchaseHandling} store={store} />
