@@ -1,7 +1,7 @@
 // React dependencies
 import React, { Component } from 'react';
-import {Grid, Row, Col, NavItem} from 'react-bootstrap'
-import Modal from 'react-modal'
+import {Grid, Row, Col, NavItem, Button} from 'react-bootstrap'
+import Modal from 'react-responsive-modal'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
 import toastr from 'toastr'
@@ -144,7 +144,6 @@ class App extends Component {
     })
   }
   componentDidMount() {
-    Modal.setAppElement('.App')
     this.autoSave = window.setInterval(this.saveGame, 5000)
     this.gameTick = window.setInterval(this.tick, 1000)
     this.checkServiceWorkerStatus()
@@ -866,7 +865,7 @@ class App extends Component {
         <Grid>
           <Row>
             <Col xsOffset={3} xs={6}>
-              <Modal isOpen={modalOpen}>
+              <Modal closeOnEsc={true} open={modalOpen} onClose={this.closeModal} showCloseIcon={false}>
                 <Row>
                   <Col xs={12}>
                     <p>Are you sure you want to start a new game?</p>
@@ -874,10 +873,10 @@ class App extends Component {
                 </Row>
                 <Row>
                   <Col xs={12} md={6}>
-                    <button onClick={this.closeModal}>No</button>
+                    <Button block onClick={this.closeModal}>No</Button> 
                   </Col>
                   <Col xs={12} md={6}>
-                    <button onClick={this.newGame}>Yes</button>
+                    <Button block onClick={this.newGame}>Yes</Button>
                   </Col>
                 </Row>
               </Modal>
