@@ -62,10 +62,10 @@ const helpers = {
   
       let total = base * purchased
 
-      if (magic.isHalfToxic) {
-        total *= 0.9
-      } else if (magic.isToxic) {
+      if (magic.isToxic) {
         total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
       }
   
       if (upgradePurchased('Click Efficiency')) {
@@ -108,10 +108,10 @@ const helpers = {
 
       let total = base * purchased
       
-      if (magic.isHalfToxic) {
-        total *= 0.9
-      } else if (magic.isToxic) {
+      if (magic.isToxic) {
         total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
       }
 
       if (upgradePurchased('Cybernetic Synergy')) {
@@ -143,10 +143,10 @@ const helpers = {
       const purchased = this.purchased
       let total = base * purchased      
 
-      if (magic.isHalfToxic) {
-        total *= 0.9
-      } else if (magic.isToxic) {
+      if (magic.isToxic) {
         total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
       }
       
       if (upgradePurchased('Cybernetic Synergy')) {
@@ -178,10 +178,10 @@ const helpers = {
       const purchased = this.purchased
       let total = base * purchased      
 
-      if (magic.isHalfToxic) {
-        total *= 0.9
-      } else if (magic.isToxic) {
+      if (magic.isToxic) {
         total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
       }
       
       if (upgradePurchased('Extended Cargo')) {
@@ -226,10 +226,10 @@ const helpers = {
 
       let total = base * purchased      
 
-      if (magic.isHalfToxic) {
-        total *= 0.9
-      } else if (magic.isToxic) {
+      if (magic.isToxic) {
         total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
       }
 
       if (upgradePurchased('Cloner Overdrive')) {
@@ -262,10 +262,10 @@ const helpers = {
 
       let total = base * purchased      
 
-      if (magic.isHalfToxic) {
-        total *= 0.9
-      } else if (magic.isToxic) {
+      if (magic.isToxic) {
         total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
       }
 
       if (upgradePurchased('The Awakening')) {
