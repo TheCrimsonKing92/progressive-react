@@ -366,7 +366,7 @@ class App extends Component {
     const magic = { 
       awakening: stats.awakening, 
       efficientOperations: stats.efficientOperations,
-      isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
+      isHalfToxic: (stats.toxicity >= this.getToxicityCutoffHalf(stats)),
       isToxic: (stats.toxicity >= this.getToxicityCutoff(stats))
     }
 
@@ -425,6 +425,9 @@ class App extends Component {
   }
   getToxicityCutoff(stats = this.state.stats) {
     return Math.floor(stats.toxicityLimit * 0.9)
+  }
+  getToxicityCutoffHalf(stats = this.state.stats) {
+    return Math.floor(stats.toxicityLimit * 0.5)
   }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
     const fromHelpers = Object.values(store.helpers).filter(h => h.toxicity < 0).reduce((a, v) => a - v.toxicFormula(), 0)
@@ -840,7 +843,8 @@ class App extends Component {
     const scorePerSecond = this.abbreviateNumber(this.getScorePerSecond())
     const selectedClass = stats.selectedClass
     const toxicity = stats.toxicity
-    const toxicityCutoff = this.abbreviateNumber(this.getToxicityCutoff())
+    const toxicityCutoff = this.abbreviateNumber(this.getToxicityCutoff(stats))
+    const toxicityCutoffHalf = this.abbreviateNumber(this.getToxicityCutoffHalf(stats))
     const toxicityLimit = stats.toxicityLimit
     const toxicityPerSecond = this.abbreviateNumber(this.getToxicityPerSecond(stats, store))
 
@@ -857,6 +861,7 @@ class App extends Component {
       selectedClass,
       toxicity,
       toxicityCutoff,
+      toxicityCutoffHalf,
       toxicityPerSecond
     }
 

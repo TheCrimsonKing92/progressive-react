@@ -14,9 +14,10 @@ class StatsPanel extends Component {
     const selectedClass = this.props.selectedClass
     const toxicity = this.props.toxicity
     const toxicityCutoff = this.props.toxicityCutoff
+    const toxicityCutoffHalf = this.props.toxicityCutoffHalf
     const toxicityPerSecond = this.props.toxicityPerSecond
 
-    const toxicityTooltip = `At half toxicity, helpers produce 10% less score</br>Over ${toxicityCutoff} toxicity, helpers produce 50% less score.</br>`
+    const toxicityTooltip = `At ${toxicityCutoffHalf} toxicity, helpers produce 10% less score</br>Over ${toxicityCutoff} toxicity, helpers produce 50% less score.</br>`
 
     return (
       <div className="StatsPanel">
