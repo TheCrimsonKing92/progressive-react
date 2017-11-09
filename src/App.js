@@ -367,7 +367,7 @@ class App extends Component {
       awakening: stats.awakening, 
       efficientOperations: stats.efficientOperations,
       isHalfToxic: (stats.toxicity >= (stats.toxicityLimit * 0.5)),
-      isToxic: (stats.toxicity >= stats.toxicityLimit)
+      isToxic: (stats.toxicity >= this.getToxicityCutoff(stats))
     }
 
     return { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }
@@ -422,6 +422,9 @@ class App extends Component {
   }
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
+  }
+  getToxicityCutoff(stats = this.state.stats) {
+    return Math.floor(stats.toxicityLimit * 0.9)
   }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
     const fromHelpers = Object.values(store.helpers).filter(h => h.toxicity < 0).reduce((a, v) => a - v.toxicFormula(), 0)
@@ -595,19 +598,8 @@ class App extends Component {
             green: this.state.stats.blocks.green + 1
           }
         }
-      } else if (buyable.name === 'Toxic Capacity') {
-        statsSplice = {
-          ...this.state.stats,
-          blocks: statsSplice.blocks,
-          toxicityLimit: this.state.stats.toxicityLimit + 5
-        }
-      } else if (buyable.name === 'Toxicity Recyling') {
-        const max = Math.max(0, this.state.stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
-        statsSplice = {
-          ...this.state.stats,
-          blocks: statsSplice.blocks,
-          toxicity: max
-        }
+      } else {
+        console.warn(`Unknown blue block currency item ${buyable.name}`)
       }
     } else if (buyable.currency === Constants.CURRENCY.BLOCK.GREEN) {
       if (this.state.stats.blocks.green < price) {
@@ -629,6 +621,21 @@ class App extends Component {
             blue: this.state.stats.blocks.blue + 1
           }
         }
+      } else if (buyable.name === 'Toxic Capacity') {
+        statsSplice = {
+          blocks: statsSplice.blocks,
+          toxicityLimit: this.state.stats.toxicityLimit + 5
+        }
+      } else if (buyable.name === 'Toxicity Recycling') {
+        const max = Math.max(0, this.state.stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
+        console.log(`Mag: ${max}`)
+        statsSplice = {
+          blocks: statsSplice.blocks,
+          toxicity: max
+        }
+      } else {
+        console.warn(`Unknown green block currency item '${buyable.name}'`)
+        return
       }
     } else {
       console.warn(`Unknown currency ${buyable.currency}`)
@@ -833,6 +840,7 @@ class App extends Component {
     const scorePerSecond = this.abbreviateNumber(this.getScorePerSecond())
     const selectedClass = stats.selectedClass
     const toxicity = stats.toxicity
+    const toxicityCutoff = this.abbreviateNumber(this.getToxicityCutoff())
     const toxicityLimit = stats.toxicityLimit
     const toxicityPerSecond = this.abbreviateNumber(this.getToxicityPerSecond(stats, store))
 
@@ -848,7 +856,7 @@ class App extends Component {
       scorePerSecond,
       selectedClass,
       toxicity,
-      toxicityLimit,
+      toxicityCutoff,
       toxicityPerSecond
     }
 
@@ -872,12 +880,12 @@ class App extends Component {
           </Modal>
           <Row>
             <GameNav>
-              <NavItem eventKey={1} href="#" onClick={this.openModal}>New Game</NavItem>
-              <NavItem eventKey={2} href="#" onClick={this.saveGame}>Save Game</NavItem>
-              <NavItem eventKey={3} href="#" onClick={this.handleExportSave}>Export Save</NavItem>
-              <NavItem eventKey={4} href="#" onClick={this.handleImportSave}>Import Save</NavItem>
-              <NavItem eventKey={5} href="#" onClick={this.toggleAutosave}>{autosaveText}</NavItem>
-              <NavItem eventKey={6} href="#" onClick={this.togglePurchaseHandling}>{purchaseText}</NavItem>
+              <NavItem href="#" onClick={this.openModal}>New Game</NavItem>
+              <NavItem href="#" onClick={this.saveGame}>Save Game</NavItem>
+              <NavItem href="#" onClick={this.handleExportSave}>Export Save</NavItem>
+              <NavItem href="#" onClick={this.handleImportSave}>Import Save</NavItem>
+              <NavItem href="#" onClick={this.toggleAutosave}>{autosaveText}</NavItem>
+              <NavItem href="#" onClick={this.togglePurchaseHandling}>{purchaseText}</NavItem>
             </GameNav>
           </Row>
           { this.state.stats.selectedClass !== null ? (

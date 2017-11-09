@@ -13,10 +13,10 @@ class StatsPanel extends Component {
     const scorePerSecond = this.props.scorePerSecond
     const selectedClass = this.props.selectedClass
     const toxicity = this.props.toxicity
-    const toxicityLimit = this.props.toxicityLimit
+    const toxicityCutoff = this.props.toxicityCutoff
     const toxicityPerSecond = this.props.toxicityPerSecond
 
-    const toxicityTooltip = `At half toxicity, helpers produce 10% less score</br>At max toxicity (${this.props.toxicityLimit}), helpers produce 50% less score.</br>`
+    const toxicityTooltip = `At half toxicity, helpers produce 10% less score</br>Over ${toxicityCutoff} toxicity, helpers produce 50% less score.</br>`
 
     return (
       <div className="StatsPanel">

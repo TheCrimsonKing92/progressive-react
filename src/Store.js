@@ -567,7 +567,7 @@ const specials = {
     ]),
     currency: Constants.CURRENCY.BLOCK.BLUE
   },
-  'Tamer': special('Tamer', 'Tames a consumer\'s hunger by 5%', 150, Constants.PRICE_GROWTH.SPECIAL, [
+  'Tamer': special('Tamer', 'Consumers require less score', 150, Constants.PRICE_GROWTH.SPECIAL, [
     preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
   ]),
   'Toxic Capacity': special('Toxic Capacity', 'Increases maximum toxicity by 5', 300, Constants.PRICE_GROWTH.SPECIAL, [
