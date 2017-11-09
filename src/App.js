@@ -855,25 +855,21 @@ class App extends Component {
     return (
       <div className="App">        
         <Grid>
-          <Row>
-            <Col xsOffset={3} xs={6}>
-              <Modal closeOnEsc={true} open={modalOpen} onClose={this.closeModal} showCloseIcon={false}>
-                <Row>
-                  <Col xs={12}>
-                    <p>Are you sure you want to start a new game?</p>
-                  </Col>              
-                </Row>
-                <Row>
-                  <Col xs={12} md={6}>
-                    <Button block onClick={this.closeModal}>No</Button> 
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <Button block onClick={this.newGame}>Yes</Button>
-                  </Col>
-                </Row>
-              </Modal>
-            </Col>
-          </Row>          
+          <Modal closeOnEsc={true} open={modalOpen} onClose={this.closeModal} showCloseIcon={false}>
+            <Row>
+              <Col xs={12}>
+                <p>Are you sure you want to start a new game?</p>
+              </Col>              
+            </Row>
+            <Row>
+              <Col xs={12} md={6}>
+                <Button block onClick={this.closeModal}>No</Button> 
+              </Col>
+              <Col xs={12} md={6}>
+                <Button block onClick={this.newGame}>Yes</Button>
+              </Col>
+            </Row>
+          </Modal>
           <Row>
             <GameNav>
               <NavItem eventKey={1} href="#" onClick={this.openModal}>New Game</NavItem>
