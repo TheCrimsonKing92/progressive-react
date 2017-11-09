@@ -80,6 +80,13 @@ const helpers = {
       }
   
       return Math.floor(total)
+    },
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   },
   'Hammer': {
@@ -115,6 +122,13 @@ const helpers = {
       }
 
       return Math.floor(total)
+    },
+    getTooltip: function(abbreviate, isClass) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   },
   'Robot': {
@@ -143,6 +157,13 @@ const helpers = {
       }
 
       return Math.floor(total)
+    },
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   },
   'Airplane': {
@@ -180,6 +201,13 @@ const helpers = {
       }
 
       return Math.floor(total)
+    },
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   },
   'Cloner': {
@@ -209,6 +237,13 @@ const helpers = {
       }
 
       return Math.floor(total)
+    },
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   },
   'Djinn': {
@@ -248,6 +283,13 @@ const helpers = {
       }
 
       return Math.floor(total)
+    },
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   },
   'Consumer': {
@@ -273,6 +315,22 @@ const helpers = {
       if (!towerPurchased('Toxicity Tower')) return base
 
       return Math.floor(base * 0.9)
+    },
+    getTooltip: function(abbreviate, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      const withSps = `${base}</br>${this.sps} score per second`
+
+      const next = `${abbreviate(this.nextFormula(getHelper, 
+                                                  getSpecial, 
+                                                  isClass, 
+                                                  towerPurchased, 
+                                                  upgradePurchased, 
+                                                  magic))} score per second next`
+  
+      return `${withSps}</br>${next}`
     }
   },
   'Garbage Truck': {
@@ -283,6 +341,13 @@ const helpers = {
     },
     toxicFormula: function(towerPurchased) {
       return Math.ceil(this.toxicity * this.purchased)
+    },
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      
+      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+      return `${base}</br>${this.sps} score per second`
     }
   }
 }
@@ -309,52 +374,143 @@ const upgrade = (
 })
 
 const upgrades = {
-  'Helping Hand': Object.assign({}, upgrade('Helping Hand', '+1 AutoClicker and mouse power', 200), {buyable: true}),
-  'Click Efficiency': upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 150),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
-  ]),
-  'Heavier Hammers': upgrade('Heavier Hammers', '+100% Hammer power', 1250, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 5)
-  ]),
-  'Helping Handsier': upgrade('Helping Handsier', '+2 AutoClicker and mouse power', 2500, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 300),
-    preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Hand')
-  ]),
-  'Helping Handsiest': upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
-    preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handsier')
-  ]),
-  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
-  ]),
-  'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)
-  ]),
-  'Buddy System': upgrade('Buddy System', '+100% Airplane power', 85000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
-  ]),
-  'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
-  ]),
-  'Aria Hammera': upgrade('Aria Hammera', '+1 Hammer power per 15 Hammers', 600000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 15)
-  ]),
-  'Fleet Beacon': upgrade('Fleet Beacon', '+100% Airplane power. +200% at 100 Airplanes', 1750000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 25)
-  ]),
-  'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 10)
-  ]),
-  'Audible Motivation': upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn', 10000000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 15),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 15)
-  ]),
-  'Efficient Operations': upgrade('Efficient Operations', 'Each Robot has a chance to upgrade the base power of Cloners', 20000000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 20),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 20)
-  ])
+  'Helping Hand': {
+    ...upgrade('Helping Hand', '+1 AutoClicker and mouse power', 200),
+    buyable: true,
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Click Efficiency': {
+    ...upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
+      preReq(Constants.PREREQ.CLICKS.NUMBER, null, 150),
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Heavier Hammers': {
+    ...upgrade('Heavier Hammers', '+100% Hammer power', 1250, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 5)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Helping Handsier': {
+    ...upgrade('Helping Handsier', '+2 AutoClicker and mouse power', 2500, [
+      preReq(Constants.PREREQ.CLICKS.NUMBER, null, 300),
+      preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Hand')
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Helping Handsiest': {
+    ...upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
+      preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
+      preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handsier')
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Cybernetic Synergy': {
+    ...upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
+    ]),
+    getTooltip: function(abbreviate, isClass) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const description = isClass(Constants.CLASSES.MECHANIC) ? 
+                            this.description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`) 
+                            : this.description
+      return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
+    }
+  },
+  'Extended Cargo': {
+    ...upgrade('Extended Cargo', '+25% Airplane power', 23000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Buddy System': {
+    ...upgrade('Buddy System', '+100% Airplane power', 85000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Cloner Overdrive': {
+    ...upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Aria Hammera': {
+    ...upgrade('Aria Hammera', '+1 Hammer power per 15 Hammers', 600000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 15)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Fleet Beacon': {
+    ...upgrade('Fleet Beacon', '+100% Airplane power. +200% at 100 Airplanes', 1750000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 25)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'The Awakening': {
+    ...upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 10)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Audible Motivation': {
+    ...upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn', 10000000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 15),
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 15)
+    ]),
+    getTooltip: function(abbreviate) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      return this.buyable ? `${this.name}</br>${this.description}</br>${costPhrase}` : `${this.name}</br>${this.description}`
+    }
+  },
+  'Efficient Operations': {
+    ...upgrade('Efficient Operations', 'Each Robot has a chance to upgrade the base power of Cloners', 20000000, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 20),
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 20)
+    ]),
+    getTooltip: function(abbreviate, isClass) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const description = isClass(Constants.CLASSES.MECHANIC) ?
+                            this.description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
+                            : this.description
+      return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
+    }
+  }
 }
 
 const tower = (

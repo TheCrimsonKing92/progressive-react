@@ -30,6 +30,7 @@ class App extends Component {
 
     this.state = this.getGame();
 
+    this.abbreviateNumber = this.abbreviateNumber.bind(this)
     this.buttonClicked = this.buttonClicked.bind(this)
     this.cheat = this.cheat.bind(this)
     window.cheat = this.cheat
@@ -157,16 +158,17 @@ class App extends Component {
     
     const [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
 
-    const [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt, blueBuilt, this.isClass(Constants.CLASSES.BUILDER, stats))
-
+    const [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
+                                                                                                    blueBuilt + stats.blocks.blueFragments,
+                                                                                                    this.isClass(Constants.CLASSES.BUILDER, stats))
     this.setState({
       stats: {
         ...stats,
         blocks: {
           blue: stats.blocks.blue + blueBlocks,
-          blueFragments: stats.blocks.blueFragments + blueBlockFragments,
+          blueFragments: blueBlockFragments,
           green: stats.blocks.green + greenBlocks,
-          greenFragments: stats.blocks.greenFragments + greenBlockFragments
+          greenFragments: greenBlockFragments
         }
       }
     })
@@ -192,7 +194,7 @@ class App extends Component {
     const decrease = this.getToxicityDecrease(stats, store)
     const increase = this.getToxicityIncrease(store)
     const toxicity = this.getToxicityRemaining(stats)
-
+    
     if ((decrease + toxicity) < increase) {
       const next = Math.max((stats.toxicity - decrease), 0)
       this.setState({
@@ -232,19 +234,17 @@ class App extends Component {
     let counter = 0
     const times = Math.min(this.getHelper('Robot').purchased, this.getHelper('Cloner').purchased)
     for (let i = 0; i < times; i++) {
-      if (Math.random() > Constants.EFFICIENT_OPERATIONS_FAILURE_RATE) {
-        counter++
-      }
+      if (Math.random() > Constants.EFFICIENT_OPERATIONS_FAILURE_RATE) counter++
     }
 
-    if (counter > 0) {
-      this.setState({
-        stats: {
-          ...this.state.stats,
-          efficientOperations: this.state.stats.efficientOperations + counter
-        }
-      })
-    }
+    if (counter === 0) return
+
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        efficientOperations: this.state.stats.efficientOperations + counter
+      }
+    })
   }
   evaluateBuyable(buyable, stats = this.state.stats, store = this.state.store) {
     if (!buyable.multiple && buyable.purchased > 0) return false
@@ -350,9 +350,9 @@ class App extends Component {
 
     if (stored != null && stored.length > 0) {
       return this.unmapGameState(stored);
-    } else {
-      return this.getDefaultGameState();
     }
+
+    return this.getDefaultGameState();
   }
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
@@ -399,41 +399,26 @@ class App extends Component {
     return store.specials[special]
   }
   getTooltip(buyable, stats = this.state.stats, store = this.state.store) {
+    if (buyable.type === Constants.BUYABLE_TYPE.HELPER) {
+      if (buyable.name === 'Consumer') {
+        const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
+        return buyable.getTooltip(this.abbreviateNumber, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
+      }      
+      return buyable.getTooltip(this.abbreviateNumber)
+    } else if (buyable.type === Constants.BUYABLE_TYPE.UPGRADE) {
+      if (buyable.name === 'Cybernetic Synergy' || buyable.name === 'Efficient Operations') return buyable.getTooltip(this.abbreviateNumber, name => this.isClass(name, stats))
+      return buyable.getTooltip(this.abbreviateNumber)
+    }
+
     const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
     const cost = this.abbreviateNumber(buyable.currentPrice)
     const costPhrase = `Costs ${cost} ${currency}`
     
     // YUCK, SPECIAL CASE HANDLING
-    let description = buyable.description
-
-    if (this.isClass(Constants.CLASSES.MECHANIC, stats)){
-      if (buyable.name === 'Cybernetic Synergy') {
-        description = description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`)
-      } else if (buyable.name === 'Efficient Operations') {
-        description = description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
-      }
-    }
-
+    const description = buyable.description
     const title = buyable.multiple ? `${buyable.name} - ${buyable.purchased}` : buyable.name
 
-    const base = buyable.buyable ? `${title}</br>${description}</br>${costPhrase}` : `${title}</br>${description}`
-
-    if (buyable.type !== 'helper') return base
-
-    const withSps = `${base}</br>${buyable.sps} score per second`
-
-    if (buyable.name !== 'Consumer') return withSps
-
-    const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
-
-    const next = `${this.abbreviateNumber(buyable.nextFormula(getHelper, 
-                                                              getSpecial, 
-                                                              isClass, 
-                                                              towerPurchased, 
-                                                              upgradePurchased, 
-                                                              magic))} score per second next`
-
-    return `${withSps}</br>${next}`
+    return buyable.buyable ? `${title}</br>${description}</br>${costPhrase}` : `${title}</br>${description}`
   }
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
@@ -516,13 +501,9 @@ class App extends Component {
     if (!this.helpersBought(store)) return
     const diff = this.getSecondsSinceLoad(stats.lastTime)
 
-    console.log(`Seconds since load: ${diff}`)
-    
     if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
 
     const [seconds, toxic] = this.getOfflineLimit(this.getToxicityRemaining(stats), this.getToxicityPerSecond(stats, store), diff)
-
-    console.log(`Seconds and toxic after offline limit calculation? ${seconds}, ${toxic}`)
 
     if (toxic) stats.toxicity = stats.toxicityLimit
     
@@ -820,7 +801,7 @@ class App extends Component {
       for (let member in collection) {
         let buyable = collection[member]
 
-        if (buyable.type === 'helper') {
+        if (buyable.type === Constants.BUYABLE_TYPE.HELPER) {
           buyable = {
             ...buyable,
             sps: this.abbreviateNumber(this.calculateScore(buyable))
