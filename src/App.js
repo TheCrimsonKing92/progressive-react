@@ -638,7 +638,6 @@ class App extends Component {
         }
       } else {
         console.warn(`Unknown green block currency item '${buyable.name}'`)
-        return
       }
     } else {
       console.warn(`Unknown currency ${buyable.currency}`)
