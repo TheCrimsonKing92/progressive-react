@@ -358,6 +358,7 @@ class App extends Component {
     return store.helpers[helper]
   }  
   getHelperFunctions(stats, store) {
+    const toxicity = this.getToxicityPercentage(stats, store)
     const getHelper = name => this.getHelper(name, store)
     const getSpecial = name => this.getSpecial(name, store)
     const isClass = name => this.isClass(name, stats)
@@ -366,8 +367,8 @@ class App extends Component {
     const magic = { 
       awakening: stats.awakening, 
       efficientOperations: stats.efficientOperations,
-      isHalfToxic: (stats.toxicity >= this.getToxicityCutoffHalf(stats)),
-      isToxic: (stats.toxicity >= this.getToxicityCutoff(stats))
+      isHalfToxic: toxicity >= 50,
+      isToxic: toxicity >= 90
     }
 
     return { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }
@@ -423,12 +424,6 @@ class App extends Component {
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
   }
-  getToxicityCutoff(stats = this.state.stats) {
-    return Math.floor(stats.toxicityLimit * 0.9)
-  }
-  getToxicityCutoffHalf(stats = this.state.stats) {
-    return Math.floor(stats.toxicityLimit * 0.5)
-  }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
     const fromHelpers = Object.values(store.helpers).filter(h => h.toxicity < 0).reduce((a, v) => a - v.toxicFormula(), 0)
     return fromHelpers + (this.isClass(Constants.CLASSES.MEDIC, stats) ? Constants.MEDIC_PASSIVE_POWER : 0)
@@ -436,8 +431,14 @@ class App extends Component {
   getToxicityIncrease(store = this.state.store) {
     return this.getHelper('Consumer', store).toxicFormula(name => this.towerPurchased(name, store))
   }
-  getToxicityPerSecond(stats = this.stats.stats, store = this.state.store) {
+  getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
     return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
+  }
+  getToxicityPercentage(stats = this.state.stats, store = this.state.store) {
+    // The dumbass abbreviate-number library doesn't want to abbreviate the value when it's less than 1
+    // So let's do some shitty manipulations
+    const base = (stats.toxicity * 100) / stats.toxicityLimit
+    return parseFloat(base.toFixed(2))
   }
   getToxicityRemaining(stats = this.state.stats) {
     return stats.toxicityLimit - stats.toxicity
@@ -602,7 +603,7 @@ class App extends Component {
           }
         }
       } else {
-        console.warn(`Unknown blue block currency item ${buyable.name}`)
+        console.warn(`No side effects defined for blue block item ${buyable.name}`)
       }
     } else if (buyable.currency === Constants.CURRENCY.BLOCK.GREEN) {
       if (this.state.stats.blocks.green < price) {
@@ -631,13 +632,12 @@ class App extends Component {
         }
       } else if (buyable.name === 'Toxicity Recycling') {
         const max = Math.max(0, this.state.stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
-        console.log(`Mag: ${max}`)
         statsSplice = {
           blocks: statsSplice.blocks,
           toxicity: max
         }
       } else {
-        console.warn(`Unknown green block currency item '${buyable.name}'`)
+        console.warn(`No side effects defined for green block currency item '${buyable.name}'`)
       }
     } else {
       console.warn(`Unknown currency ${buyable.currency}`)
@@ -841,10 +841,7 @@ class App extends Component {
     const score = this.abbreviateNumber(Math.floor(stats.score))
     const scorePerSecond = this.abbreviateNumber(this.getScorePerSecond())
     const selectedClass = stats.selectedClass
-    const toxicity = stats.toxicity
-    const toxicityCutoff = this.abbreviateNumber(this.getToxicityCutoff(stats))
-    const toxicityCutoffHalf = this.abbreviateNumber(this.getToxicityCutoffHalf(stats))
-    const toxicityLimit = stats.toxicityLimit
+    const toxicity = this.getToxicityPercentage(stats, store)
     const toxicityPerSecond = this.abbreviateNumber(this.getToxicityPerSecond(stats, store))
 
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
@@ -859,8 +856,6 @@ class App extends Component {
       scorePerSecond,
       selectedClass,
       toxicity,
-      toxicityCutoff,
-      toxicityCutoffHalf,
       toxicityPerSecond
     }
 
