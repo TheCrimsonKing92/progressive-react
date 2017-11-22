@@ -434,6 +434,10 @@ class App extends Component {
   getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
     return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
   }
+  getToxicityPerSecondPercentage(stats = this.state.stats, store = this.state.store) {
+    const base = (this.getToxicityPerSecond(stats, store) * 100) / stats.toxicityLimit
+    return parseFloat(base.toFixed(2))
+  }
   getToxicityPercentage(stats = this.state.stats, store = this.state.store) {
     // The dumbass abbreviate-number library doesn't want to abbreviate the value when it's less than 1
     // So let's do some shitty manipulations
@@ -842,7 +846,7 @@ class App extends Component {
     const scorePerSecond = this.abbreviateNumber(this.getScorePerSecond())
     const selectedClass = stats.selectedClass
     const toxicity = this.getToxicityPercentage(stats, store)
-    const toxicityPerSecond = this.abbreviateNumber(this.getToxicityPerSecond(stats, store))
+    const toxicityPerSecond = this.getToxicityPerSecondPercentage(stats, store) + '%'
 
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
     const purchaseText = `One-Time Buyables ${purchaseHandling ? 'Fade' : 'Disappear'}`
