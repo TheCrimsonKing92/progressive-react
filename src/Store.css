@@ -59,19 +59,19 @@
 }
 
 .cybernetic-synergy {
-    background-image: url('CyberneticSynergy.png')
+    background-image: url('./CyberneticSynergy.png')
 }
 
 .djinn {
-    background-image: url('DjinnBig.png')
+    background-image: url('./DjinnBig.png')
 }
 
 .efficient-operations {
-    background-image: url('EfficientOperations.png')
+    background-image: url('./EfficientOperations.png')
 }
 
 .extended-cargo {
-    background-image: url('ExtendedCargo.png')
+    background-image: url('./ExtendedCargo.png')
 }
 
 .faded {
@@ -83,7 +83,7 @@
 }
 
 .garbage-truck {
-    background-image: url('GarbageTruck.png')
+    background-image: url('./GarbageTruck.png')
 }
 
 .green-block {

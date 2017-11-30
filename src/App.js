@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import {Grid, Row, Col, NavItem, Button} from 'react-bootstrap'
 import Modal from 'react-responsive-modal'
+import FontAwesome from 'react-fontawesome'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
 import toastr from 'toastr'
@@ -34,7 +35,8 @@ class App extends Component {
     this.buttonClicked = this.buttonClicked.bind(this)
     this.cheat = this.cheat.bind(this)
     window.cheat = this.cheat
-    this.closeModal = this.closeModal.bind(this)
+    this.closeHelpModal = this.closeHelpModal.bind(this)
+    this.closeNewGameModal = this.closeNewGameModal.bind(this)
     this.consume = this.consume.bind(this)
     this.dumpClicked = this.dumpClicked.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
@@ -42,7 +44,8 @@ class App extends Component {
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
     this.newGame = this.newGame.bind(this)
     this.onClassClick = this.onClassClick.bind(this)
-    this.openModal = this.openModal.bind(this)
+    this.openHelpModal = this.openHelpModal.bind(this)
+    this.openNewGameModal = this.openNewGameModal.bind(this)
     this.preReqFulfilled = this.preReqFulfilled.bind(this)
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
@@ -84,27 +87,27 @@ class App extends Component {
       }
     })
   }
-  calculateClickScore() {
+  calculateClickScore(stats = this.state.stats, store = this.state.store) {
     let base = 1
 
-    if (this.upgradePurchased('Helping Hand')) {
+    if (this.upgradePurchased('Helping Hand', store)) {
       base += Constants.POWER.HELPING_HAND
     }
 
-    if (this.upgradePurchased('Helping Handsier')) {
+    if (this.upgradePurchased('Helping Handsier', store)) {
       base += Constants.POWER.HELPING_HANDSIER
     }
 
-    if (this.upgradePurchased('Helping Handsiest')) {
+    if (this.upgradePurchased('Helping Handsiest', store)) {
       base += Constants.POWER.HELPING_HANDSIEST
     }
     
-    if (this.towerPurchased('Click Tower')) {
-      base += this.state.stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
-      base += this.getClickTowerBonus()
+    if (this.towerPurchased('Click Tower', store)) {
+      base += stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
+      base += this.getClickTowerBonus(stats, store)
     }
 
-    if (this.upgradePurchased('Click Efficiency')) {
+    if (this.upgradePurchased('Click Efficiency', store)) {
       base *= 2
     }
 
@@ -137,10 +140,19 @@ class App extends Component {
       toastr.warning('Please refresh for the latest Progressive Game')
     }
   }
-  closeModal() {
+  closeHelpModal() {
     this.setState({
       ui: {
-        modalOpen: false
+        ...this.state.ui,
+        helpModalOpen: false
+      }
+    })
+  }
+  closeNewGameModal() {
+    this.setState({
+      ui: {
+        ...this.state.ui,
+        newGameModalOpen: false
       }
     })
   }
@@ -297,8 +309,8 @@ class App extends Component {
 
     return [blueFragments, blue, greenFragments, green]
   }
-  getClickTowerBonus() {
-    return this.getPositiveHelperOutput() * Constants.CLICK_TOWER.HELPER_RATE
+  getClickTowerBonus(stats = this.state.stats, store = this.state.store) {
+    return this.getPositiveHelperOutput(store, stats) * Constants.CLICK_TOWER.HELPER_RATE
   }
   getConsumption(store = this.state.store, stats = this.state.stats) {
     return this.calculateScore(this.getHelper('Consumer', store), store, stats)
@@ -314,6 +326,10 @@ class App extends Component {
   getDefaultOptions() {
     return {
       autosaveFrequency: 5,
+      intro: {
+        showing: true,
+        showOnLoad: true
+      },
       purchaseHandling: true,
       upgradeHandling: true
     }
@@ -342,7 +358,10 @@ class App extends Component {
   }
   getDefaultUi() {
     return {
-      modalOpen: false
+      loading: false,
+      helpModalOpen: false,
+      newGameModalOpen: false,
+      preventHelpOnNewGame: false
     }
   }
   getGame() {
@@ -353,6 +372,46 @@ class App extends Component {
     }
 
     return this.getDefaultGameState();
+  }
+  getGameDisplay(handlers, stats = this.state.stats, store = this.state.store, options = this.state.options, ui = this.state.ui) {
+    if (ui.loading) {
+      console.log(`loading`)
+      return <FontAwesome name="refresh" spin={true} />
+    }
+
+    if (stats.selectedClass === null) {
+      console.log(`selectedClass null, should show picker`)
+      const justClasses = Object.values(Constants.CLASSES)        
+      return <ClassPicker classes={justClasses} onClassClick={handlers.onClassClick}/>
+    }
+
+    const statsPanel = {
+      blueBlocks: this.abbreviateNumber(stats.blocks.blue),
+      clicks: this.abbreviateNumber(stats.clicks),
+      clickScore: this.abbreviateNumber(Math.floor(this.calculateClickScore(stats, store))),
+      greenBlocks: this.abbreviateNumber(stats.blocks.green),
+      score: this.abbreviateNumber(Math.floor(stats.score)),
+      scorePerSecond: this.abbreviateNumber(this.getScorePerSecond(store, stats)),
+      selectedClass: stats.selectedClass,
+      toxicity: this.getToxicityPercentage(stats, store),
+      toxicityPerSecond: this.getToxicityPerSecondPercentage(stats, store) + '%'
+    }
+  
+    const purchaseHandling = options.purchaseHandling
+    console.log(`should show game`)
+    return (
+      <Row>
+        <Col xs={12} md={3}>
+          <ButtonPanel buttonHandle={handlers.buttonClicked} dumpHandle={handlers.dumpClicked} />
+        </Col>
+        <Col xs={12} md={5}>
+          <StatsPanel {...statsPanel} />
+        </Col>
+        <Col xs={12} md={4}>
+          <StorePanel onPurchase={handlers.handleStorePurchase} purchaseHandling={purchaseHandling} store={store} />
+        </Col>
+      </Row>
+    )
   }
   getHelper(helper, store = this.state.store) {
     return store.helpers[helper]
@@ -548,10 +607,19 @@ class App extends Component {
       }
     })
   }
-  openModal() {
+  openHelpModal() {
     this.setState({
       ui: {
-        modalOpen: true
+        ...this.state.ui,
+        helpModalOpen: true
+      }
+    })
+  }
+  openNewGameModal() {
+    this.setState({
+      ui: {
+        ...this.state.ui,
+        newGameModalOpen: true
       }
     })
   }
@@ -805,8 +873,8 @@ class App extends Component {
   render() {
     const options = this.state.options
     const stats = this.state.stats
+    const ui = this.state.ui
     let store = this.state.store
-    const modalOpen = this.state.ui.modalOpen
 
     for (let type in store) {
       let collection = store[type]
@@ -836,37 +904,33 @@ class App extends Component {
     }
 
     const autosave = options.autosaveFrequency
-    const blueBlocks = this.abbreviateNumber(stats.blocks.blue)
-    const clicks = this.abbreviateNumber(stats.clicks)
-    const clickScore = this.abbreviateNumber(Math.floor(this.calculateClickScore()))
-    const greenBlocks = this.abbreviateNumber(stats.blocks.green)
-    const justClasses = Object.values(Constants.CLASSES)
-    const purchaseHandling = options.purchaseHandling
-    const score = this.abbreviateNumber(Math.floor(stats.score))
-    const scorePerSecond = this.abbreviateNumber(this.getScorePerSecond())
-    const selectedClass = stats.selectedClass
-    const toxicity = this.getToxicityPercentage(stats, store)
-    const toxicityPerSecond = this.getToxicityPerSecondPercentage(stats, store) + '%'
-
     const autosaveText = `Autosave Every ${autosave} Second${autosave === 1 ? '' : 's'}`
-    const purchaseText = `One-Time Buyables ${purchaseHandling ? 'Fade' : 'Disappear'}`
+    const purchaseText = `One-Time Buyables ${options.purchaseHandling ? 'Fade' : 'Disappear'}`
 
-    const statsPanel = {
-      blueBlocks,
-      clicks,
-      clickScore,
-      greenBlocks,
-      score,
-      scorePerSecond,
-      selectedClass,
-      toxicity,
-      toxicityPerSecond
+    const handlers = {
+      buttonClicked: this.buttonClicked,
+      dumpClicked: this.dumpClicked,
+      handleStorePurchase: this.handleStorePurchase,
+      onClassClick: this.onClassClick
     }
+
+    const helpModalOpen = ui.helpModalOpen
+    const newGameModalOpen = ui.newGameModalOpen
 
     return (
       <div className="App">        
         <Grid>
-          <Modal closeOnEsc={true} open={modalOpen} onClose={this.closeModal} showCloseIcon={false}>
+          <Modal closeOnEsc={true} open={helpModalOpen} onClose={this.closeHelpModal} showCloseIcon={true}>
+            <h4>Help! What is all this?</h4>
+            <p>Progressive Game is just that-- progressive! New upgrades and types of buyables will become available as you go on.</p>
+            <p>Your primary resource is score: Use it to buy helpers (to automate score gain) and upgrades.</p>
+            <p>The Button is your first and primary source of score. Get tapping to get started!</p>
+            <p>Blocks (blue and green) are an advanced resource produced by consumers, in the mid-to-late phase of the game.</p>
+            <p>Speaking of consumers, they also produce toxicity, which can affect your score output. Be careful!</p>
+            <p>The Dump can help you get rid of toxicity, at least for a while.</p>
+            <p>If you haven't already, pick a class (with a unique bonus) to get started.</p>
+          </Modal>
+          <Modal closeOnEsc={true} open={newGameModalOpen} onClose={this.closeNewGameModal} showCloseIcon={false}>
             <Row>
               <Col xs={12}>
                 <p>Are you sure you want to start a new game?</p>
@@ -874,7 +938,7 @@ class App extends Component {
             </Row>
             <Row>
               <Col xs={12} md={6}>
-                <Button block onClick={this.closeModal}>No</Button> 
+                <Button block onClick={this.closeNewGameModal}>No</Button> 
               </Col>
               <Col xs={12} md={6}>
                 <Button block onClick={this.newGame}>Yes</Button>
@@ -883,7 +947,8 @@ class App extends Component {
           </Modal>
           <Row>
             <GameNav>
-              <NavItem href="#" onClick={this.openModal}>New Game</NavItem>
+              <NavItem href="#" onClick={this.openHelpModal}>Help</NavItem>
+              <NavItem href="#" onClick={this.openNewGameModal}>New Game</NavItem>
               <NavItem href="#" onClick={this.saveGame}>Save Game</NavItem>
               <NavItem href="#" onClick={this.handleExportSave}>Export Save</NavItem>
               <NavItem href="#" onClick={this.handleImportSave}>Import Save</NavItem>
@@ -891,20 +956,7 @@ class App extends Component {
               <NavItem href="#" onClick={this.togglePurchaseHandling}>{purchaseText}</NavItem>
             </GameNav>
           </Row>
-          { this.state.stats.selectedClass !== null ? (
-              <Row>
-                <Col xs={12} md={3}>
-                  <ButtonPanel buttonHandle={this.buttonClicked} dumpHandle={this.dumpClicked} />
-                </Col>
-                <Col xs={12} md={5}>
-                  <StatsPanel {...statsPanel} />
-                </Col>
-                <Col xs={12} md={4}>
-                  <StorePanel onPurchase={this.handleStorePurchase} purchaseHandling={purchaseHandling} store={store} />
-                </Col>
-              </Row>
-            ) : <ClassPicker classes={justClasses} onClassClick={this.onClassClick}/>
-          }          
+          { this.getGameDisplay(handlers, stats, store, options, ui) }          
         </Grid>
       </div>
     );
