@@ -468,17 +468,13 @@ class App extends Component {
     } else if (buyable.type === Constants.BUYABLE_TYPE.UPGRADE) {
       if (buyable.name === 'Cybernetic Synergy' || buyable.name === 'Efficient Operations') return buyable.getTooltip(this.abbreviateNumber, name => this.isClass(name, stats))
       return buyable.getTooltip(this.abbreviateNumber)
+    } else if (buyable.type === Constants.BUYABLE_TYPE.TOWER) {
+      return buyable.getTooltip(this.abbreviateNumber, this.isClass)
+    } else if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
+      return buyable.getTooltip(this.abbreviateNumber, this.isClass)
+    } else {
+      console.warn(`Unknown buyable type ${buyable.type}. Name? ${buyable.name}`)
     }
-
-    const currency = buyable.currency !== 'score' ? buyable.currency.replace('-',' ').concat('s') : buyable.currency
-    const cost = this.abbreviateNumber(buyable.currentPrice)
-    const costPhrase = `Costs ${cost} ${currency}`
-    
-    // YUCK, SPECIAL CASE HANDLING
-    const description = buyable.description
-    const title = buyable.multiple ? `${buyable.name} - ${buyable.purchased}` : buyable.name
-
-    return buyable.buyable ? `${title}</br>${description}</br>${costPhrase}` : `${title}</br>${description}`
   }
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
