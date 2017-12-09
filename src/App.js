@@ -1,6 +1,6 @@
 // React dependencies
 import React, { Component } from 'react';
-import {Grid, Row, Col, NavItem, Button} from 'react-bootstrap'
+import {Grid, Row, Col, Button} from 'react-bootstrap'
 import FontAwesome from 'react-fontawesome'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
@@ -171,17 +171,18 @@ class App extends Component {
     
     const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
 
-    const { blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
-                                                                                                    blueBuilt + stats.blocks.blueFragments,
-                                                                                                    this.isClass(Constants.CLASSES.BUILDER, stats))
+    const { blueFragments, blueBlocks, greenFragments, greenBlocks } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
+                                                                                            blueBuilt + stats.blocks.blueFragments,
+                                                                                            this.isClass(Constants.CLASSES.BUILDER, stats))
+                                                                                                    
     this.setState({
       stats: {
         ...stats,
         blocks: {
           blue: stats.blocks.blue + blueBlocks,
-          blueFragments: blueBlockFragments,
+          blueFragments: blueFragments,
           green: stats.blocks.green + greenBlocks,
-          greenFragments: greenBlockFragments
+          greenFragments: greenFragments
         }
       }
     })
@@ -290,6 +291,7 @@ class App extends Component {
       consumers--
     }
 
+    console.log(`Returning green: ${greenBuilt}, blue: ${blueBuilt}`)
     return { greenBuilt, blueBuilt }
   }
   getBlockStatuses(greenFragments, blueFragments, builder) {
@@ -901,6 +903,17 @@ class App extends Component {
     }
 
     const { helpModalOpen, newGameModalOpen } = ui
+    const navActions = {
+      autosaveText,
+      purchaseText,
+      openHelpModal: this.openHelpModal,
+      openNewGameModal: this.openNewGameModal,
+      saveGame: this.saveGame,
+      handleExportSave: this.handleExportSave,
+      handleImportSave: this.handleImportSave,
+      toggleAutosave: this.toggleAutosave,
+      togglePurchaseHandling: this.togglePurchaseHandling
+    }
 
     return (
       <div className="App">        
@@ -908,15 +921,7 @@ class App extends Component {
           <HelpModal open={helpModalOpen} onClose={this.closeHelpModal} />
           <NewGameModal open={newGameModalOpen} onClose={this.closeNewGameModal} newGame={this.newGame} />
           <Row>
-            <GameNav>
-              <NavItem href="#" onClick={this.openHelpModal}>Help</NavItem>
-              <NavItem href="#" onClick={this.openNewGameModal}>New Game</NavItem>
-              <NavItem href="#" onClick={this.saveGame}>Save Game</NavItem>
-              <NavItem href="#" onClick={this.handleExportSave}>Export Save</NavItem>
-              <NavItem href="#" onClick={this.handleImportSave}>Import Save</NavItem>
-              <NavItem href="#" onClick={this.toggleAutosave}>{autosaveText}</NavItem>
-              <NavItem href="#" onClick={this.togglePurchaseHandling}>{purchaseText}</NavItem>
-            </GameNav>
+            <GameNav { ...navActions } />
           </Row>
           { this.getGameDisplay(handlers, stats, store, options, ui) }          
         </Grid>
