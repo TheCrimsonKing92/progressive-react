@@ -8,7 +8,7 @@ class GameNav extends Component {
         <Navbar>
           <Navbar.Header>
             <Navbar.Brand>
-                Progressive React
+                Progressive Game
             </Navbar.Brand>
             <Navbar.Toggle />
           </Navbar.Header>
