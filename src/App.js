@@ -1,7 +1,6 @@
 // React dependencies
 import React, { Component } from 'react';
 import {Grid, Row, Col, NavItem, Button} from 'react-bootstrap'
-import Modal from 'react-responsive-modal'
 import FontAwesome from 'react-fontawesome'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
@@ -12,6 +11,8 @@ import Constants from './Constants'
 import ButtonPanel from './ButtonPanel'
 import ClassPicker from './ClassPicker'
 import GameNav from './GameNav'
+import HelpModal from './HelpModal'
+import NewGameModal from './NewGameModal'
 import StatsPanel from './StatsPanel'
 import StorePanel from './StorePanel'
 import Store from './Store'
@@ -168,9 +169,9 @@ class App extends Component {
   consume(stats = this.state.stats, store = this.state.store) {
     const consumers = this.getHelper('Consumer', store).purchased
     
-    const [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
+    const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
 
-    const [blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks] = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
+    const { blueBlockFragments, blueBlocks, greenBlockFragments, greenBlocks } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
                                                                                                     blueBuilt + stats.blocks.blueFragments,
                                                                                                     this.isClass(Constants.CLASSES.BUILDER, stats))
     this.setState({
@@ -289,7 +290,7 @@ class App extends Component {
       consumers--
     }
 
-    return [greenBuilt, blueBuilt]
+    return { greenBuilt, blueBuilt }
   }
   getBlockStatuses(greenFragments, blueFragments, builder) {
     let green = 0
@@ -307,7 +308,7 @@ class App extends Component {
       blue++
     }
 
-    return [blueFragments, blue, greenFragments, green]
+    return { blueFragments, blue, greenFragments, green }
   }
   getClickTowerBonus(stats = this.state.stats, store = this.state.store) {
     return this.getPositiveHelperOutput(store, stats) * Constants.CLICK_TOWER.HELPER_RATE
@@ -380,7 +381,6 @@ class App extends Component {
     }
 
     if (stats.selectedClass === null) {
-      console.log(`selectedClass null, should show picker`)
       const justClasses = Object.values(Constants.CLASSES)        
       return <ClassPicker classes={justClasses} onClassClick={handlers.onClassClick}/>
     }
@@ -398,7 +398,6 @@ class App extends Component {
     }
   
     const purchaseHandling = options.purchaseHandling
-    console.log(`should show game`)
     return (
       <Row>
         <Col xs={12} md={3}>
@@ -815,9 +814,7 @@ class App extends Component {
   unmapGameState(mapped) {
     const previous = JSON.parse(mapped)
 
-    const options = previous.options
-    const stats = previous.stats    
-    const store = previous.store
+    const { options, stats, store } = previous
     let ui = previous.ui
 
     const defaultStats = this.getDefaultStats()
@@ -854,12 +851,7 @@ class App extends Component {
       }
     }    
     
-    return {
-      options: options,
-      stats: stats,
-      store: store,
-      ui: ui
-    }
+    return { options, stats, store, ui }
   }
   upgradePurchased(upgrade, store) {
     const found = this.getUpgrade(upgrade, store)
@@ -867,9 +859,7 @@ class App extends Component {
     return !found ? false : found.purchased > 0
   }
   render() {
-    const options = this.state.options
-    const stats = this.state.stats
-    const ui = this.state.ui
+    const { options, stats, ui } = this.state
     let store = this.state.store
 
     for (let type in store) {
@@ -910,37 +900,13 @@ class App extends Component {
       onClassClick: this.onClassClick
     }
 
-    const helpModalOpen = ui.helpModalOpen
-    const newGameModalOpen = ui.newGameModalOpen
+    const { helpModalOpen, newGameModalOpen } = ui
 
     return (
       <div className="App">        
         <Grid>
-          <Modal closeOnEsc={true} open={helpModalOpen} onClose={this.closeHelpModal} showCloseIcon={true}>
-            <h4>Help! What is all this?</h4>
-            <p>Progressive Game is just that-- progressive! New upgrades and types of buyables will become available as you go on.</p>
-            <p>Your primary resource is score: Use it to buy helpers (to automate score gain) and upgrades.</p>
-            <p>The Button is your first and primary source of score. Get tapping to get started!</p>
-            <p>Blocks (blue and green) are an advanced resource produced by consumers, in the mid-to-late phase of the game.</p>
-            <p>Speaking of consumers, they also produce toxicity, which can affect your score output. Be careful!</p>
-            <p>The Dump can help you get rid of toxicity, at least for a while.</p>
-            <p>If you haven't already, pick a class (with a unique bonus) to get started.</p>
-          </Modal>
-          <Modal closeOnEsc={true} open={newGameModalOpen} onClose={this.closeNewGameModal} showCloseIcon={false}>
-            <Row>
-              <Col xs={12}>
-                <p>Are you sure you want to start a new game?</p>
-              </Col>              
-            </Row>
-            <Row>
-              <Col xs={12} md={6}>
-                <Button block onClick={this.closeNewGameModal}>No</Button> 
-              </Col>
-              <Col xs={12} md={6}>
-                <Button block onClick={this.newGame}>Yes</Button>
-              </Col>
-            </Row>
-          </Modal>
+          <HelpModal open={helpModalOpen} onClose={this.closeHelpModal} />
+          <NewGameModal open={newGameModalOpen} onClose={this.closeNewGameModal} newGame={this.newGame} />
           <Row>
             <GameNav>
               <NavItem href="#" onClick={this.openHelpModal}>Help</NavItem>
