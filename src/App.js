@@ -48,6 +48,8 @@ class App extends Component {
     this.openHelpModal = this.openHelpModal.bind(this)
     this.openNewGameModal = this.openNewGameModal.bind(this)
     this.preReqFulfilled = this.preReqFulfilled.bind(this)
+    this.resetBlocks = this.resetBlocks.bind(this)
+    window.resetBlocks = this.resetBlocks
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
     this.toggleAutosave = this.toggleAutosave.bind(this)
@@ -134,6 +136,18 @@ class App extends Component {
       }
     })
   }
+  resetBlocks() {
+    this.setState({
+      stats: {
+        ...this.state.stats,
+        blocks: {
+          ...this.state.stats.blocks,
+          blue: 0,
+          green: 0
+        }
+      }
+    })
+  }
   checkServiceWorkerStatus() {
     if (!window.hasOwnProperty('serviceWorkerStatus') || window.serviceWorkerStatus === 0) {
       toastr.success('You have the latest version of Progressive Game!')
@@ -171,7 +185,7 @@ class App extends Component {
     
     const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
 
-    const { blueFragments, blueBlocks, greenFragments, greenBlocks } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
+    const { blueFragments, blue, greenFragments, green } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
                                                                                             blueBuilt + stats.blocks.blueFragments,
                                                                                             this.isClass(Constants.CLASSES.BUILDER, stats))
                                                                                                     
@@ -179,9 +193,9 @@ class App extends Component {
       stats: {
         ...stats,
         blocks: {
-          blue: stats.blocks.blue + blueBlocks,
+          blue: stats.blocks.blue + blue,
           blueFragments: blueFragments,
-          green: stats.blocks.green + greenBlocks,
+          green: stats.blocks.green + green,
           greenFragments: greenFragments
         }
       }
