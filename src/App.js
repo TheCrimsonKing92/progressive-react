@@ -10,7 +10,7 @@ import Constants from './Constants'
 // Components
 import ButtonPanel from './ButtonPanel'
 import ClassPicker from './ClassPicker'
-import { calculateClickScore } from './Clicker'
+import Clicker from './Clicker'
 import GameNav from './GameNav'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
@@ -55,6 +55,8 @@ class App extends Component {
     this.tick = this.tick.bind(this)
     this.toggleAutosave = this.toggleAutosave.bind(this)
     this.togglePurchaseHandling = this.togglePurchaseHandling.bind(this)
+    this.towerPurchased = this.towerPurchased.bind(this)
+    this.upgradePurchased = this.upgradePurchased.bind(this)
   }
   abbreviateNumber(value) {
     return this.abbreviator.abbreviate(value, 2)
@@ -87,7 +89,10 @@ class App extends Component {
       stats:{
         ...this.state.stats,
         clicks: this.state.stats.clicks + 1,
-        score: this.state.stats.score + calculateClickScore()
+        score: this.state.stats.score + Clicker.calculateClickScore(this.state.stats,
+                                                                    this.state.store,
+                                                                    this.towerPurchased,
+                                                                    this.upgradePurchased)
       }
     })
   }
@@ -378,7 +383,7 @@ class App extends Component {
     const statsPanel = {
       blueBlocks: this.abbreviateNumber(stats.blocks.blue),
       clicks: this.abbreviateNumber(stats.clicks),
-      clickScore: this.abbreviateNumber(Math.floor(calculateClickScore(stats, store))),
+      clickScore: this.abbreviateNumber(Math.floor(Clicker.calculateClickScore(stats, store, this.towerPurchased, this.upgradePurchased))),
       greenBlocks: this.abbreviateNumber(stats.blocks.green),
       score: this.abbreviateNumber(Math.floor(stats.score)),
       scorePerSecond: this.abbreviateNumber(this.getScorePerSecond(store, stats)),

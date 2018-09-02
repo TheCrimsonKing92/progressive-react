@@ -31,4 +31,6 @@ const getClickTowerBonus = (stats, store, getPositiveHelperOutput) => {
   return getPositiveHelperOutput(store, stats) * Constants.CLICK_TOWER.HELPER_RATE
 };
 
-export default calculateClickScore;
+export default {
+  calculateClickScore: calculateClickScore
+};
