@@ -10,6 +10,7 @@ import Constants from './Constants'
 // Components
 import ButtonPanel from './ButtonPanel'
 import ClassPicker from './ClassPicker'
+import { calculateClickScore } from './Clicker'
 import GameNav from './GameNav'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
@@ -86,35 +87,9 @@ class App extends Component {
       stats:{
         ...this.state.stats,
         clicks: this.state.stats.clicks + 1,
-        score: this.state.stats.score + this.calculateClickScore()
+        score: this.state.stats.score + calculateClickScore()
       }
     })
-  }
-  calculateClickScore(stats = this.state.stats, store = this.state.store) {
-    let base = 1
-
-    if (this.upgradePurchased('Helping Hand', store)) {
-      base += Constants.POWER.HELPING_HAND
-    }
-
-    if (this.upgradePurchased('Helping Handsier', store)) {
-      base += Constants.POWER.HELPING_HANDSIER
-    }
-
-    if (this.upgradePurchased('Helping Handsiest', store)) {
-      base += Constants.POWER.HELPING_HANDSIEST
-    }
-    
-    if (this.towerPurchased('Click Tower', store)) {
-      base += stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
-      base += this.getClickTowerBonus(stats, store)
-    }
-
-    if (this.upgradePurchased('Click Efficiency', store)) {
-      base *= 2
-    }
-
-    return base
   }
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
     if (helper.purchased === 0) return 0
@@ -403,7 +378,7 @@ class App extends Component {
     const statsPanel = {
       blueBlocks: this.abbreviateNumber(stats.blocks.blue),
       clicks: this.abbreviateNumber(stats.clicks),
-      clickScore: this.abbreviateNumber(Math.floor(this.calculateClickScore(stats, store))),
+      clickScore: this.abbreviateNumber(Math.floor(calculateClickScore(stats, store))),
       greenBlocks: this.abbreviateNumber(stats.blocks.green),
       score: this.abbreviateNumber(Math.floor(stats.score)),
       scorePerSecond: this.abbreviateNumber(this.getScorePerSecond(store, stats)),
@@ -767,6 +742,12 @@ class App extends Component {
       this.saveGame()
       this.saveTicks = 0
     }
+  }
+  setChanges() {
+
+  }
+  tickAll() {
+
   }
   tick() {
     this.offlineProgress()
