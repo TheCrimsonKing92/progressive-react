@@ -41,7 +41,7 @@ class StatsPanel extends Component {
               <TooltipTitleStat title={'Toxicity'} stat={toxicity + '%'} tooltip={toxicityTooltip} />
             </Col>
             <Col xs={6} sm={4}>
-              <TooltipTitleStat title={'Toxicity / s'} stat={toxicityPerSecond} />
+              <TitleStat title={'Toxicity / s'} stat={toxicityPerSecond} />
             </Col>
             <Col xs={6} sm={4}>
               <TitleStat title={'Blue Blocks'} stat={blueBlocks} />

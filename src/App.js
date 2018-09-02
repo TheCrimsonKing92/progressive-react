@@ -207,7 +207,7 @@ class App extends Component {
     let totalBlue = 0
 
     for (let i = 0; i < seconds; i++) {
-      const [greenBuilt, blueBuilt] = this.getBlockFragmentsBuilt(consumers, stats, store)
+      const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
@@ -305,7 +305,6 @@ class App extends Component {
       consumers--
     }
 
-    console.log(`Returning green: ${greenBuilt}, blue: ${blueBuilt}`)
     return { greenBuilt, blueBuilt }
   }
   getBlockStatuses(greenFragments, blueFragments, builder) {
@@ -453,7 +452,10 @@ class App extends Component {
     return [Math.floor(toxicityRemaining / toxicityPerSecond), true]
   }
   getOfflineProgress(seconds, store, stats) {
-    return [this.getScorePerSecond(store, stats) * seconds, this.consumeOffline(seconds, store, stats)]
+    return {
+      ...this.consumeOffline(seconds, store, stats),
+      score: this.getScorePerSecond(store, stats) * seconds
+    }
   }
   getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
     return Object.values(store.helpers)
@@ -588,7 +590,7 @@ class App extends Component {
 
     if (toxic) stats.toxicity = stats.toxicityLimit
     
-    const [score, [blueFragments, blueBlocks, greenFragments, greenBlocks]] = this.getOfflineProgress(seconds, store, stats)
+    const { score, blueFragments, blueBlocks, greenFragments, greenBlocks } = this.getOfflineProgress(seconds, store, stats)
 
     stats.score += score
   
@@ -608,7 +610,7 @@ class App extends Component {
 
     stats.lastTime = new Date()
 
-    toastr.success(offlineMessage, '')
+    toastr.success(offlineMessage, 'Offline Progress')
   }
   onClassClick(name) {
     this.setState({
