@@ -179,9 +179,9 @@ const helpers = {
 
     if (upgradePurchased('Fleet Beacon')) {
       if (purchased < 100) {
-        total *= 2
+        total *= 2.5
       } else {
-        total *= 3
+        total *= 3.5
       }
     }
 
@@ -367,7 +367,7 @@ const upgrades = {
   'Aria Hammera': upgrade('Aria Hammera', '+1 Hammer power per 15 Hammers', 600000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 15)
   ]),
-  'Fleet Beacon': upgrade('Fleet Beacon', '+100% Airplane power. +200% at 100 Airplanes', 1750000, [
+  'Fleet Beacon': upgrade('Fleet Beacon', '+150% Airplane power. +250% at 75 Airplanes', 1750000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 25)
   ]),
   'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
