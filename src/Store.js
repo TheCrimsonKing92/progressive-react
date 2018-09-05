@@ -1,6 +1,27 @@
 import './Store.css'
 import Constants from './Constants'
 
+const FIRMWARES = {
+  'Firmware V1.0.0.1': 0.1,
+  'Firmware V1.0.0.2': 0.1,
+  'Firmware V1.0.0.3': 0.1,
+  'Firmware V1.0.0.4': 0.1,
+  'Firmware V1.0.0.5': 0.1,
+  'Firmware V1.0.0.6': 0.1,
+  'Firmware V1.0.0.7': 0.1,
+  'Firmware V1.0.0.8': 0.1,
+  'Firmware V1.0.0.9': 0.1,
+  'Firmware V1.0.0.10': 0.1,
+  'Firmware V1.0.0.11': 0.1,
+  'Firmware V1.0.0.12': 0.1,
+  'Firmware V1.0.0.13': 0.1,
+  'Firmware V1.0.0.14': 0.1,
+  'Firmware V1.0.0.15': 0.1,
+  'Firmware V1.0.0.16': 0.1,
+  'Firmware V1.0.0.17': 0.1,
+  'Firmware V1.0.1.0': 0.75
+}
+
 const baseTooltip = function(abbreviate, isClass) {
   const title = !this.multiple ? this.name : `${this.name} - ${this.purchased}`
   const base = `${title}</br>${this.description}`
@@ -119,17 +140,16 @@ const helpers = {
       total *= 0.9
     }
 
-    if (upgradePurchased('Cybernetic Synergy')) {
-      let power = 5
-      if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
-      const bound = Math.min(purchased, getHelper('Robot').purchased)
-      total += (power * bound)
-    }
-
     return Math.floor(total)
   }),
   'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, 14, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
     let base = this.power
+
+    for (const firmware in FIRMWARES) {
+      if (upgradePurchased(firmware)) {
+        base += (this.power * FIRMWARES[firmware])
+      }
+    }
     
     if (towerPurchased('Power Tower')) {
       base += Math.max(Math.floor(base * 1.1), 1)
@@ -145,8 +165,7 @@ const helpers = {
     }
     
     if (upgradePurchased('Cybernetic Synergy')) {
-      let power = 9
-      if (isClass(Constants.CLASSES.MECHANIC)) power *= 2
+      const power = isClass(Constants.CLASSES.MECHANIC) ? 28 : 14;
       const bound = Math.min(purchased, getHelper('Hammer').purchased)
       total += (power * bound)
     }
@@ -324,37 +343,69 @@ const upgrade = (
   type: 'upgrade'
 })
 
+const firmwareDescription = percentage => '+'.concat(percentage).concat('% Robot power')
+const firmwareVersion = version => 'Firmware V1.0.'.concat(version)
+const firmwareUpgrade = (version, percentage, cost, robots) => {
+  return upgrade(
+    firmwareVersion(version),
+    firmwareDescription(percentage),
+    cost,
+    [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', robots)
+    ]
+  )
+}
+
 const upgrades = {
   'Helping Hand': {
     ...upgrade('Helping Hand', '+1 AutoClicker and mouse power', 200),
     buyable: true,
     getTooltip: baseTooltip
   },
+  'Firmware V1.0.0.1': firmwareUpgrade('0.1', 10, 500, 1),
+  'Firmware V1.0.0.2': firmwareUpgrade('0.2', 10, 800, 1),
+  'Firmware V1.0.0.3': firmwareUpgrade('0.3', 10, 1000, 2),
   'Click Efficiency': upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 150),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
   ]),
+  'Firmware V1.0.0.4': firmwareUpgrade('0.4', 10, 1200, 2),
   'Heavier Hammers': upgrade('Heavier Hammers', '+100% Hammer power', 1250, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 5)
   ]),
+  'Firmware V1.0.0.5': firmwareUpgrade('0.5', 10, 1500, 3),
+  'Firmware V1.0.0.6': firmwareUpgrade('0.6', 10, 1800, 3),
+  'Firmware V1.0.0.7': firmwareUpgrade('0.7', 10, 2100, 4),
+  'Firmware V1.0.0.8': firmwareUpgrade('0.8', 10, 2500, 4),
   'Helping Handsier': upgrade('Helping Handsier', '+2 AutoClicker and mouse power', 2500, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 300),
     preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Hand')
   ]),
+  'Firmware V1.0.0.9': firmwareUpgrade('0.9', 10, 2800, 5),
+  'Firmware V1.0.0.10': firmwareUpgrade('0.10', 10, 3200, 5),
   'Helping Handsiest': upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
     preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handsier')
   ]),
-  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
+  'Firmware V1.0.0.11': firmwareUpgrade('0.11', 10, 3600, 6),
+  'Firmware V1.0.0.12': firmwareUpgrade('0.12', 10, 4200, 6),
+  'Firmware V1.0.0.13': firmwareUpgrade('0.13', 10, 5000, 7),
+  'Firmware V1.0.0.13': firmwareUpgrade('0.13', 10, 5800, 7),
+  'Firmware V1.0.0.14': firmwareUpgrade('0.14', 10, 6700, 8),
+  'Firmware V1.0.0.15': firmwareUpgrade('0.15', 10, 7700, 8),
+  'Firmware V1.0.0.16': firmwareUpgrade('0.16', 10, 8700, 9),
+  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+100% Robot power when paired with a Hammer', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
   ], function(abbreviate, isClass) {
     const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
     const description = isClass(Constants.CLASSES.MECHANIC) ? 
-                          this.description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`) 
+                          this.description.replace('+100', '+200').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`) 
                           : this.description
     return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
   }),
+  'Firmware V1.0.0.17': firmwareUpgrade('0.17', 10, 9500, 10),
+  'Firmware V1.0.1.0': firmwareUpgrade('1.0', 75, 20000, 15),
   'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)
   ]),
