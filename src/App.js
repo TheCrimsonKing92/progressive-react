@@ -11,6 +11,8 @@ import Constants from './Constants'
 import ButtonPanel from './ButtonPanel'
 import ClassPicker from './ClassPicker'
 import Clicker from './Clicker'
+import ExportCache from './ExportCache'
+import ExportGameModal from './ExportGameModal'
 import GameNav from './GameNav'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
@@ -34,13 +36,16 @@ class App extends Component {
     this.state = this.getGame();
 
     this.abbreviateNumber = this.abbreviateNumber.bind(this)
+    this.abbreviatePercentage = this.abbreviatePercentage.bind(this)
     this.buttonClicked = this.buttonClicked.bind(this)
     this.cheat = this.cheat.bind(this)
     window.cheat = this.cheat
+    this.closeGameExport = this.closeGameExport.bind(this)
     this.closeHelpModal = this.closeHelpModal.bind(this)
     this.closeNewGameModal = this.closeNewGameModal.bind(this)
     this.consume = this.consume.bind(this)
     this.dumpClicked = this.dumpClicked.bind(this)
+    this.getPositiveHelperOutput = this.getPositiveHelperOutput.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
@@ -60,6 +65,12 @@ class App extends Component {
   }
   abbreviateNumber(value) {
     return this.abbreviator.abbreviate(value, 2)
+  }
+  abbreviatePercentage(num, denom, places = 2) {
+    // The dumbass abbreviate-number library doesn't want to abbreviate the value when it's less than 1
+    // So let's do some shitty manipulations
+    const base = (num * 100) / denom
+    return parseFloat(base.toFixed(places))
   }
   awakening() {
     const current = this.state.stats.awakening
@@ -89,12 +100,18 @@ class App extends Component {
       stats:{
         ...this.state.stats,
         clicks: this.state.stats.clicks + 1,
-        score: this.state.stats.score + Clicker.calculateClickScore(this.state.stats,
-                                                                    this.state.store,
-                                                                    this.towerPurchased,
-                                                                    this.upgradePurchased)
+        score: this.state.stats.score + this.calculateClickScore()
       }
     })
+  }
+  calculateClickScore() {
+    return Clicker.calculateClickScore(
+      this.state.stats,
+      this.state.store,
+      this.getPositiveHelperOutput,
+      this.towerPurchased,
+      this.upgradePurchased
+    )
   }
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
     if (helper.purchased === 0) return 0
@@ -103,16 +120,16 @@ class App extends Component {
 
     return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
   }
-  cheat() {
+  cheat(factor = 1) {
     this.setState({
       stats: {
         ...this.state.stats,
         blocks: {
           ...this.state.stats.blocks,
-          blue: this.state.stats.blocks.blue * 1000000,
-          green: this.state.stats.blocks.green * 1000000
+          blue: this.state.stats.blocks.blue * (1000000 / factor),
+          green: this.state.stats.blocks.green * (1000000 / factor)
         },
-        score: this.state.stats.score * 1000000
+        score: this.state.stats.score * (1000000 / factor)
       }
     })
   }
@@ -134,6 +151,14 @@ class App extends Component {
     } else {
       toastr.warning('Please refresh for the latest Progressive Game')
     }
+  }
+  closeGameExport() {
+    this.setState({
+      ui: {
+        ...this.state.ui,
+        gameExportOpen: false
+      }
+    })
   }
   closeHelpModal() {
     this.setState({
@@ -166,8 +191,8 @@ class App extends Component {
     const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
 
     const { blueFragments, blue, greenFragments, green } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
-                                                                                            blueBuilt + stats.blocks.blueFragments,
-                                                                                            this.isClass(Constants.CLASSES.BUILDER, stats))
+                                                                                  blueBuilt + stats.blocks.blueFragments,
+                                                                                  this.isClass(Constants.CLASSES.BUILDER, stats))
                                                                                                     
     this.setState({
       stats: {
@@ -263,23 +288,17 @@ class App extends Component {
   getBlockFragmentsBuilt(consumers, stats = this.state.stats, store = this.state.store) {
     let blueBuilt = 0
     let greenBuilt = 0
-    let bonus = this.getSpecial('Better Building', store).purchased
+    const base = this.isClass(Constants.CLASSES.BUILDER, stats) ? Constants.BLOCK_GENERATION_RATE_BUILDER :
+                                                                  Constants.BLOCK_GENERATION_RATE
+    const bonus = this.getSpecial('Better Building', store).purchased
+    const total = base + bonus
 
     while (consumers > 0) {
-      const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
-        if (blue) {
-          if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            blueBuilt += (2 + bonus)          
-          } else {
-            blueBuilt += (1 + bonus)
-          }
+        if (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE) {
+          blueBuilt += total
         } else {
-          if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            greenBuilt += (2 + bonus)
-          } else {
-            greenBuilt += (1 + bonus)
-          }
+          greenBuilt += total
         }
       }
       consumers--
@@ -291,7 +310,8 @@ class App extends Component {
     let green = 0
     let blue = 0
 
-    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
+    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER :
+                            Constants.BLOCK_FRAGMENT_LIMIT
 
     while (greenFragments > limit) {
       greenFragments -= limit
@@ -304,9 +324,6 @@ class App extends Component {
     }
 
     return { blueFragments, blue, greenFragments, green }
-  }
-  getClickTowerBonus(stats = this.state.stats, store = this.state.store) {
-    return this.getPositiveHelperOutput(store, stats) * Constants.CLICK_TOWER.HELPER_RATE
   }
   getConsumption(store = this.state.store, stats = this.state.stats) {
     return this.calculateScore(this.getHelper('Consumer', store), store, stats)
@@ -342,6 +359,7 @@ class App extends Component {
       },
       clicks: 0,
       efficientOperations: 0,
+      exportString: '',
       lastTime: new Date(),
       selectedClass: null,
       score: 0,
@@ -355,11 +373,15 @@ class App extends Component {
   getDefaultUi() {
     return {
       loading: false,
+      gameExportOpen: false,
       helpModalOpen: false,
       newGameModalOpen: false,
       preventHelpOnNewGame: false
     }
   }
+  getExportString(mapped = this.mapGameState(this.state)) {
+    return btoa(mapped)
+  }  
   getGame() {
     const stored = localStorage.getItem(Constants.LOCALSTORAGE_ITEM_NAME)
 
@@ -383,7 +405,7 @@ class App extends Component {
     const statsPanel = {
       blueBlocks: this.abbreviateNumber(stats.blocks.blue),
       clicks: this.abbreviateNumber(stats.clicks),
-      clickScore: this.abbreviateNumber(Math.floor(Clicker.calculateClickScore(stats, store, this.towerPurchased, this.upgradePurchased))),
+      clickScore: this.abbreviateNumber(Math.floor(this.calculateClickScore())),
       greenBlocks: this.abbreviateNumber(stats.blocks.green),
       score: this.abbreviateNumber(Math.floor(stats.score)),
       scorePerSecond: this.abbreviateNumber(this.getScorePerSecond(store, stats)),
@@ -477,24 +499,24 @@ class App extends Component {
     return store.towers[tower]
   }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
-    const fromHelpers = Object.values(store.helpers).filter(h => h.toxicity < 0).reduce((a, v) => a - v.toxicFormula(), 0)
-    return fromHelpers + (this.isClass(Constants.CLASSES.MEDIC, stats) ? Constants.MEDIC_PASSIVE_POWER : 0)
+    const fromHelpers = Object.values(store.helpers)
+                              .filter(h => h.toxicity < 0)
+                              .reduce((a, v) => a - v.toxicFormula(), 0)
+    return fromHelpers + (this.isClass(Constants.CLASSES.MEDIC, stats) ? Constants.MEDIC_PASSIVE_POWER :
+                                                                        0)
   }
   getToxicityIncrease(store = this.state.store) {
-    return this.getHelper('Consumer', store).toxicFormula(name => this.towerPurchased(name, store))
+    return this.getHelper('Consumer', store)
+               .toxicFormula(name => this.towerPurchased(name, store))
   }
   getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
     return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
   }
   getToxicityPerSecondPercentage(stats = this.state.stats, store = this.state.store) {
-    const base = (this.getToxicityPerSecond(stats, store) * 100) / stats.toxicityLimit
-    return parseFloat(base.toFixed(2))
+    return this.abbreviatePercentage(this.getToxicityPerSecond(stats, store), stats.toxicityLimit)
   }
   getToxicityPercentage(stats = this.state.stats, store = this.state.store) {
-    // The dumbass abbreviate-number library doesn't want to abbreviate the value when it's less than 1
-    // So let's do some shitty manipulations
-    const base = (stats.toxicity * 100) / stats.toxicityLimit
-    return parseFloat(base.toFixed(2))
+    return this.abbreviatePercentage(stats.toxicity, stats.toxicityLimit)
   }
   getToxicityRemaining(stats = this.state.stats) {
     return stats.toxicityLimit - stats.toxicity
@@ -503,11 +525,17 @@ class App extends Component {
     return store.upgrades[upgrade]
   }
   handleExportSave() {
-    window.prompt(`Copy the following string`,btoa(this.mapGameState(this.state)))
+    this.setState({
+      ui: {
+        ...this.state.ui,
+        gameExportOpen: true
+      }
+    })
   }
   handleImportSave() {
-    // const entry = window.prompt('Paste in your exported string')
-    // TODO implement
+    const entry = window.prompt('Paste in your exported string')
+    //this.setState(this.unmapGameState(atob(entry)))
+    console.log(this.unmapGameState(atob(entry)))
   }
   handleStorePurchase(buyable) {
     if (!buyable.buyable || (!buyable.multiple && buyable.purchased > 0)) return
@@ -733,7 +761,11 @@ class App extends Component {
     })
   }
   saveGame() {
-    localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, this.mapGameState(this.state))
+    const mapped = this.mapGameState(this.state)
+    localStorage.setItem(Constants.LOCALSTORAGE_ITEM_NAME, mapped)
+    if (!this.state.ui.gameExportOpen) {
+      ExportCache.updateExport(this.getExportString(mapped))
+    }
     this.setState({
       stats: {
         ...this.state.stats,
@@ -864,6 +896,7 @@ class App extends Component {
   }
   render() {
     const { options, stats, ui } = this.state
+    const exportString = ExportCache.getExport()
     let store = this.state.store
 
     for (let type in store) {
@@ -904,7 +937,7 @@ class App extends Component {
       onClassClick: this.onClassClick
     }
 
-    const { helpModalOpen, newGameModalOpen } = ui
+    const { gameExportOpen, helpModalOpen, newGameModalOpen } = ui
     const navActions = {
       autosaveText,
       purchaseText,

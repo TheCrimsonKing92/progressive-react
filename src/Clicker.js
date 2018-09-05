@@ -1,6 +1,6 @@
 import Constants from './Constants'
 
-const calculateClickScore = (stats, store, towerPurchased, upgradePurchased) => {
+const calculateClickScore = (stats, store, getPositiveHelperOutput, towerPurchased, upgradePurchased) => {
   let base = 1
 
   if (upgradePurchased('Helping Hand', store)) {
@@ -17,7 +17,7 @@ const calculateClickScore = (stats, store, towerPurchased, upgradePurchased) => 
   
   if (towerPurchased('Click Tower', store)) {
     base += stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
-    base += getClickTowerBonus(stats, store)
+    base += getClickTowerBonus(stats, store, getPositiveHelperOutput)
   }
 
   if (upgradePurchased('Click Efficiency', store)) {
