@@ -1,0 +1,152 @@
+.airplane {
+    background-image: url('../AirplaneBig.png')
+}
+
+.aria-hammera {
+    background-color: pink
+}
+
+.audible-motivation {
+    background-color: green
+}
+
+.autoclicker {
+    background-image: url('../AutoClickerBig.png')
+}
+
+.better-building {
+    background-color: magenta
+}
+
+.blue-block {
+    background-image: url('../BlueBlockPurchase.png')
+}
+
+.buddy-system {
+    background-image: url('../BuddySystem.png')
+}
+
+.buyable {
+    background-size: cover;
+    display: inline-block;
+    height: 45px;
+    margin-right: 5px;
+    width: 45px;
+}
+
+.click-efficiency {
+    background-image: url('../ClickEfficiency.png')
+}
+
+.cloner {
+    background-image: url('../Cloner.png')
+}
+
+.click-tower {
+    background-image: url('../MouseTower.png')
+}
+
+.cloner-overdrive {
+    background-image: url('../ClonerOverdrive.png')
+}
+
+.consumer {
+    background-image: url('../Consumer.png')
+}
+
+.cost-tower {
+    background-image: url('../CostTower.png')
+}
+
+.cybernetic-synergy {
+    background-image: url('../CyberneticSynergy.png')
+}
+
+.djinn {
+    background-image: url('../DjinnBig.png')
+}
+
+.efficient-operations {
+    background-image: url('../EfficientOperations.png')
+}
+
+.extended-cargo {
+    background-image: url('../ExtendedCargo.png')
+}
+
+.faded {
+    opacity: 0.6
+}
+
+.firmware-v1-0-0-1,
+.firmware-v1-0-0-2,
+.firmware-v1-0-0-3,
+.firmware-v1-0-0-4,
+.firmware-v1-0-0-5,
+.firmware-v1-0-0-6,
+.firmware-v1-0-0-7,
+.firmware-v1-0-0-8,
+.firmware-v1-0-0-9,
+.firmware-v1-0-0-10,
+.firmware-v1-0-0-11,
+.firmware-v1-0-0-12,
+.firmware-v1-0-0-13,
+.firmware-v1-0-0-14,
+.firmware-v1-0-0-15,
+.firmware-v1-0-0-16,
+.firmware-v1-0-0-17,
+.firmware-v1-0-1-0 {
+    background-color: darkblue;
+}
+
+.fleet-beacon {
+    background-color: blueviolet
+}
+
+.garbage-truck {
+    background-image: url('../GarbageTruck.png')
+}
+
+.green-block {
+    background-image: url('../GreenBlock.png');
+}
+
+.hammer {
+    background-image: url('../HammerBig.png')
+}
+
+.heavier-hammers {
+    background-color: red
+}
+
+.helping-hand, .helping-handsier, .helping-handsiest {
+    background-image: url('../HelpingHand.png')
+}
+
+.power-tower {
+    background-image: url('../PowerTower.png')
+}
+
+.robot {
+    background-image: url('../RobotBig.png')
+}
+
+.tamer {
+    background-image: url('../TamerBig.png')
+}
+
+.the-awakening {
+    background-image: url('../GatheringPower.png')
+}
+
+.toxic-capacity {
+    background-color: purple
+}
+
+.toxicity-recycling {
+    background-color: orange;
+}
+
+.toxicity-tower {
+    background-color: green
+}

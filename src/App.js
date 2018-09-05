@@ -18,7 +18,7 @@ import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
 import StatsPanel from './StatsPanel'
 import StorePanel from './StorePanel'
-import Store from './Store'
+import Store from './Store/index.js'
 // CSS
 import './App.css';
 
@@ -662,28 +662,28 @@ class App extends Component {
     return preReqs.map(p => this.preReqFulfilled(p, stats, store))
                   .every(b => b === true)
   }
-  purchase(buyable) {
+  purchase(buyable, stats = this.state.stats) {
     const price = buyable.currentPrice
     
     let statsSplice
 
     if (buyable.currency === Constants.CURRENCY.SCORE) {
-      if (this.state.stats.score < price) {
+      if (stats.score < price) {
         return
       }
 
       statsSplice = {
-        score: this.state.stats.score - price
+        score: stats.score - price
       }
     } else if (buyable.currency === Constants.CURRENCY.BLOCK.BLUE) {
-      if (this.state.stats.blocks.blue < price) {
+      if (stats.blocks.blue < price) {
         return
       }
 
       statsSplice = {
         blocks: {
-          ...this.state.stats.blocks,
-          blue: this.state.stats.blocks.blue - price
+          ...stats.blocks,
+          blue: stats.blocks.blue - price
         }
       }
 
@@ -692,21 +692,21 @@ class App extends Component {
         statsSplice = {
           blocks: {
             ...statsSplice.blocks,
-            green: this.state.stats.blocks.green + 1
+            green: stats.blocks.green + 1
           }
         }
       } else {
         console.warn(`No side effects defined for blue block item ${buyable.name}`)
       }
     } else if (buyable.currency === Constants.CURRENCY.BLOCK.GREEN) {
-      if (this.state.stats.blocks.green < price) {
+      if (stats.blocks.green < price) {
         return
       }
 
       statsSplice = {
         blocks: {
-          ...this.state.stats.blocks,
-          green: this.state.stats.blocks.green - price
+          ...stats.blocks,
+          green: stats.blocks.green - price
         }
       }
       
@@ -715,16 +715,16 @@ class App extends Component {
         statsSplice = {
           blocks: {
             ...statsSplice.blocks,
-            blue: this.state.stats.blocks.blue + 1
+            blue: stats.blocks.blue + 1
           }
         }
       } else if (buyable.name === 'Toxic Capacity') {
         statsSplice = {
           blocks: statsSplice.blocks,
-          toxicityLimit: this.state.stats.toxicityLimit + 5
+          toxicityLimit: stats.toxicityLimit + 5
         }
       } else if (buyable.name === 'Toxicity Recycling') {
-        const max = Math.max(0, this.state.stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
+        const max = Math.max(0, stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
         statsSplice = {
           blocks: statsSplice.blocks,
           toxicity: max
@@ -737,7 +737,7 @@ class App extends Component {
       return
     }
 
-    const bought = {
+    let bought = {
       ...buyable,
       buyable: buyable.multiple,
       purchased: buyable.purchased + 1
@@ -903,23 +903,17 @@ class App extends Component {
       let collection = store[type]
 
       for (let member in collection) {
-        let buyable = collection[member]
+        let buyable = {
+          ...collection[member],
+          currentPrice: this.mapCurrentPrice(collection[member]),
+          tooltip: this.getTooltip(collection[member], stats)
+        }
 
         if (buyable.type === Constants.BUYABLE_TYPE.HELPER) {
           buyable = {
             ...buyable,
             sps: this.abbreviateNumber(this.calculateScore(buyable))
           }
-        }
-
-        buyable = {
-          ...buyable,
-          currentPrice: this.mapCurrentPrice(buyable)
-        }
-
-        buyable = {
-          ...buyable,
-          tooltip: this.getTooltip(buyable, stats)
         }
 
         store[type][member] = buyable
