@@ -18,111 +18,130 @@ const helper = (
 ({
   ...buyable(name || 'Helper', description || 'A helper', price || 1, Constants.PRICE_GROWTH.HELPER, Constants.CURRENCY.SCORE, true, true),
   power: power || 1,
-  type: 'helper',
+  type: Constants.BUYABLE_TYPE.HELPER,
+  // Using a lambda for this breaks the game
   formula: formula || function() { return this.power * this.purchased },
   getTooltip: tooltip || baseHelperTooltip
 })
 
 const helpers = {
-  'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 100, 1, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-    let base = this.power
+  [Constants.HELPERS.AutoClicker.name]:
+  helper(
+    Constants.HELPERS.AutoClicker.name, 
+    Constants.HELPERS.AutoClicker.description,
+    Constants.HELPERS.AutoClicker.price,
+    Constants.HELPERS.AutoClicker.power,
+    function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      let base = this.power
 
-    if (towerPurchased('Power Tower')) {
-      base += Math.max(Math.floor(base * 1.1), 1)
-    }
-
-    const purchased = this.purchased
-
-    if (isClass(Constants.CLASSES.MASTER)) {
-      base++
-    }
-    if (upgradePurchased('Helping Hand')) {
-      base++
-    }
-
-    if (upgradePurchased('Helping Handsier')) {
-      base += 2
-    }
-
-    if (upgradePurchased('Helping Handsiest')) {
-      base += 6
-    }
-
-    let total = base * purchased
-
-    if (magic.isToxic) {
-      total *= 0.5
-    } else if (magic.isHalfToxic) {
-      total *= 0.9
-    }
-
-    if (upgradePurchased('Click Efficiency')) {
-      total *= 2
-    }
-
-    if (upgradePurchased('Audible Motivation')) {
-      const audibleBase = 1.00
-      const factor = .01 * getHelper('Djinn').purchased
-
-      total *= (audibleBase + factor)
-    }
-
-    return Math.floor(total)
-  }),
-  'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, 5, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-    let base = this.power
-
-    if (towerPurchased('Power Tower')) {
-      base += Math.max(Math.floor(base * 1.1), 1)
-    }
-    
-    const purchased = this.purchased
-    if (upgradePurchased('Aria Hammera')) {
-      base += Math.floor(purchased / 15)
-    }
-    if (upgradePurchased('Heavier Hammers')) {
-      base *= 2
-    }
-
-    let total = base * purchased
-    
-    if (magic.isToxic) {
-      total *= 0.5
-    } else if (magic.isHalfToxic) {
-      total *= 0.9
-    }
-
-    return Math.floor(total)
-  }),
-  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, 14, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-    let base = this.power
-
-    for (const firmware in Constants.FIRMWARES) {
-      if (upgradePurchased(firmware)) {
-        base += (this.power * Constants.FIRMWARES[firmware])
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
       }
-    }
-    
-    if (towerPurchased('Power Tower')) {
-      base += Math.max(Math.floor(base * 1.1), 1)
-    }
-    
-    const purchased = this.purchased
-    let total = base * purchased      
 
-    if (magic.isToxic) {
-      total *= 0.5
-    } else if (magic.isHalfToxic) {
-      total *= 0.9
-    }
-    
-    if (upgradePurchased('Cybernetic Synergy')) {
-      const power = isClass(Constants.CLASSES.MECHANIC) ? 28 : 14;
-      const bound = Math.min(purchased, getHelper('Hammer').purchased)
-      total += (power * bound)
-    }
+      const purchased = this.purchased
 
-    return Math.floor(total)
+      if (isClass(Constants.CLASSES.MASTER)) {
+        base++
+      }
+      if (upgradePurchased('Helping Hand')) {
+        base++
+      }
+
+      if (upgradePurchased('Helping Handsier')) {
+        base += 2
+      }
+
+      if (upgradePurchased('Helping Handsiest')) {
+        base += 6
+      }
+
+      let total = base * purchased
+
+      if (magic.isToxic) {
+        total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
+      }
+
+      if (upgradePurchased('Click Efficiency')) {
+        total *= 2
+      }
+
+      if (upgradePurchased('Audible Motivation')) {
+        const audibleBase = 1.00
+        const factor = .01 * getHelper('Djinn').purchased
+
+        total *= (audibleBase + factor)
+      }
+
+      return Math.floor(total)
+  }),
+  [Constants.HELPERS.Hammer.name]:
+  helper(
+    Constants.HELPERS.Hammer.name,
+    Constants.HELPERS.Hammer.description,
+    Constants.HELPERS.Hammer.price,
+    Constants.HELPERS.Hammer.power,
+    function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      let base = this.power
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased
+      if (upgradePurchased('Aria Hammera')) {
+        base += Math.floor(purchased / 15)
+      }
+      if (upgradePurchased('Heavier Hammers')) {
+        base *= 2
+      }
+
+      let total = base * purchased
+      
+      if (magic.isToxic) {
+        total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
+      }
+
+      return Math.floor(total)
+  }),
+  [Constants.HELPERS.Robot.name]:
+  helper(
+    Constants.HELPERS.Robot.name,
+    Constants.HELPERS.Robot.description,
+    Constants.HELPERS.Robot.price,
+    Constants.HELPERS.Robot.power,
+    function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      let base = this.power
+
+      for (const firmware in Constants.FIRMWARES) {
+        if (upgradePurchased(firmware)) {
+          base += (this.power * Constants.FIRMWARES[firmware])
+        }
+      }
+      
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased
+      let total = base * purchased      
+
+      if (magic.isToxic) {
+        total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
+      }
+      
+      if (upgradePurchased('Cybernetic Synergy')) {
+        const power = isClass(Constants.CLASSES.MECHANIC) ? 28 : 14;
+        const bound = Math.min(purchased, getHelper('Hammer').purchased)
+        total += (power * bound)
+      }
+
+      return Math.floor(total)
   }),
   'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, 40, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
     let base = this.power      

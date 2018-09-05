@@ -66,6 +66,26 @@ export default {
     'Firmware V1.0.0.10': 0.15,
     'Firmware V1.0.1.0': 0.75
   },
+  HELPERS: {
+    AutoClicker: {
+      description: 'Weakly clicks the button for you',
+      name: 'AutoClicker',
+      power: 1,
+      price: 100
+    },
+    Hammer: {
+      description: 'Earns score by smashing the button',
+      name: 'Hammer',
+      power: 5,
+      price: 500
+    },
+    Robot: {
+      description: 'An AI optimizing score production routines',
+      name: 'Robot',
+      power: 14,
+      price: 1500
+    }
+  },
   LOCALSTORAGE_ITEM_NAME: 'ProgressiveReactSave',
   MEDIC_PASSIVE_POWER: 10,
   OFFLINE_PROGRESS_MAXIMUM: 86400,
