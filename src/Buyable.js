@@ -2,11 +2,22 @@ import React, {Component} from 'react'
 import {findDOMNode} from 'react-dom'
 import ReactTooltip from 'react-tooltip'
 
+const getClassName = name => name.replace(' ', '-')
+                                 .replace(/\./g, '-')
+                                 .toLowerCase()
+const isFadeable = type => (type === 'tower' || type === 'upgrade')
 class Buyable extends Component {
   constructor(props) {
     super(props)
 
     this.handlePurchase = this.handlePurchase.bind(this)
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.buyable.tooltip !== this.props.buyable.tooltip) {
+      return true;
+    }
+
+    return false;
   }
   componentWillUnmount() {
     ReactTooltip.hide(findDOMNode(this.refs.tooltip))
@@ -15,8 +26,7 @@ class Buyable extends Component {
     this.props.onPurchase(buyable)
   }
   render() {
-    const className = this.props.buyable.name.replace(' ', '-').toLowerCase()
-    const isFadeable = type => (type === 'tower' || type === 'upgrade')
+    const className = getClassName(this.props.buyable.name)
     
     const fade = isFadeable(this.props.buyable.type) && this.props.fade && !this.props.buyable.buyable ? ' faded' : ''
 
