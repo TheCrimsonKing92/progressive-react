@@ -143,124 +143,148 @@ const helpers = {
 
       return Math.floor(total)
   }),
-  'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, 40, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-    let base = this.power      
+  [Constants.HELPERS.Airplane.name]:
+  helper(
+    Constants.HELPERS.Airplane.name,
+    Constants.HELPERS.Airplane.description,
+    Constants.HELPERS.Airplane.price,
+    Constants.HELPERS.Airplane.power,
+    function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      let base = this.power      
 
-    if (towerPurchased('Power Tower')) {
-      base += Math.max(Math.floor(base * 1.1), 1)
-    }
-    
-    const purchased = this.purchased
-    let total = base * purchased      
-
-    if (magic.isToxic) {
-      total *= 0.5
-    } else if (magic.isHalfToxic) {
-      total *= 0.9
-    }
-    
-    if (upgradePurchased('Extended Cargo')) {
-      total *= 1.25
-    }
-
-    if (upgradePurchased('Buddy System')) {
-      total *= 2
-    }
-
-    if (upgradePurchased('Fleet Beacon')) {
-      if (purchased < 100) {
-        total *= 2.5
-      } else {
-        total *= 3.5
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
       }
-    }
-
-    return Math.floor(total)
-  }),
-  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, 100, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-    let base = this.power      
-
-    if (towerPurchased('Power Tower')) {
-      base += Math.max(Math.floor(base * 1.1), 1)
-    }
-    
-    const purchased = this.purchased
-    if (upgradePurchased('Efficient Operations')) {
-      base += magic.efficientOperations
-    }
-
-    let total = base * purchased      
-
-    if (magic.isToxic) {
-      total *= 0.5
-    } else if (magic.isHalfToxic) {
-      total *= 0.9
-    }
-
-    if (upgradePurchased('Cloner Overdrive')) {
-      total *= 1.4
-    }
-
-    return Math.floor(total)
-  }),
-  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, 350, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-    let base = this.power      
-
-    if (towerPurchased('Power Tower')) {
-      base += Math.max(Math.floor(base * 1.1), 1)
-    }
-    
-    const purchased = this.purchased    
-    if (upgradePurchased('The Awakening')) {
-      base *= 0.75
-    }
-
-    let total = base * purchased      
-
-    if (magic.isToxic) {
-      total *= 0.5
-    } else if (magic.isHalfToxic) {
-      total *= 0.9
-    }
-
-    if (upgradePurchased('The Awakening')) {
-      const awakeningBase = 1.00
-      const factor = Constants.AWAKENING_POWER_SCALE * magic.awakening
-
-      total *= (awakeningBase + factor)
-    }
-    
-    if (upgradePurchased('Audible Motivation')) {
-      const audibleBase = 1.00
-      const factor = .02 * getHelper('AutoClicker').purchased
-
-      total *= (audibleBase + factor)
-    }
-
-    return Math.floor(total)
-  }),
-  'Consumer': {
-    ...helper('Consumer', 'An anti-helper that consumes score to produce blocks', 5000, -5, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-      const initial = this.power * Math.pow(1.5, this.purchased - 1)
-      const tamers = getSpecial('Tamer').purchased
-
-      if (tamers === 0) return Math.ceil(initial)  
-      return Math.ceil(initial * Math.pow(0.95, tamers))
-    }, function(abbreviate, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
-      const title = `${this.name} - ${this.purchased}`
       
-      const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
-      const withSps = `${base}</br>${this.sps} score per second`
+      const purchased = this.purchased
+      let total = base * purchased      
 
-      const next = `${abbreviate(this.nextFormula(getHelper, 
-                                                  getSpecial, 
-                                                  isClass, 
-                                                  towerPurchased, 
-                                                  upgradePurchased, 
-                                                  magic))} score per second next`
-  
-      return `${withSps}</br>${next}`
+      if (magic.isToxic) {
+        total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
+      }
+      
+      if (upgradePurchased('Extended Cargo')) {
+        total *= 1.25
+      }
+
+      if (upgradePurchased('Buddy System')) {
+        total *= 2
+      }
+
+      if (upgradePurchased('Fleet Beacon')) {
+        if (purchased < 100) {
+          total *= 2.5
+        } else {
+          total *= 3.5
+        }
+      }
+
+      return Math.floor(total)
+    }),
+    [Constants.HELPERS.Cloner.name]:
+    helper(
+      Constants.HELPERS.Cloner.name,
+      Constants.HELPERS.Cloner.description,
+      Constants.HELPERS.Cloner.price,
+      Constants.HELPERS.Cloner.power,
+      function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+        let base = this.power      
+
+        if (towerPurchased('Power Tower')) {
+          base += Math.max(Math.floor(base * 1.1), 1)
+        }
+        
+        const purchased = this.purchased
+        if (upgradePurchased('Efficient Operations')) {
+          base += magic.efficientOperations
+        }
+
+        let total = base * purchased      
+
+        if (magic.isToxic) {
+          total *= 0.5
+        } else if (magic.isHalfToxic) {
+          total *= 0.9
+        }
+
+        if (upgradePurchased('Cloner Overdrive')) {
+          total *= 1.4
+        }
+
+        return Math.floor(total)
+  }),
+  [Constants.HELPERS.Djinn.name]:
+  helper(
+    Constants.HELPERS.Djinn.name,
+    Constants.HELPERS.Djinn.description,
+    Constants.HELPERS.Djinn.price,
+    Constants.HELPERS.Djinn.power,
+    function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+      let base = this.power      
+
+      if (towerPurchased('Power Tower')) {
+        base += Math.max(Math.floor(base * 1.1), 1)
+      }
+      
+      const purchased = this.purchased    
+      if (upgradePurchased('The Awakening')) {
+        base *= 0.75
+      }
+
+      let total = base * purchased      
+
+      if (magic.isToxic) {
+        total *= 0.5
+      } else if (magic.isHalfToxic) {
+        total *= 0.9
+      }
+
+      if (upgradePurchased('The Awakening')) {
+        const awakeningBase = 1.00
+        const factor = Constants.AWAKENING_POWER_SCALE * magic.awakening
+
+        total *= (awakeningBase + factor)
+      }
+      
+      if (upgradePurchased('Audible Motivation')) {
+        const audibleBase = 1.00
+        const factor = .02 * getHelper('AutoClicker').purchased
+
+        total *= (audibleBase + factor)
+      }
+
+      return Math.floor(total)
+  }),
+  [Constants.HELPERS.Consumer.name]: {
+    ...helper(
+      Constants.HELPERS.Consumer.name,
+      Constants.HELPERS.Consumer.description,
+      Constants.HELPERS.Consumer.price,
+      Constants.HELPERS.Consumer.power,
+      function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+        const initial = this.power * Math.pow(1.5, this.purchased - 1)
+        const tamers = getSpecial('Tamer').purchased
+
+        if (tamers === 0) return Math.ceil(initial)  
+        return Math.ceil(initial * Math.pow(0.95, tamers))
+      },
+      function(abbreviate, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+        const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+        const title = `${this.name} - ${this.purchased}`
+        
+        const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+        const withSps = `${base}</br>${this.sps} score per second`
+
+        const next = `${abbreviate(this.nextFormula(getHelper, 
+                                                    getSpecial, 
+                                                    isClass, 
+                                                    towerPurchased, 
+                                                    upgradePurchased, 
+                                                    magic))} score per second next`
+    
+        return `${withSps}</br>${next}`
     }),
     toxicity: 2,
     nextFormula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -278,12 +302,18 @@ const helpers = {
       return Math.floor(base * 0.9)
     }
   },
-  'Garbage Truck': {
-    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-      return this.power * this.purchased
-    }),
+  [Constants.HELPERS.GarbageTruck.name]: {
+    ...helper(
+      Constants.HELPERS.GarbageTruck.name,
+      Constants.HELPERS.GarbageTruck.description,
+      Constants.HELPERS.GarbageTruck.price,
+      Constants.HELPERS.GarbageTruck.power,
+      function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+        return this.power * this.purchased
+      }
+    ),
     toxicity: -1,
-    toxicFormula: function(towerPurchased) {
+    toxicFormula: function() {
       return Math.ceil(this.toxicity * this.purchased)
     }
   }

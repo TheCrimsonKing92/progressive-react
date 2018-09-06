@@ -84,6 +84,36 @@ export default {
       name: 'Robot',
       power: 14,
       price: 1500
+    },
+    Airplane: {
+      description: 'An allied airplane dropping score cargo',
+      name: 'Airplane',
+      power: 40,
+      price: 20000
+    },
+    Cloner: {
+      description: 'Creates score by cloning parts of the button',
+      name: 'Cloner',
+      power: 100,
+      price: 100000
+    },
+    Djinn: {
+      description: 'An ancient fire spirit mystically connected to the button',
+      name: 'Djinn',
+      power: 375,
+      price: 3500000
+    },
+    Consumer: {
+      description: 'An anti-helper that consumes score to produce blocks (and toxicity!)',
+      name: 'Consumer',
+      power: -5,
+      price: 5000
+    },
+    GarbageTruck: {
+      description: 'An anti-consumer that removes toxicity',
+      name: 'Garbage Truck',
+      power: -50,
+      price: 15000
     }
   },
   LOCALSTORAGE_ITEM_NAME: 'ProgressiveReactSave',
