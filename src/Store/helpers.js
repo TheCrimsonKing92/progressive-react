@@ -1,5 +1,5 @@
 import Constants from '../Constants.js'
-import { buyable } from './store-commons'
+import { baseCurrentPrice, buyable } from './store-commons'
 
 const baseHelperTooltip = function(abbreviate, isClass) {
   const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
@@ -9,19 +9,29 @@ const baseHelperTooltip = function(abbreviate, isClass) {
 }
 
 const helper = (
-  name,
-  description,
-  price,
-  power,
-  formula,
-  tooltip) => 
+  name = 'Helper',
+  description = 'A helper',
+  currentPriceFormula = baseCurrentPrice,
+  price = 1,
+  power = 1,
+  formula = function() { return this.power * this.purchased },
+  tooltip = baseHelperTooltip) => 
 ({
-  ...buyable(name || 'Helper', description || 'A helper', price || 1, Constants.PRICE_GROWTH.HELPER, Constants.CURRENCY.SCORE, true, true),
-  power: power || 1,
+  ...buyable(
+    name,
+    description,
+    price,
+    Constants.PRICE_GROWTH.HELPER,
+    Constants.CURRENCY.SCORE,
+    true,
+    true
+  ),
+  power: power,
   type: Constants.BUYABLE_TYPE.HELPER,
   // Using a lambda for this breaks the game
-  formula: formula || function() { return this.power * this.purchased },
-  getTooltip: tooltip || baseHelperTooltip
+  formula: formula,
+  getTooltip: tooltip,
+  currentPriceFormula: currentPriceFormula
 })
 
 const helpers = {
@@ -29,12 +39,13 @@ const helpers = {
   helper(
     Constants.HELPERS.AutoClicker.name, 
     Constants.HELPERS.AutoClicker.description,
+    undefined,
     Constants.HELPERS.AutoClicker.price,
     Constants.HELPERS.AutoClicker.power,
     function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
 
-      if (towerPurchased('Power Tower')) {
+      if (towerPurchased(Constants.TOWERS.Power.name)) {
         base += Math.max(Math.floor(base * 1.1), 1)
       }
 
@@ -80,6 +91,7 @@ const helpers = {
   helper(
     Constants.HELPERS.Hammer.name,
     Constants.HELPERS.Hammer.description,
+    undefined,
     Constants.HELPERS.Hammer.price,
     Constants.HELPERS.Hammer.power,
     function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -111,6 +123,7 @@ const helpers = {
   helper(
     Constants.HELPERS.Robot.name,
     Constants.HELPERS.Robot.description,
+    undefined,
     Constants.HELPERS.Robot.price,
     Constants.HELPERS.Robot.power,
     function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -148,6 +161,7 @@ const helpers = {
   helper(
     Constants.HELPERS.Airplane.name,
     Constants.HELPERS.Airplane.description,
+    undefined,
     Constants.HELPERS.Airplane.price,
     Constants.HELPERS.Airplane.power,
     function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -188,6 +202,7 @@ const helpers = {
     helper(
       Constants.HELPERS.Cloner.name,
       Constants.HELPERS.Cloner.description,
+      undefined,
       Constants.HELPERS.Cloner.price,
       Constants.HELPERS.Cloner.power,
       function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -220,6 +235,7 @@ const helpers = {
   helper(
     Constants.HELPERS.Djinn.name,
     Constants.HELPERS.Djinn.description,
+    undefined,
     Constants.HELPERS.Djinn.price,
     Constants.HELPERS.Djinn.power,
     function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -262,6 +278,7 @@ const helpers = {
     ...helper(
       Constants.HELPERS.Consumer.name,
       Constants.HELPERS.Consumer.description,
+      undefined,
       Constants.HELPERS.Consumer.price,
       Constants.HELPERS.Consumer.power,
       function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -308,6 +325,7 @@ const helpers = {
     ...helper(
       Constants.HELPERS.GarbageTruck.name,
       Constants.HELPERS.GarbageTruck.description,
+      undefined,
       Constants.HELPERS.GarbageTruck.price,
       Constants.HELPERS.GarbageTruck.power
     ),

@@ -1,20 +1,28 @@
 import Constants from '../Constants'
-import { baseTooltip, buyable, consumerPurchased } from './store-commons'
+import { baseCurrentPrice, baseTooltip, buyable, consumerPurchased } from './store-commons'
 
 const special = (
   name = 'Special',
   description = 'A special',
+  currentPriceFormula = baseCurrentPrice,
   price = 1,
   priceGrowth = Constants.PRICE_GROWTH.SPECIAL,
-  preReqs = consumerPurchased,
   currency = Constants.CURRENCY.BLOCK.GREEN,
   tooltip = baseTooltip) =>
 ({
   ...buyable(name, description, price, priceGrowth, currency, false, true),
-  preReqs: preReqs,
+  preReqs: consumerPurchased,
   type: Constants.BUYABLE_TYPE.SPECIAL,
-  getTooltip: tooltip
+  getTooltip: tooltip,
+  currentPriceFormula: currentPriceFormula
 })
+
+const currentPriceBlock = function (isClass, towerPurchased) {
+  let basePrice = this.price
+  let growth = this.priceGrowth
+
+  return Math.floor(basePrice * Math.pow(growth, this.purchased))
+}
 
 const specials = Object.values(Constants.SPECIALS)
                        .reduce((acc, curr) => {
@@ -24,18 +32,25 @@ const specials = Object.values(Constants.SPECIALS)
                             acc[label] = special(
                               label,
                               curr.description,
+                              undefined,
                               curr.price,
                               curr.priceGrowth,
-                              undefined,
                               Constants.CURRENCY.BLOCK.BLUE
                             )
                             break
+                          case Constants.SPECIALS.BlueBlock.name:
+                              acc[label] = special(
+                                label,
+                                curr.description,
+                                currentPriceBlock,
+                                curr.price
+                              )
                           case Constants.SPECIALS.GreenBlock.name:
                               acc[label] = special(
                                 label,
                                 curr.description,
+                                currentPriceBlock,
                                 curr.price,
-                                undefined,
                                 undefined,
                                 Constants.CURRENCY.BLOCK.BLUE
                               )
@@ -44,8 +59,8 @@ const specials = Object.values(Constants.SPECIALS)
                               acc[label] = special(
                                 label,
                                 curr.description,
+                                baseCurrentPrice,
                                 curr.price,
-                                undefined,
                                 undefined,
                                 undefined,
                                 function(abbreviate) {
@@ -62,6 +77,7 @@ const specials = Object.values(Constants.SPECIALS)
                               acc[label] = special(
                                 label,
                                 curr.description,
+                                baseCurrentPrice,
                                 curr.price
                               )
                               break

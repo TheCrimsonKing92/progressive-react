@@ -49,6 +49,7 @@ class App extends Component {
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
+    this.isClass = this.isClass.bind(this)
     this.newGame = this.newGame.bind(this)
     this.onClassClick = this.onClassClick.bind(this)
     this.openHelpModal = this.openHelpModal.bind(this)
@@ -552,28 +553,11 @@ class App extends Component {
     return buyable.price + buyable.purchased
   }
   mapCurrentPrice(buyable) {
-    if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
-      if (buyable.name === 'Blue Block' || buyable.name === 'Green Block') {
-        return this.mapBlockPurchasePrice(buyable)
-      }
+    if (!buyable.multiple) {
+      return buyable.price
+    } else {
+      return buyable.currentPriceFormula(this.isClass, this.towerPurchased)
     }
-    let basePrice = buyable.price
-    let growth = buyable.priceGrowth
-
-    if (buyable.currency === Constants.CURRENCY.SCORE) {
-      const thief = this.isClass(Constants.CLASSES.THIEF)
-      
-      if (thief) {
-        basePrice *= 0.9
-        growth = Constants.PRICE_GROWTH.HELPER_THIEF
-      }
-      
-      if (this.towerPurchased('Cost Tower')) {
-        basePrice *= 0.9
-      }
-    }
-
-    return Math.floor(basePrice * Math.pow(growth, buyable.purchased))
   }
   mapGameState(state) {
     return JSON.stringify({

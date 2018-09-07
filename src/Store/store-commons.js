@@ -44,8 +44,25 @@ const consumerPurchased = [
   )
 ]
 
-export { baseTooltip, buyable, consumerPurchased, preReq }
+const baseCurrentPrice = function (isClass, towerPurchased) {
+  const thief = isClass(Constants.CLASSES.THIEF)
+  const basePrice = thief ? (this.price * 0.9) :
+                            this.price
+  const growth = thief ? Constants.PRICE_GROWTH.HELPER_THIEF :
+                         this.priceGrowth
+
+  return Math.floor(basePrice * Math.pow(growth, this.purchased))
+}
+
+export { 
+  baseCurrentPrice,
+  baseTooltip,
+  buyable,
+  consumerPurchased,
+  preReq
+}
 export default {
+  baseCurrentPrice,
   baseTooltip: baseTooltip,
   buyable: buyable,
   consumerPurchased: consumerPurchased,
