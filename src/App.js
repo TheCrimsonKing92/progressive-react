@@ -481,17 +481,14 @@ class App extends Component {
   }
   getTooltip(buyable, stats = this.state.stats, store = this.state.store) {
     if (buyable.type === Constants.BUYABLE_TYPE.HELPER) {
-      if (buyable.name === 'Consumer') {
+      if (buyable.name === Constants.HELPERS.Consumer.name) {
         const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
         return buyable.getTooltip(this.abbreviateNumber, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
       }      
       return buyable.getTooltip(this.abbreviateNumber)
-    } else if (buyable.type === Constants.BUYABLE_TYPE.UPGRADE) {
-      if (buyable.name === 'Cybernetic Synergy' || buyable.name === 'Efficient Operations') return buyable.getTooltip(this.abbreviateNumber, name => this.isClass(name, stats))
-      return buyable.getTooltip(this.abbreviateNumber)
-    } else if (buyable.type === Constants.BUYABLE_TYPE.TOWER) {
-      return buyable.getTooltip(this.abbreviateNumber, this.isClass)
-    } else if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
+    } else if (buyable.type === Constants.BUYABLE_TYPE.UPGRADE ||
+               buyable.type === Constants.BUYABLE_TYPE.TOWER ||
+               buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
       return buyable.getTooltip(this.abbreviateNumber, this.isClass)
     } else {
       console.warn(`Unknown buyable type ${buyable.type}. Name? ${buyable.name}`)
