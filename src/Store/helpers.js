@@ -43,16 +43,16 @@ const helpers = {
       if (isClass(Constants.CLASSES.MASTER)) {
         base++
       }
-      if (upgradePurchased('Helping Hand')) {
-        base++
+      if (upgradePurchased(Constants.UPGRADES.HelpingHand.name)) {
+        base += Constants.UPGRADES.HelpingHand.power
       }
 
-      if (upgradePurchased('Helping Handsier')) {
-        base += 2
+      if (upgradePurchased(Constants.UPGRADES.HelpingHandsier.name)) {
+        base += Constants.UPGRADES.HelpingHandsier.power
       }
 
-      if (upgradePurchased('Helping Handsiest')) {
-        base += 6
+      if (upgradePurchased(Constants.UPGRADES.HelpingHandsiest.name)) {
+        base += Constants.UPGRADES.HelpingHandsiest.power
       }
 
       let total = base * purchased
@@ -63,13 +63,13 @@ const helpers = {
         total *= 0.9
       }
 
-      if (upgradePurchased('Click Efficiency')) {
-        total *= 2
+      if (upgradePurchased(Constants.UPGRADES.ClickEfficiency.name)) {
+        total *= Constants.UPGRADES.ClickEfficiency.power
       }
 
-      if (upgradePurchased('Audible Motivation')) {
+      if (upgradePurchased(Constants.UPGRADES.AudibleMotivation.name)) {
         const audibleBase = 1.00
-        const factor = .01 * getHelper('Djinn').purchased
+        const factor = Constants.UPGRADES.AudibleMotivation.power.AutoClicker * getHelper(Constants.HELPERS.Djinn.name).purchased
 
         total *= (audibleBase + factor)
       }
@@ -90,7 +90,7 @@ const helpers = {
       }
       
       const purchased = this.purchased
-      if (upgradePurchased('Aria Hammera')) {
+      if (upgradePurchased(Constants.UPGRADES.AriaHammera.name)) {
         base += Math.floor(purchased / 15)
       }
       if (upgradePurchased('Heavier Hammers')) {
@@ -135,9 +135,10 @@ const helpers = {
         total *= 0.9
       }
       
-      if (upgradePurchased('Cybernetic Synergy')) {
-        const power = isClass(Constants.CLASSES.MECHANIC) ? 28 : 14;
-        const bound = Math.min(purchased, getHelper('Hammer').purchased)
+      if (upgradePurchased(Constants.UPGRADES.CyberneticSynergy.name)) {
+        const power = isClass(Constants.CLASSES.MECHANIC) ? Constants.UPGRADES.CyberneticSynergy.mechanicPower : 
+                                                            Constants.UPGRADES.CyberneticSynergy.power;
+        const bound = Math.min(purchased, getHelper(Constants.HELPERS.Hammer.name).purchased)
         total += (power * bound)
       }
 
@@ -165,12 +166,12 @@ const helpers = {
         total *= 0.9
       }
       
-      if (upgradePurchased('Extended Cargo')) {
-        total *= 1.25
+      if (upgradePurchased(Constants.UPGRADES.ExtendedCargo.name)) {
+        total *= Constants.UPGRADES.ExtendedCargo.power
       }
 
-      if (upgradePurchased('Buddy System')) {
-        total *= 2
+      if (upgradePurchased(Constants.UPGRADES.BuddySystem.name)) {
+        total *= Constants.UPGRADES.BuddySystem.power
       }
 
       if (upgradePurchased('Fleet Beacon')) {
@@ -197,7 +198,7 @@ const helpers = {
         }
         
         const purchased = this.purchased
-        if (upgradePurchased('Efficient Operations')) {
+        if (upgradePurchased(Constants.UPGRADES.EfficientOperations.name)) {
           base += magic.efficientOperations
         }
 
@@ -209,8 +210,8 @@ const helpers = {
           total *= 0.9
         }
 
-        if (upgradePurchased('Cloner Overdrive')) {
-          total *= 1.4
+        if (upgradePurchased(Constants.UPGRADES.ClonerOverdrive.name)) {
+          total *= Constants.UPGRADES.ClonerOverdrive.power
         }
 
         return Math.floor(total)
@@ -229,8 +230,8 @@ const helpers = {
       }
       
       const purchased = this.purchased    
-      if (upgradePurchased('The Awakening')) {
-        base *= 0.75
+      if (upgradePurchased(Constants.UPGRADES.TheAwakening.name)) {
+        base *= Constants.UPGRADES.TheAwakening.power.base
       }
 
       let total = base * purchased      
@@ -241,16 +242,16 @@ const helpers = {
         total *= 0.9
       }
 
-      if (upgradePurchased('The Awakening')) {
+      if (upgradePurchased(Constants.UPGRADES.TheAwakening.name)) {
         const awakeningBase = 1.00
         const factor = Constants.AWAKENING_POWER_SCALE * magic.awakening
 
         total *= (awakeningBase + factor)
       }
       
-      if (upgradePurchased('Audible Motivation')) {
+      if (upgradePurchased(Constants.UPGRADES.AudibleMotivation.name)) {
         const audibleBase = 1.00
-        const factor = .02 * getHelper('AutoClicker').purchased
+        const factor = Constants.UPGRADES.AudibleMotivation.power.Djinn * getHelper(Constants.HELPERS.AutoClicker.name).purchased
 
         total *= (audibleBase + factor)
       }
@@ -265,7 +266,7 @@ const helpers = {
       Constants.HELPERS.Consumer.power,
       function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
         const initial = this.power * Math.pow(1.5, this.purchased - 1)
-        const tamers = getSpecial('Tamer').purchased
+        const tamers = getSpecial(Constants.SPECIALS.Tamer.name).purchased
 
         if (tamers === 0) return Math.ceil(initial)  
         return Math.ceil(initial * Math.pow(0.95, tamers))
@@ -274,7 +275,8 @@ const helpers = {
         const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
         const title = `${this.name} - ${this.purchased}`
         
-        const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
+        const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : 
+                                    `${title}</br>${this.description}`
         const withSps = `${base}</br>${this.sps} score per second`
 
         const next = `${abbreviate(this.nextFormula(getHelper, 
@@ -289,7 +291,7 @@ const helpers = {
     toxicity: 2,
     nextFormula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       const initial = this.power * Math.pow(1.5, this.purchased)
-      const tamers = getSpecial('Tamer').purchased
+      const tamers = getSpecial(Constants.SPECIALS.Tamer.name).purchased
 
       if (tamers === 0) return Math.ceil(initial)
       return Math.ceil(initial * Math.pow(0.95, tamers))
@@ -307,10 +309,7 @@ const helpers = {
       Constants.HELPERS.GarbageTruck.name,
       Constants.HELPERS.GarbageTruck.description,
       Constants.HELPERS.GarbageTruck.price,
-      Constants.HELPERS.GarbageTruck.power,
-      function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
-        return this.power * this.purchased
-      }
+      Constants.HELPERS.GarbageTruck.power
     ),
     toxicity: -1,
     toxicFormula: function() {

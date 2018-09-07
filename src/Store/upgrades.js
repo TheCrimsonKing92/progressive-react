@@ -2,107 +2,229 @@ import Constants from '../Constants'
 import { buyable, baseTooltip, preReq } from './store-commons'
 
 const upgrade = (
+  name = 'Upgrade',
+  description = 'An upgrade',
+  price = 1,
+  preReqs = null,
+  tooltip = baseTooltip) => 
+({
+  ...buyable(
+    name,
+    description,
+    price,
+    Constants.PRICE_GROWTH.UPGRADE,
+    Constants.CURRENCY.SCORE,
+    preReqs === null,
+    false
+  ),
+  type: Constants.BUYABLE_TYPE.UPGRADE,
+  preReqs: preReqs,
+  getTooltip: tooltip
+})
+
+const buyableUpgrade = (
   name,
   description,
   price,
-  preReqs,
-  tooltip) => 
+  tooltip
+) =>
 ({
-  ...buyable(name || 'Upgrade',
-             description || 'An upgrade',
-             price || 1, Constants.PRICE_GROWTH.UPGRADE, Constants.CURRENCY.SCORE, preReqs === null, false),
-  preReqs: preReqs || null,
-  getTooltip: tooltip || baseTooltip,
-  type: 'upgrade'
+  ...upgrade(
+    name,
+    description,
+    price,
+    undefined,
+    tooltip
+  ),
+  buyable: true
 })
 
-const firmwareDescription = percentage => '+'.concat(percentage).concat('% Robot power')
-const firmwareVersion = version => 'Firmware V1.0.'.concat(version)
-const firmwareUpgrade = (version, percentage, cost, robots) => {
-  return upgrade(
-    firmwareVersion(version),
-    firmwareDescription(percentage),
-    cost,
+const firmwares = Object.values(Constants.UPGRADES.FIRMWARES)
+                        .reduce((acc, curr) => {
+                          const label = curr.name
+                          acc[label] = upgrade(
+                            label,
+                            curr.description,
+                            curr.price,
+                            [
+                              preReq(
+                                Constants.PREREQ.HELPER.NUMBER,
+                                Constants.HELPERS.Robot.name,
+                                curr.preReq.Robot
+                              )
+                            ]
+                          )
+                          return acc
+                        }, {})
+
+const nonfirmwares = {
+  [Constants.UPGRADES.HelpingHand.name]: buyableUpgrade(
+    Constants.UPGRADES.HelpingHand.name,
+    Constants.UPGRADES.HelpingHand.description,
+    Constants.UPGRADES.HelpingHand.price
+  ),
+  [Constants.UPGRADES.ClickEfficiency.name]: upgrade(
+    Constants.UPGRADES.ClickEfficiency.name,
+    Constants.UPGRADES.ClickEfficiency.description,
+    Constants.UPGRADES.ClickEfficiency.price, [
+    preReq(
+      Constants.PREREQ.CLICKS.NUMBER,
+      null,
+      Constants.UPGRADES.ClickEfficiency.preReq.clicks
+    ),
+    preReq(
+      Constants.PREREQ.HELPER.NUMBER,
+      Constants.HELPERS.AutoClicker.name,
+      Constants.UPGRADES.ClickEfficiency.preReq.AutoClicker
+    )
+  ]),
+  [Constants.UPGRADES.HeavierHammers.name]: upgrade(
+    Constants.UPGRADES.HeavierHammers.name,
+    Constants.UPGRADES.HeavierHammers.description,
+    Constants.UPGRADES.HeavierHammers.price,
     [
-      preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', robots)
+      preReq(
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.Hammer.name,
+        Constants.UPGRADES.HeavierHammers.preReq.Hammer
+      )
     ]
-  )
+  ),
+  [Constants.UPGRADES.HelpingHandsier.name]: upgrade(
+    Constants.UPGRADES.HelpingHandsier.name,
+    Constants.UPGRADES.HelpingHandsier.description,
+    Constants.UPGRADES.HelpingHandsier.price,
+    [
+      preReq(Constants.PREREQ.CLICKS.NUMBER, null, 300),
+      preReq(Constants.PREREQ.UPGRADE.PURCHASED, Constants.UPGRADES.HelpingHand.name)
+    ]
+  ),
+  [Constants.UPGRADES.HelpingHandsiest.name]: upgrade(
+    Constants.UPGRADES.HelpingHandsiest.name,
+    Constants.UPGRADES.HelpingHandsiest.description,
+    Constants.UPGRADES.HelpingHandsiest.price,
+    [
+      preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
+      preReq(Constants.PREREQ.UPGRADE.PURCHASED, Constants.UPGRADES.HelpingHandsier.name)
+    ]
+  ),
+  [Constants.UPGRADES.CyberneticSynergy.name]: upgrade(
+    Constants.UPGRADES.CyberneticSynergy.name,
+    Constants.UPGRADES.CyberneticSynergy.description,
+    Constants.UPGRADES.CyberneticSynergy.price,
+    [
+      preReq(Constants.PREREQ.HELPER.NUMBER, Constants.HELPERS.Hammer.name, 10),
+      preReq(Constants.PREREQ.HELPER.NUMBER, Constants.HELPERS.Robot.name, 10)
+    ],
+    function(abbreviate, isClass) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const description = isClass(Constants.CLASSES.MECHANIC) ? 
+                            this.description.replace('100', '200').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`) 
+                            : this.description
+      return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
+    }
+  ),
+  [Constants.UPGRADES.ExtendedCargo.name]: upgrade(
+    Constants.UPGRADES.ExtendedCargo.name,
+    Constants.UPGRADES.ExtendedCargo.description,
+    Constants.UPGRADES.ExtendedCargo.price,
+      [
+      preReq(
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.Airplane.name,
+        Constants.UPGRADES.ExtendedCargo.preReq.Airplane
+      )
+    ]
+  ),
+  [Constants.UPGRADES.BuddySystem.name]: upgrade(
+    Constants.UPGRADES.BuddySystem.name,
+    Constants.UPGRADES.BuddySystem.description,
+    Constants.UPGRADES.BuddySystem.price,
+    [
+      preReq(Constants.PREREQ.HELPER.NUMBER, Constants.HELPERS.Airplane.name, Constants.UPGRADES.BuddySystem.preReq.Airplane)
+    ]
+  ),
+  [Constants.UPGRADES.ClonerOverdrive.name]: upgrade(
+    Constants.UPGRADES.ClonerOverdrive.name,
+    Constants.UPGRADES.ClonerOverdrive.description,
+    Constants.UPGRADES.ClonerOverdrive.price,
+    [
+      preReq(Constants.PREREQ.HELPER.NUMBER, Constants.HELPERS.Cloner.name, 10)
+    ]
+  ),
+  [Constants.UPGRADES.AriaHammera.name]: upgrade(
+    Constants.UPGRADES.AriaHammera.name,
+    Constants.UPGRADES.AriaHammera.description,
+    Constants.UPGRADES.AriaHammera.price,
+    [
+      preReq(Constants.PREREQ.HELPER.NUMBER, Constants.HELPERS.Hammer.name, Constants.UPGRADES.AriaHammera.preReq.Hammer)
+    ]
+  ),
+  [Constants.UPGRADES.FleetBeacon.name]: upgrade(
+    Constants.UPGRADES.FleetBeacon.name,
+    Constants.UPGRADES.FleetBeacon.description,
+    Constants.UPGRADES.FleetBeacon.price,
+    [
+      preReq(Constants.PREREQ.HELPER.NUMBER, Constants.HELPERS.Airplane.name, Constants.UPGRADES.FleetBeacon.preReq.Airplane)
+    ]
+  ),
+  [Constants.UPGRADES.TheAwakening.name]: upgrade(
+    Constants.UPGRADES.TheAwakening.name,
+    Constants.UPGRADES.TheAwakening.description,
+    Constants.UPGRADES.TheAwakening.price,
+    [
+      preReq(
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.Djinn.name,
+        Constants.UPGRADES.TheAwakening.preReq.Djinn
+      )
+    ]
+  ),
+  [Constants.UPGRADES.AudibleMotivation.name]: upgrade(
+    Constants.UPGRADES.AudibleMotivation.name,
+    Constants.UPGRADES.AudibleMotivation.description,
+    Constants.UPGRADES.AudibleMotivation.price,
+    [
+      preReq(
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.Djinn.name,
+        Constants.UPGRADES.AudibleMotivation.preReq.Djinn
+      ),
+      preReq(
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.AutoClicker.name,
+        Constants.UPGRADES.AudibleMotivation.preReq.AutoClicker
+      )
+    ]
+  ),
+  [Constants.UPGRADES.EfficientOperations.name]: upgrade(
+    Constants.UPGRADES.EfficientOperations.name,
+    Constants.UPGRADES.EfficientOperations.description,
+    Constants.UPGRADES.EfficientOperations.price,
+    [
+      preReq(
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.Robot.name,
+        Constants.UPGRADES.EfficientOperations.preReq.Robot
+      ),
+      preReq (
+        Constants.PREREQ.HELPER.NUMBER,
+        Constants.HELPERS.Cloner.name,
+        Constants.UPGRADES.EfficientOperations.preReq.Cloner
+      )
+    ],
+    function(abbreviate, isClass) {
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const description = isClass(Constants.CLASSES.MECHANIC) ?
+                            this.description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`):
+                            this.description
+      return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
+  })
 }
 
 const upgrades = {
-  'Helping Hand': {
-    ...upgrade('Helping Hand', '+1 AutoClicker and mouse power', 200),
-    buyable: true,
-    getTooltip: baseTooltip
-  },
-  'Firmware V1.0.0.1': firmwareUpgrade('0.1', 15, 800, 1),
-  'Click Efficiency': upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 150),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
-  ]),
-  'Firmware V1.0.0.2': firmwareUpgrade('0.2', 15, 1100, 2),
-  'Heavier Hammers': upgrade('Heavier Hammers', '+100% Hammer power', 1250, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 5)
-  ]),
-  'Firmware V1.0.0.3': firmwareUpgrade('0.3', 15, 1400, 3),
-  'Firmware V1.0.0.4': firmwareUpgrade('0.4', 15, 1800, 4),
-  'Firmware V1.0.0.5': firmwareUpgrade('0.5', 15, 2200, 5),
-  'Helping Handsier': upgrade('Helping Handsier', '+2 AutoClicker and mouse power', 2500, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 300),
-    preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Hand')
-  ]),
-  'Firmware V1.0.0.6': firmwareUpgrade('0.6', 15, 2600, 6),
-  'Firmware V1.0.0.7': firmwareUpgrade('0.7', 15, 3200, 7),
-  'Firmware V1.0.0.8': firmwareUpgrade('0.8', 15, 4100, 8),
-  'Helping Handsiest': upgrade('Helping Handsiest', '+6 AutoClicker and mouse power', 7000, [
-    preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
-    preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handsier')
-  ]),
-  'Firmware V1.0.0.9': firmwareUpgrade('0.9', 15, 5100, 9),
-  'Firmware V1.0.0.10': firmwareUpgrade('0.10', 15, 6300, 10),
-  'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+100% Robot power when paired with a Hammer', 9000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
-  ], function(abbreviate, isClass) {
-    const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
-    const description = isClass(Constants.CLASSES.MECHANIC) ? 
-                          this.description.replace('+100', '+200').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`) 
-                          : this.description
-    return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
-  }),
-  'Firmware V1.0.1.0': firmwareUpgrade('1.0', 75, 20000, 15),
-  'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)
-  ]),
-  'Buddy System': upgrade('Buddy System', '+100% Airplane power', 85000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
-  ]),
-  'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
-  ]),
-  'Aria Hammera': upgrade('Aria Hammera', '+1 Hammer power per 15 Hammers', 600000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 15)
-  ]),
-  'Fleet Beacon': upgrade('Fleet Beacon', '+150% Airplane power. +250% at 75 Airplanes', 1750000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 25)
-  ]),
-  'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 10)
-  ]),
-  'Audible Motivation': upgrade('Audible Motivation', '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn', 10000000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Djinn', 15),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 15)
-  ]),
-  'Efficient Operations': upgrade('Efficient Operations', 'Each Robot has a chance to upgrade the base power of Cloners', 20000000, [
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 20),
-    preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 20)
-  ], function(abbreviate, isClass) {
-    const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
-    const description = isClass(Constants.CLASSES.MECHANIC) ?
-                          this.description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
-                          : this.description
-    return this.buyable ? `${this.name}</br>${description}</br>${costPhrase}` : `${this.name}</br>${description}`
-  })
+  ...firmwares,
+  ...nonfirmwares
 }
 
 export default upgrades

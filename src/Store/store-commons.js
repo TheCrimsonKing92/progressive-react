@@ -37,9 +37,17 @@ const preReq = (
   value: value
 })
 
-export { baseTooltip, buyable, preReq }
+const consumerPurchased = [
+  preReq(
+    Constants.PREREQ.HELPER.PURCHASED,
+    Constants.HELPERS.Consumer.name
+  )
+]
+
+export { baseTooltip, buyable, consumerPurchased, preReq }
 export default {
   baseTooltip: baseTooltip,
   buyable: buyable,
+  consumerPurchased: consumerPurchased,
   preReq: preReq
 }

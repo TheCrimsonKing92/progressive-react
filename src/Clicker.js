@@ -3,24 +3,24 @@ import Constants from './Constants'
 const calculateClickScore = (stats, store, getPositiveHelperOutput, towerPurchased, upgradePurchased) => {
   let base = 1
 
-  if (upgradePurchased('Helping Hand', store)) {
-    base += Constants.POWER.HELPING_HAND
+  if (upgradePurchased(Constants.UPGRADES.HelpingHand.name, store)) {
+    base += Constants.UPGRADES.HelpingHand.power
   }
 
-  if (upgradePurchased('Helping Handsier', store)) {
-    base += Constants.POWER.HELPING_HANDSIER
+  if (upgradePurchased(Constants.UPGRADES.HelpingHandsier.name, store)) {
+    base += Constants.UPGRADES.HelpingHandsier.power
   }
 
-  if (upgradePurchased('Helping Handsiest', store)) {
-    base += Constants.POWER.HELPING_HANDSIEST
+  if (upgradePurchased(Constants.UPGRADES.HelpingHandsiest.name, store)) {
+    base += Constants.UPGRADES.HelpingHandsiest.power
   }
   
-  if (towerPurchased('Click Tower', store)) {
-    base += stats.clicks * Constants.CLICK_TOWER.CLICK_RATE
+  if (towerPurchased(Constants.TOWERS.Click.name, store)) {
+    base += stats.clicks * Constants.TOWERS.Click.power.mouse
     base += getClickTowerBonus(stats, store, getPositiveHelperOutput)
   }
 
-  if (upgradePurchased('Click Efficiency', store)) {
+  if (upgradePurchased(Constants.UPGRADES.ClickEfficiency, store)) {
     base *= 2
   }
 
@@ -28,7 +28,7 @@ const calculateClickScore = (stats, store, getPositiveHelperOutput, towerPurchas
 };
 
 const getClickTowerBonus = (stats, store, getPositiveHelperOutput) => {
-  return getPositiveHelperOutput(store, stats) * Constants.CLICK_TOWER.HELPER_RATE
+  return getPositiveHelperOutput(store, stats) * Constants.TOWERS.Click.power.helper
 };
 
 export default {

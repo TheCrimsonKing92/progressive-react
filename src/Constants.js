@@ -28,7 +28,7 @@ export default {
     },
     MECHANIC: {
       name: 'Mechanic',
-      description: 'Improves the gains from an early upgrade (Cybernetic Synergy) and a later upgrade (Efficient Operations)'
+      description: 'Improves all upgrades to Robot helpers'
     },
     MEDIC: {
       name: 'Medic',
@@ -36,12 +36,8 @@ export default {
     },
     THIEF: {
       name: 'Thief',
-      description: `Receives 'five-fingered discount' on all score-based store prices`
+      description: "Receives 'five-fingered discount' on all score-based store prices"
     }
-  },
-  CLICK_TOWER: {
-    CLICK_RATE: 0.05,
-    HELPER_RATE: 0.01
   },
   CURRENCY: {
     BLOCK: {
@@ -53,19 +49,6 @@ export default {
   DUMP_POWER: 2,
   EFFICIENT_OPERATIONS_FAILURE_RATE: 0.995,
   EFFICIENT_OPERATIONS_FAILURE_RATE_MECHANIC: 0.99,
-  FIRMWARES: {
-    'Firmware V1.0.0.1': 0.15,
-    'Firmware V1.0.0.2': 0.15,
-    'Firmware V1.0.0.3': 0.15,
-    'Firmware V1.0.0.4': 0.15,
-    'Firmware V1.0.0.5': 0.15,
-    'Firmware V1.0.0.6': 0.15,
-    'Firmware V1.0.0.7': 0.15,
-    'Firmware V1.0.0.8': 0.15,
-    'Firmware V1.0.0.9': 0.15,
-    'Firmware V1.0.0.10': 0.15,
-    'Firmware V1.0.1.0': 0.75
-  },
   HELPERS: {
     AutoClicker: {
       description: 'Weakly clicks the button for you',
@@ -120,11 +103,6 @@ export default {
   MEDIC_PASSIVE_POWER: 10,
   OFFLINE_PROGRESS_MAXIMUM: 86400,
   OFFLINE_PROGRESS_MINIMUM: 60,
-  POWER: {
-    HELPING_HAND: 1,
-    HELPING_HANDSIER: 2,
-    HELPING_HANDSIEST: 6
-  },
   PREREQ: {
     CLICKS: {
       NUMBER: 'number-clicks'
@@ -150,5 +128,296 @@ export default {
     SPECIAL: 1.10,
     UPGRADE: 1.00
   },
-  TOXICITY_RECYCLING_POWER: 10
+  SPECIALS: {
+    BetterBuilding: {
+      name: 'Better Building',
+      description: 'Increases block production speed',
+      price: 200,
+      priceGrowth: 1.3
+    },
+    BlueBlock: {
+      name: 'Blue Block',
+      description: 'A blue block',
+      price: 5
+    },
+    GreenBlock: {
+      name: 'Green Block',
+      description: 'A green block',
+      price: 5
+    },
+    Tamer: {
+      name: 'Tamer',
+      description: 'Decreases consumer score production',
+      price: 150
+    },
+    ToxicCapacity: {
+      name: 'Toxic Capacity',
+      description: 'Increases maximum toxicity',
+      price: 300
+    },
+    ToxicityRecycling: {
+      name: 'Toxicity Recycling',
+      description: 'Removes some toxicity',
+      price: 50
+    }
+  },
+  TOWERS: {
+    Click: {
+      name: 'Click Tower',
+      description: 'Increases mouse power by 5% of clicks and 1% of helper power',
+      power: {
+        helper: 0.01,
+        mouse: 0.05
+      },
+      price: 1000
+    },
+    Cost: {
+      name: 'Cost Tower',
+      description: 'Reduces score costs by 10%',
+      price: 5000
+    },
+    Power: {
+      name: 'Power Tower',
+      description: 'Increases helper power',
+      price: 2500
+    },
+    Toxicity: {
+      name: 'Toxicity Tower',
+      description: 'Reduces toxicity production',
+      price: 5000
+    }
+  },
+  TOXICITY_RECYCLING_POWER: 10,
+  UPGRADES: {
+    AriaHammera: {
+      name: 'Aria Hammera',
+      description: '+20% base Hammer power per 15 Hammers',
+      power: 1.2,
+      preReq: {
+        Hammer: 15
+      },
+      price: 600000
+    },
+    AudibleMotivation: {
+      name: 'Audible Motivation',
+      description: '+2% Djinn power per AutoClicker. +1% AutoClicker power per Djinn',
+      power: {
+        AutoClicker: 0.01,
+        Djinn: 0.02
+      },
+      preReq: {
+        AutoClicker: 15,
+        Djinn: 15
+      },
+      price: 10000000
+    },
+    BuddySystem: {
+      name: 'Buddy System',
+      description: '+100% Airplane power',
+      power: 2,
+      preReq: {
+        Airplane: 15
+      },
+      price: 85000
+    },
+    ClickEfficiency: {
+      name: 'Click Efficiency',
+      description: '+100% AutoClicker and mouse power',
+      power: 2,
+      preReq: {
+        AutoClicker: 10,
+        clicks: 150
+      },
+      price: 1000
+    },
+    ClonerOverdrive: {
+      name: 'Cloner Overdrive',
+      description: '+40% Cloner power',
+      power: 1.4,
+      preReq: {
+        Cloner: 10
+      },
+      price: 300000
+    },
+    CyberneticSynergy: {
+      name: 'Cybernetic Synergy',
+      description: '+100% Robot power when paired with a Hammer',
+      mechanicPower: 28,
+      power: 14,
+      preReq: {
+        Hammer: 10,
+        Robot: 10
+      },
+      price: 9000
+    },
+    EfficientOperations: {
+      name: 'Efficient Operations',
+      description: 'Each Robot has a chance to upgrade the base power of Cloners',
+      preReq: {
+        Cloner: 20,
+        Robot: 20
+      },
+      price: 20000000
+    },
+    ExtendedCargo: {
+      name: 'Extended Cargo',
+      description: '+25% Airplane power',
+      power: 1.25,
+      preReq: {
+        Airplane: 10
+      },
+      price: 23000
+    },
+    FIRMWARES: {
+      FirmwareV1001: {
+        name: 'Firmware V1.0.0.1',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 1
+        },
+        price: 800
+      },
+      FirmwareV1002: {
+        name: 'Firmware V1.0.0.2',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 2
+        },
+        price: 1100
+      },
+      FirmwareV1003: {
+        name: 'Firmware V1.0.0.3',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 3
+        },
+        price: 1400
+      },
+      FirmwareV1004: {
+        name: 'Firmware V1.0.0.4',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 4
+        },
+        price: 1800
+      },
+      FirmwareV1005: {
+        name: 'Firmware V1.0.0.5',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 5
+        },
+        price: 2200
+      },
+      FirmwareV1006: {
+        name: 'Firmware V1.0.0.6',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 6
+        },
+        price: 2600
+      },
+      FirmwareV1007: {
+        name: 'Firmware V1.0.0.7',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 7
+        },
+        price: 3200
+      },
+      FirmwareV1008: {
+        name: 'Firmware V1.0.0.8',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 8
+        },
+        price: 4100
+      },
+      FirmwareV1009: {
+        name: 'Firmware V1.0.0.9',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 9
+        },
+        price: 5100
+      },
+      FirmwareV10010: {
+        name: 'Firmware V1.0.0.10',
+        description: '+15% Robot power',
+        power: 1.15,
+        preReq: {
+          Robot: 10
+        },
+        price: 6300
+      },
+      FirmwareV1010: {
+        name: 'Firmware V1.0.1.0',
+        description: '+75% Robot power',
+        power: 1.75,
+        preReq: {
+          Robot: 15
+        },
+        price: 20000
+      }
+    },
+    FleetBeacon: {
+      name: 'Fleet Beacon',
+      description: '+150% Airplane power. +250% at 75 Airplanes',
+      power: {
+        base: 2.5,
+        full: 3.5
+      },
+      preReq: {
+        Airplane: 25
+      },
+      price: 1750000
+    },
+    HeavierHammers: {
+      name: 'Heavier Hammers',
+      description: '+100% Hammer power',
+      power: 2,
+      preReq: {
+        Hammer: 15
+      },
+      price: 1250
+    },
+    HelpingHand: {
+      name: 'Helping Hand',
+      description: '+1 AutoClicker and mouse power',
+      power: 1,
+      price: 200
+    },
+    HelpingHandsier: {
+      name: 'Helping Handsier',
+      description: '+2 AutoClicker and mouse power',
+      power: 2,
+      price: 2500
+    },
+    HelpingHandsiest: {
+      name: 'Helping Handsiest',
+      description: '+6 AutoClicker and mouse power',
+      power: 6,
+      price: 7000
+    },
+    TheAwakening: {
+      name: 'The Awakening',
+      description: 'Immediate Djinn power loss now. Huge power boost over time.',
+      power: {
+        base: 0.75
+      },
+      preReq: {
+        Djinn: 10
+      },
+      price: 5000000
+    }
+  }
 }
