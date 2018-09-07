@@ -186,13 +186,14 @@ class App extends Component {
     window.clearInterval(this.gameTick)
   }
   consume(stats = this.state.stats, store = this.state.store) {
-    const consumers = this.getHelper('Consumer', store).purchased
+    const consumers = this.getHelper(Constants.HELPERS.Consumer.name, store).purchased
     
     const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
 
     const { blueFragments, blue, greenFragments, green } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
                                                                                   blueBuilt + stats.blocks.blueFragments,
-                                                                                  this.isClass(Constants.CLASSES.BUILDER, stats))
+                                                                                  this.isClass(Constants.CLASSES.BUILDER, stats)
+                                                                                )
                                                                                                     
     this.setState({
       stats: {
@@ -207,7 +208,7 @@ class App extends Component {
     })
   }
   consumeOffline(seconds, store, stats) {
-    const consumers = this.getHelper('Consumer', store).purchased
+    const consumers = this.getHelper(Constants.HELPERS.Consumer.name, store).purchased
     let totalGreen = 0
     let totalBlue = 0
 
@@ -220,7 +221,7 @@ class App extends Component {
     return this.getBlockStatuses(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
   }
   consumePreReqs(stats = this.state.stats, store = this.state.store) {
-    const consumers = this.getHelper('Consumer', store)
+    const consumers = this.getHelper(Constants.HELPERS.Consumer.name, store)
 
     if (consumers.purchased < 1) return false
 
@@ -265,7 +266,10 @@ class App extends Component {
   }
   efficientOperations() {
     let counter = 0
-    const times = Math.min(this.getHelper('Robot').purchased, this.getHelper('Cloner').purchased)
+    const times = Math.min(
+      this.getHelper(Constants.HELPERS.Robot.name).purchased,
+      this.getHelper(Constants.HELPERS.Cloner.name).purchased
+    )
     for (let i = 0; i < times; i++) {
       if (Math.random() > Constants.EFFICIENT_OPERATIONS_FAILURE_RATE) counter++
     }
@@ -290,7 +294,7 @@ class App extends Component {
     let greenBuilt = 0
     const base = this.isClass(Constants.CLASSES.BUILDER, stats) ? Constants.BLOCK_GENERATION_RATE_BUILDER :
                                                                   Constants.BLOCK_GENERATION_RATE
-    const bonus = this.getSpecial('Better Building', store).purchased
+    const bonus = this.getSpecial(Constants.SPECIALS.BetterBuilding.name, store).purchased
     const total = base + bonus
 
     while (consumers > 0) {
@@ -326,7 +330,7 @@ class App extends Component {
     return { blueFragments, blue, greenFragments, green }
   }
   getConsumption(store = this.state.store, stats = this.state.stats) {
-    return this.calculateScore(this.getHelper('Consumer', store), store, stats)
+    return this.calculateScore(this.getHelper(Constants.HELPERS.Consumer.name, store), store, stats)
   }
   getDefaultGameState() {
     return {
@@ -359,7 +363,6 @@ class App extends Component {
       },
       clicks: 0,
       efficientOperations: 0,
-      exportString: '',
       lastTime: new Date(),
       selectedClass: null,
       score: 0,
@@ -461,15 +464,14 @@ class App extends Component {
   }
   getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
     return Object.values(store.helpers)
-                 .filter(h => h.name !== 'Consumer')
                  .map(h => this.calculateScore(h, store, stats))
+                 .filter(v => v > 0)
                  .reduce((acc, val) => acc + val, 0)
   }
   getScorePerSecond(store = this.state.store, stats = this.state.stats) {
-    const positiveHelpers = this.getPositiveHelperOutput(store, stats)
-    const consumption = this.getConsumption(store, stats)
-
-    return positiveHelpers + consumption
+    return Object.values(store.helpers)
+                 .map(h => this.calculateScore(h, store, stats))
+                 .reduce((acc, val) => acc + val, 0)
   }
   getSecondsSinceLoad(last) {
     return Math.floor(Math.abs((new Date().getTime() - new Date(last).getTime()) / 1000))
@@ -506,7 +508,7 @@ class App extends Component {
                                                                         0)
   }
   getToxicityIncrease(store = this.state.store) {
-    return this.getHelper('Consumer', store)
+    return this.getHelper(Constants.HELPERS.Consumer.name, store)
                .toxicFormula(name => this.towerPurchased(name, store))
   }
   getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
