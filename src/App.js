@@ -16,7 +16,7 @@ import ExportGameModal from './ExportGameModal'
 import GameNav from './GameNav/'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
-import StatsPanel from './StatsPanel'
+import StatsPanel from './StatsPanel/'
 import StorePanel from './StorePanel/'
 import Store from './Store/'
 // CSS
