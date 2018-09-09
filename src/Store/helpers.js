@@ -116,14 +116,17 @@ const helpers = {
     function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
 
-      for (const key in Constants.UPGRADES.FIRMWARES) {
-        const firmware = Constants.UPGRADES.FIRMWARES[key]
-        if (upgradePurchased(firmware.name)) {
-          base += (this.power * firmware.power)
-        }
-      }
+      let firmwareBonus = Object.values(Constants.UPGRADES.FIRMWARES)
+                                .reduce((acc, cur) => {
+                                  if (!upgradePurchased(cur.name)) {
+                                    return acc
+                                  }
+
+                                  return acc + (this.power * cur.power)
+                                }, 0)
+      base += firmwareBonus
       
-      if (towerPurchased('Power Tower')) {
+      if (towerPurchased(Constants.TOWERS.Power.name)) {
         base += Math.max(Math.floor(base * 1.1), 1)
       }
       
