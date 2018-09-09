@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import { idMap, isBuyable, isOneTimeBuyable, mapBuyable } from './store-panel-commons'
+import { idMap, isBuyable, isOneTimeBuyable } from './store-panel-commons'
 import { Row } from 'react-bootstrap'
 
 class Upgrades extends PureComponent {
