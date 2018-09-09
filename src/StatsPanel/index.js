@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react'
 import {Row, Col, Panel} from 'react-bootstrap'
-import TitleStat from '../TitleStat'
-import TooltipTitleStat from '../TooltipTitleStat'
+import TitleStat from './TitleStat'
+import TooltipTitleStat from './TooltipTitleStat'
 
 class StatsPanel extends PureComponent {
   render() {
