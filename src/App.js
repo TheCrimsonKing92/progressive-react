@@ -13,12 +13,12 @@ import ClassPicker from './ClassPicker'
 import Clicker from './Clicker'
 import ExportCache from './ExportCache'
 import ExportGameModal from './ExportGameModal'
-import GameNav from './GameNav'
+import GameNav from './GameNav/'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
 import StatsPanel from './StatsPanel'
-import StorePanel from './StorePanel/index.js'
-import Store from './Store/index.js'
+import StorePanel from './StorePanel/'
+import Store from './Store/'
 // CSS
 import './App.css';
 
