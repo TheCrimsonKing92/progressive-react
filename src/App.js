@@ -49,6 +49,7 @@ class App extends Component {
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
+    this.isClass = this.isClass.bind(this)
     this.newGame = this.newGame.bind(this)
     this.onClassClick = this.onClassClick.bind(this)
     this.openHelpModal = this.openHelpModal.bind(this)
