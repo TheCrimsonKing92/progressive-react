@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 import {Row, Panel} from 'react-bootstrap'
 import Buyable from './Buyable'
 
@@ -6,12 +6,12 @@ const idMap = (buyable, id) => ({
 	...buyable,
 	id: id
 })
-class StorePanel extends Component {
+const isBuyable = b => b.buyable
+const isOneTimeBuyable = b => (b.buyable || (!b.buyable && b.purchased > 0))
+
+class StorePanel extends PureComponent {
 	render() {
 		const { helpers, towers, specials, upgrades } = this.props.store
-
-		const isBuyable = b => b.buyable
-		const isOneTimeBuyable = b => (b.buyable || (!b.buyable && b.purchased > 0))
 		const mapBuyable = (buyable, index) => (
 			<Buyable 
 				key={index}
