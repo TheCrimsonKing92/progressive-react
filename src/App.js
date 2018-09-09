@@ -9,7 +9,7 @@ import toastr from 'toastr'
 import Constants from './Constants'
 // Components
 import ButtonPanel from './ButtonPanel'
-import ClassPicker from './ClassPicker'
+import ClassPicker from './ClassPicker/'
 import Clicker from './Clicker'
 import ExportCache from './ExportCache'
 import ExportGameModal from './ExportGameModal'
