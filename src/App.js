@@ -110,6 +110,7 @@ class App extends Component {
       this.state.stats,
       this.state.store,
       this.getPositiveHelperOutput,
+      this.isClass,
       this.towerPurchased,
       this.upgradePurchased
     )
