@@ -1,19 +1,19 @@
 .builder {
-  background-image: url('./Builder.png')
+  background-image: url('./img/Builder.png')
 }
 
 .master {
-  background-image: url('./Master.png')
+  background-image: url('./img/Master.png')
 }
 
 .mechanic {
-  background-image: url('./Mechanic.png')
+  background-image: url('./img/Mechanic.png')
 }
 
 .medic {
-  background-image: url('./Medic.png')
+  background-image: url('./img/Medic.png')
 }
 
 .thief {
-  background-image: url('./Thief.png')
+  background-image: url('./img/Thief.png')
 }

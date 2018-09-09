@@ -1,5 +1,5 @@
 .airplane {
-    background-image: url('../AirplaneBig.png')
+    background-image: url('../img/AirplaneBig.png')
 }
 
 .aria-hammera {
@@ -11,7 +11,7 @@
 }
 
 .autoclicker {
-    background-image: url('../AutoClickerBig.png')
+    background-image: url('../img/AutoClickerBig.png')
 }
 
 .better-building {
@@ -19,11 +19,11 @@
 }
 
 .blue-block {
-    background-image: url('../BlueBlockPurchase.png')
+    background-image: url('../img/BlueBlockPurchase.png')
 }
 
 .buddy-system {
-    background-image: url('../BuddySystem.png')
+    background-image: url('../img/BuddySystem.png')
 }
 
 .buyable {
@@ -35,43 +35,43 @@
 }
 
 .click-efficiency {
-    background-image: url('../ClickEfficiency.png')
+    background-image: url('../img/ClickEfficiency.png')
 }
 
 .cloner {
-    background-image: url('../Cloner.png')
+    background-image: url('../img/Cloner.png')
 }
 
 .click-tower {
-    background-image: url('../MouseTower.png')
+    background-image: url('../img/ClickTower.png')
 }
 
 .cloner-overdrive {
-    background-image: url('../ClonerOverdrive.png')
+    background-image: url('../img/ClonerOverdrive.png')
 }
 
 .consumer {
-    background-image: url('../Consumer.png')
+    background-image: url('../img/Consumer.png')
 }
 
 .cost-tower {
-    background-image: url('../CostTower.png')
+    background-image: url('../img/CostTower.png')
 }
 
 .cybernetic-synergy {
-    background-image: url('../CyberneticSynergy.png')
+    background-image: url('../img/CyberneticSynergy.png')
 }
 
 .djinn {
-    background-image: url('../DjinnBig.png')
+    background-image: url('../img/DjinnBig.png')
 }
 
 .efficient-operations {
-    background-image: url('../EfficientOperations.png')
+    background-image: url('../img/EfficientOperations.png')
 }
 
 .extended-cargo {
-    background-image: url('../ExtendedCargo.png')
+    background-image: url('../img/ExtendedCargo.png')
 }
 
 .faded {
@@ -104,15 +104,15 @@
 }
 
 .garbage-truck {
-    background-image: url('../GarbageTruck.png')
+    background-image: url('../img/GarbageTruck.png')
 }
 
 .green-block {
-    background-image: url('../GreenBlock.png');
+    background-image: url('../img/GreenBlock.png');
 }
 
 .hammer {
-    background-image: url('../HammerBig.png')
+    background-image: url('../img/HammerBig.png')
 }
 
 .heavier-hammers {
@@ -120,23 +120,23 @@
 }
 
 .helping-hand, .helping-handsier, .helping-handsiest {
-    background-image: url('../HelpingHand.png')
+    background-image: url('../img/HelpingHand.png')
 }
 
 .power-tower {
-    background-image: url('../PowerTower.png')
+    background-image: url('../img/PowerTower.png')
 }
 
 .robot {
-    background-image: url('../RobotBig.png')
+    background-image: url('../img/RobotBig.png')
 }
 
 .tamer {
-    background-image: url('../TamerBig.png')
+    background-image: url('../img/TamerBig.png')
 }
 
 .the-awakening {
-    background-image: url('../GatheringPower.png')
+    background-image: url('../img/GatheringPower.png')
 }
 
 .toxic-capacity {
