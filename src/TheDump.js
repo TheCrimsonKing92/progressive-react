@@ -1,7 +1,7 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 import './TheDump.css'
 
-class TheDump extends Component {
+class TheDump extends PureComponent {
   render() {
     return (
       <div className="TheDump" onClick={() => this.props.clickHandle()}></div>

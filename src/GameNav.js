@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import {Navbar, Nav, NavItem} from 'react-bootstrap'
 
-class GameNav extends Component {
+class GameNav extends PureComponent {
   render() {
     return (
       <div className="GameNav">

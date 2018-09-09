@@ -2,7 +2,7 @@ import React from 'react'
 import Modal from 'react-responsive-modal'
 import { Row, Col, Button } from 'react-bootstrap'
 
-class NewGameModal extends React.Component {
+class NewGameModal extends React.PureComponent {
   render() {
     return (
       <Modal { ...this.props } closeOnEsc={true} showCloseIcon={false}>

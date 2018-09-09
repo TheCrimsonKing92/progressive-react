@@ -1,10 +1,10 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 import {Panel} from 'react-bootstrap'
 import ReactTooltip from 'react-tooltip'
 import TheButton from './TheButton'
 import TheDump from './TheDump'
 
-class ButtonPanel extends Component {
+class ButtonPanel extends PureComponent {
   render() {
     return (
       <div className="ButtonPanel">

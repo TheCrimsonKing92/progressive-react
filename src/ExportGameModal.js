@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from 'react-responsive-modal'
 
-class ExportGameModal extends React.Component {
+class ExportGameModal extends React.PureComponent {
   render() {
     const { game, ...props } = this.props
     const styles = {

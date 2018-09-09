@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from 'react-responsive-modal'
 
-class HelpModal extends React.Component {
+class HelpModal extends React.PureComponent {
   render() {
     return (
       <Modal closeOnEsc={true} {...this.props} showCloseIcon={true}>

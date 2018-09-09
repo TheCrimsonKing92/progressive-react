@@ -1,9 +1,9 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 import {Row, Col, Panel} from 'react-bootstrap'
 import TitleStat from './TitleStat'
 import TooltipTitleStat from './TooltipTitleStat'
 
-class StatsPanel extends Component {
+class StatsPanel extends PureComponent {
   render() {
     const blueBlocks = this.props.blueBlocks
     const clicks = this.props.clicks
