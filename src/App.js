@@ -17,7 +17,7 @@ import GameNav from './GameNav'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
 import StatsPanel from './StatsPanel'
-import StorePanel from './StorePanel'
+import StorePanel from './StorePanel/index.js'
 import Store from './Store/index.js'
 // CSS
 import './App.css';
