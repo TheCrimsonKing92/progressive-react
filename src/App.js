@@ -570,11 +570,6 @@ class App extends Component {
     }
     
     this.purchase(buyable)
-  }  
-  handleStorePurchaseOld(buyable) {
-    if (!buyable.buyable || (!buyable.multiple && buyable.purchased > 0)) return
-
-    this.purchase(buyable)
   }
   helpersBought(store) {
     return Object.values(store.helpers)
