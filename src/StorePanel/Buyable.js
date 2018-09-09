@@ -2,7 +2,7 @@ import React, {PureComponent} from 'react'
 import {findDOMNode} from 'react-dom'
 import ReactTooltip from 'react-tooltip'
 
-import Constants from './Constants'
+import Constants from '../Constants'
 
 const getClassName = name => name.replace(' ', '-')
                                  .replace(/\./g, '-')

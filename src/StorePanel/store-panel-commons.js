@@ -1,5 +1,5 @@
 import React from 'react'
-import Buyable from '../Buyable'
+import Buyable from './Buyable'
 
 const getMapBuyable = (fade, onPurchase) => {
   return buyable => (
