@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react'
 import {Panel} from 'react-bootstrap'
 import ReactTooltip from 'react-tooltip'
-import TheButton from './TheButton'
+import TheButton from './TheButton/index.js'
 import TheDump from './TheDump/index.js'
 
 class ButtonPanel extends PureComponent {
