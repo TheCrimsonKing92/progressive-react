@@ -12,9 +12,9 @@ const isOneTimeBuyable = b => (b.buyable || (!b.buyable && b.purchased > 0))
 class StorePanel extends PureComponent {
 	render() {
 		const { helpers, towers, specials, upgrades } = this.props.store
-		const mapBuyable = (buyable, index) => (
+		const mapBuyable = buyable => (
 			<Buyable 
-				key={index}
+				key={buyable.id}
 				buyable={buyable.buyable}
 				fade={this.props.purchaseHandling} 
 				id={buyable.id}
