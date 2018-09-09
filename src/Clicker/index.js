@@ -1,4 +1,4 @@
-import Constants from './Constants'
+import Constants from '../Constants'
 
 const calculateClickScore = (stats, store, getPositiveHelperOutput, isClass, towerPurchased, upgradePurchased) => {
   let base = 1
