@@ -1,7 +1,11 @@
 import Constants from './Constants'
 
-const calculateClickScore = (stats, store, getPositiveHelperOutput, towerPurchased, upgradePurchased) => {
+const calculateClickScore = (stats, store, getPositiveHelperOutput, isClass, towerPurchased, upgradePurchased) => {
   let base = 1
+
+  if (isClass(Constants.CLASSES.MASTER)) {
+    base += 1
+  }
 
   if (upgradePurchased(Constants.UPGRADES.HelpingHand.name, store)) {
     base += Constants.UPGRADES.HelpingHand.power
