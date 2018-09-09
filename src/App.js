@@ -45,6 +45,7 @@ class App extends Component {
     this.closeNewGameModal = this.closeNewGameModal.bind(this)
     this.consume = this.consume.bind(this)
     this.dumpClicked = this.dumpClicked.bind(this)
+    this.getHelper = this.getHelper.bind(this)
     this.getPositiveHelperOutput = this.getPositiveHelperOutput.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
@@ -538,7 +539,39 @@ class App extends Component {
     //this.setState(this.unmapGameState(atob(entry)))
     console.log(this.unmapGameState(atob(entry)))
   }
-  handleStorePurchase(buyable) {
+  handleStorePurchase(name, type) {
+    let buyable
+    if (type === Constants.BUYABLE_TYPE.HELPER) {
+      buyable = this.getHelper(name)
+    } else if (type === Constants.BUYABLE_TYPE.SPECIAL) {
+      buyable = this.getSpecial(name)
+    } else if (type === Constants.BUYABLE_TYPE.TOWER) {
+      buyable = this.getTower(name)
+    } else if (type === Constants.BUYABLE_TYPE.UPGRADE) {
+      buyable = this.getUpgrade(name)
+    } else {
+      console.warn('Unknown buyable type ', type)
+      return
+    }
+
+    if (!buyable) {
+      console.warn('Couldn\'t handle store purchase for unknown buyable ', name)
+      return
+    }
+
+    if (!buyable.buyable) {
+      console.warn('Buyable ', name, ' does not appear to be buyable')
+      return
+    }
+
+    if (!buyable.multiple && buyable.purchased > 0) {
+      console.warn('Non-multiple buyable ', name, ' has already been purchased')
+      return
+    }
+    
+    this.purchase(buyable)
+  }  
+  handleStorePurchaseOld(buyable) {
     if (!buyable.buyable || (!buyable.multiple && buyable.purchased > 0)) return
 
     this.purchase(buyable)

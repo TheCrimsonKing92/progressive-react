@@ -13,24 +13,34 @@ const noSelect = {
 }
 class Buyable extends PureComponent {
   constructor(props) {
-    super(props)
-
+    super(props)    
     this.handlePurchase = this.handlePurchase.bind(this)
   }
   componentWillUnmount() {
     ReactTooltip.hide(findDOMNode(this.refs.tooltip))
   }
-  handlePurchase(buyable) {
-    this.props.onPurchase(buyable)
+  handlePurchase(name = this.props.name, type = this.props.type) {
+    this.props.onPurchase(name, type)
   }
   render() {
-    const className = getClassName(this.props.buyable.name)
-    
-    const fade = isFadeable(this.props.buyable.type) && this.props.fade && !this.props.buyable.buyable ? ' faded' : ''
-
+    const className = getClassName(this.props.name)
+    const fade = isFadeable(this.props.type) && this.props.fade & !this.props.buyable ? ' faded': ''
     return (
-      <div data-tip data-for={`buyable${className}`} key={this.props.buyable.id} className={`buyable ${className}${fade}`} style={noSelect} onClick={() => this.handlePurchase(this.props.buyable)}>
-        <ReactTooltip ref='tooltip' border={true} getContent={[() => this.props.buyable.tooltip, 100]} id={`buyable${className}`}  html={true}/>
+      <div
+        data-tip
+        data-for={`buyable${className}`}
+        key={this.props.id}
+        className={`buyable ${className}${fade}`}
+        style={noSelect}
+        onClick={() => this.handlePurchase()}
+      >
+        <ReactTooltip
+          ref='tooltip'
+          border={true}
+          getContent={[() => this.props.tooltip, 100]}
+          id={`buyable${className}`}
+          html={true}
+        />
       </div>
     )
   }

@@ -2,13 +2,13 @@ import React, {Component} from 'react'
 import {Row, Panel} from 'react-bootstrap'
 import Buyable from './Buyable'
 
+const idMap = (buyable, id) => ({
+	...buyable,
+	id: id
+})
 class StorePanel extends Component {
 	render() {
 		const store = this.props.store
-		const idMap = (buyable, id) => ({
-			...buyable,
-			id: id
-		})
 
 		const towerPurchased = t => {
 			const tower = store.towers[t]
@@ -31,13 +31,16 @@ class StorePanel extends Component {
 		const mapBuyable = (buyable, index) => (
 			<Buyable 
 				key={index}
-				buyable={buyable} 
+				buyable={buyable.buyable}
 				fade={this.props.purchaseHandling} 
-				onPurchase={this.props.onPurchase} 
-				towerPurchased={towerPurchased} 
+				id={buyable.id}
+				name={buyable.name}
+				onPurchase={this.props.onPurchase}
+				tooltip={buyable.tooltip}
+				towerPurchased={towerPurchased}
+				type={buyable.type}
 				upgradePurchased={upgradePurchased}/>
 		)
-
 
 		const helpers = Object.values(store.helpers).map(idMap)
 		const helperElements = helpers.map(mapBuyable)
