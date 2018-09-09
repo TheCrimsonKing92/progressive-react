@@ -3,6 +3,7 @@ import {Row, Col, Panel} from 'react-bootstrap'
 import TitleStat from './TitleStat'
 import TooltipTitleStat from './TooltipTitleStat'
 
+const toxicityTooltip = 'At 50% toxicity, helpers produce 10%less score</br>At 90% toxicity, helpers produce 50% less score</br>'
 class StatsPanel extends PureComponent {
   render() {
     const blueBlocks = this.props.blueBlocks
@@ -14,8 +15,6 @@ class StatsPanel extends PureComponent {
     const selectedClass = this.props.selectedClass
     const toxicity = this.props.toxicity
     const toxicityPerSecond = this.props.toxicityPerSecond
-
-    const toxicityTooltip = `At 50% toxicity, helpers produce 10% less score</br>At 90% toxicity, helpers produce 50% less score</br>`
 
     return (
       <div className="StatsPanel">
