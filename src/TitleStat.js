@@ -1,6 +1,6 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 
-class TitleStat extends Component {
+class TitleStat extends PureComponent {
   render() {
     return (
       <div className="TitleStat">
