@@ -8,23 +8,7 @@ const idMap = (buyable, id) => ({
 })
 class StorePanel extends Component {
 	render() {
-		const store = this.props.store
-
-		const towerPurchased = t => {
-			const tower = store.towers[t]
-
-			if (!tower) return false
-
-			return tower.purchased
-		}
-
-		const upgradePurchased = u => {
-			const upgrade = store.upgrades[u]
-
-			if (!upgrade) return false
-
-			return upgrade.purchased
-		}
+		const { helpers, towers, specials, upgrades } = this.props.store
 
 		const isBuyable = b => b.buyable
 		const isOneTimeBuyable = b => (b.buyable || (!b.buyable && b.purchased > 0))
@@ -37,24 +21,29 @@ class StorePanel extends Component {
 				name={buyable.name}
 				onPurchase={this.props.onPurchase}
 				tooltip={buyable.tooltip}
-				towerPurchased={towerPurchased}
-				type={buyable.type}
-				upgradePurchased={upgradePurchased}/>
+				type={buyable.type}/>
 		)
 
-		const helpers = Object.values(store.helpers).map(idMap)
-		const helperElements = helpers.map(mapBuyable)
+		const helperElements = Object.values(helpers)
+																 .map(idMap)
+																 .map(mapBuyable)
 
-		const upgrades = this.props.purchaseHandling ? Object.values(store.upgrades).filter(isOneTimeBuyable).map(idMap)
-																								: Object.values(store.upgrades).filter(isBuyable).map(idMap)
-		const upgradeElements = upgrades.map(mapBuyable)
+		const singularFilter = this.props.purchaseHandling ? isOneTimeBuyable : isBuyable
 
-		const towers = this.props.purchaseHandling ? Object.values(store.towers).filter(isOneTimeBuyable).map(idMap) 
-																							 : Object.values(store.towers).filter(isBuyable).map(idMap)
-		const towerElements = towers.map(mapBuyable)
+		const upgradeElements = Object.values(upgrades)
+																	.filter(singularFilter)
+																	.map(idMap)
+																	.map(mapBuyable)
 
-		const specials = Object.values(store.specials).filter(isBuyable).map(idMap)
-		const specialElements = specials.map(mapBuyable)
+		const towerElements = Object.values(towers)
+																.filter(singularFilter)
+																.map(idMap)
+																.map(mapBuyable)
+
+		const specialElements = Object.values(specials)
+																	.filter(isBuyable)
+																	.map(idMap)
+																	.map(mapBuyable)
 
 		return (
 			<div className="StorePanel">
@@ -64,19 +53,19 @@ class StorePanel extends Component {
 						<p>Helpers</p>
 						{helperElements}
 					</Row>
-					{upgrades.some(u => u) &&
+					{upgradeElements.some(u => u) &&
 					<Row>
 						<p>Upgrades</p>
 						{upgradeElements}
 					</Row>
 					}
-					{towers.some(t => t) &&
+					{towerElements.some(t => t) &&
 					<Row>
 						<p>Towers</p>
 						{towerElements}
 					</Row>
 					}
-					{specials.some(s => s.buyable) &&
+					{specialElements.some(s => s) &&
 					<Row>
 						<p>Specials</p>
 						{specialElements}
