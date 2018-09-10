@@ -465,7 +465,7 @@ class App extends Component {
       score: this.getScorePerSecond(store, stats) * seconds
     }
   }
-  getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
+  getPositiveHelperOutput(stats = this.state.stats, store = this.state.store) {
     return Object.values(store.helpers)
                  .map(h => this.calculateScore(h, store, stats))
                  .filter(v => v > 0)
@@ -617,11 +617,11 @@ class App extends Component {
     this.setState(state)
   }
   offlineProgress(stats = this.state.stats, store = this.state.store) {
-    if (stats.selectedClass === null) return
-    if (!this.helpersBought(store)) return
+    if (stats.selectedClass === null) return false
+    if (!this.helpersBought(store)) return false
     const diff = this.getSecondsSinceLoad(stats.lastTime)
 
-    if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return
+    if (diff < Constants.OFFLINE_PROGRESS_MINIMUM) return false
 
     const [seconds, toxic] = this.getOfflineLimit(this.getToxicityRemaining(stats), this.getToxicityPerSecond(stats, store), diff)
 
@@ -648,6 +648,7 @@ class App extends Component {
     stats.lastTime = new Date()
 
     toastr.success(offlineMessage, 'Offline Progress')
+    return true
   }
   onClassClick(name) {
     this.setState({
@@ -815,16 +816,18 @@ class App extends Component {
   tickAll() {
 
   }
-  tick() {
-    this.offlineProgress()
+  tick(stats = this.state.stats, store = this.state.store) {
+    if (this.offlineProgress(stats, store)) {
+      return
+    }
 
     this.setState({
       stats: {
-        ...this.state.stats,
-        score: this.state.stats.score + this.getPositiveHelperOutput()
+        ...stats,
+        score: stats.score + this.getPositiveHelperOutput(stats, store)
       },
       store: {
-        ...this.state.store,
+        ...store,
         specials: this.unlockBuyables(Constants.BUYABLE_TYPE.SPECIAL),
         towers: this.unlockBuyables(Constants.BUYABLE_TYPE.TOWER),
         upgrades: this.unlockBuyables(Constants.BUYABLE_TYPE.UPGRADE)
