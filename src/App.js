@@ -825,19 +825,19 @@ class App extends Component {
       },
       store: {
         ...this.state.store,
-        specials: this.unlockBuyables('special'),
-        towers: this.unlockBuyables('tower'),
-        upgrades: this.unlockBuyables('upgrade')
+        specials: this.unlockBuyables(Constants.BUYABLE_TYPE.SPECIAL),
+        towers: this.unlockBuyables(Constants.BUYABLE_TYPE.TOWER),
+        upgrades: this.unlockBuyables(Constants.BUYABLE_TYPE.UPGRADE)
       }
     })
 
     if (this.consumePreReqs()) {
       this.consume()
     }
-    if (this.upgradePurchased('Efficient Operations')) {
+    if (this.upgradePurchased(Constants.UPGRADES.EfficientOperations.name)) {
       this.efficientOperations()
     }
-    if (this.upgradePurchased('The Awakening')) {
+    if (this.upgradePurchased(Constants.UPGRADES.TheAwakening.name)) {
       this.awakening()
     }
     this.saveTick()
