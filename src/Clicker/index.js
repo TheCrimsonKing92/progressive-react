@@ -32,7 +32,7 @@ const calculateClickScore = (stats, store, getPositiveHelperOutput, isClass, tow
 };
 
 const getClickTowerBonus = (stats, store, getPositiveHelperOutput) => {
-  return getPositiveHelperOutput(store, stats) * Constants.TOWERS.Click.power.helper
+  return getPositiveHelperOutput(stats, store) * Constants.TOWERS.Click.power.helper
 };
 
 export default {

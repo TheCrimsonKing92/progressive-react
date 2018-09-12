@@ -116,7 +116,7 @@ class App extends Component {
       this.upgradePurchased
     )
   }
-  calculateScore(helper, store = this.state.store, stats = this.state.stats) {
+  calculateScore(helper, stats, store) {
     if (helper.purchased === 0) return 0
 
     const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
@@ -333,7 +333,7 @@ class App extends Component {
     return { blueFragments, blue, greenFragments, green }
   }
   getConsumption(store = this.state.store, stats = this.state.stats) {
-    return this.calculateScore(this.getHelper(Constants.HELPERS.Consumer.name, store), store, stats)
+    return this.calculateScore(this.getHelper(Constants.HELPERS.Consumer.name, store), stats, store)
   }
   getDefaultGameState() {
     return {
@@ -466,14 +466,15 @@ class App extends Component {
     }
   }
   getPositiveHelperOutput(stats = this.state.stats, store = this.state.store) {
+    console.log('Store: ', JSON.stringify(store.helpers))
     return Object.values(store.helpers)
-                 .map(h => this.calculateScore(h, store, stats))
+                 .map(h => this.calculateScore(h, stats, store))
                  .filter(v => v > 0)
                  .reduce((acc, val) => acc + val, 0)
   }
   getScorePerSecond(store = this.state.store, stats = this.state.stats) {
     return Object.values(store.helpers)
-                 .map(h => this.calculateScore(h, store, stats))
+                 .map(h => this.calculateScore(h, stats, store))
                  .reduce((acc, val) => acc + val, 0)
   }
   getSecondsSinceLoad(last) {
@@ -575,6 +576,12 @@ class App extends Component {
     return Object.values(store.helpers)
                  .some(h => h.purchased > 0)
   }
+  initBuyableState(buyable) {
+    const currentPrice = this.mapCurrentPrice(buyable)
+    return {
+      ...buyable
+    }
+  }
   isClass(c, stats = this.state.stats) {
     return stats.selectedClass === c.name
   }
@@ -598,7 +605,7 @@ class App extends Component {
         growth = Constants.PRICE_GROWTH.HELPER_THIEF
       }
       
-      if (this.towerPurchased('Cost Tower')) {
+      if (this.towerPurchased(Constants.TOWERS.Cost.name)) {
         basePrice *= 0.9
       }
     }
@@ -944,7 +951,7 @@ class App extends Component {
         if (buyable.type === Constants.BUYABLE_TYPE.HELPER) {
           buyable = {
             ...buyable,
-            sps: this.abbreviateNumber(this.calculateScore(buyable))
+            sps: this.abbreviateNumber(this.calculateScore(buyable, stats, store))
           }
         }
 
