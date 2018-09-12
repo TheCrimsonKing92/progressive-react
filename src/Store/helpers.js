@@ -9,19 +9,27 @@ const baseHelperTooltip = function(abbreviate, isClass) {
 }
 
 const helper = (
-  name,
-  description,
-  price,
-  power,
-  formula,
-  tooltip) => 
+  name = 'Helper',
+  description = 'A helper',
+  price = 1,
+  power = 1,
+  formula = function() { return this.power * this.purchased },
+  tooltip = baseHelperTooltip) => 
 ({
-  ...buyable(name || 'Helper', description || 'A helper', price || 1, Constants.PRICE_GROWTH.HELPER, Constants.CURRENCY.SCORE, true, true),
-  power: power || 1,
+  ...buyable(
+    name,
+    description,
+    price,
+    Constants.PRICE_GROWTH.HELPER,
+    Constants.CURRENCY.SCORE,
+    true,
+    true
+  ),
+  power: power,
   type: Constants.BUYABLE_TYPE.HELPER,
   // Using a lambda for this breaks the game
-  formula: formula || function() { return this.power * this.purchased },
-  getTooltip: tooltip || baseHelperTooltip
+  formula: formula,
+  getTooltip: tooltip
 })
 
 const helpers = {
@@ -34,7 +42,7 @@ const helpers = {
     function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
 
-      if (towerPurchased('Power Tower')) {
+      if (towerPurchased(Constants.TOWERS.Power.name)) {
         base += Math.max(Math.floor(base * 1.1), 1)
       }
 
@@ -85,7 +93,7 @@ const helpers = {
     function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power
 
-      if (towerPurchased('Power Tower')) {
+      if (towerPurchased(Constants.TOWERS.Power.name)) {
         base += Math.max(Math.floor(base * 1.1), 1)
       }
       
@@ -93,7 +101,7 @@ const helpers = {
       if (upgradePurchased(Constants.UPGRADES.AriaHammera.name)) {
         base += Math.floor(purchased / 15)
       }
-      if (upgradePurchased('Heavier Hammers')) {
+      if (upgradePurchased(Constants.UPGRADES.HeavierHammers.name)) {
         base *= 2
       }
 
@@ -157,7 +165,7 @@ const helpers = {
     function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power      
 
-      if (towerPurchased('Power Tower')) {
+      if (towerPurchased(Constants.TOWERS.Power.name)) {
         base += Math.max(Math.floor(base * 1.1), 1)
       }
       
@@ -178,7 +186,7 @@ const helpers = {
         total *= Constants.UPGRADES.BuddySystem.power
       }
 
-      if (upgradePurchased('Fleet Beacon')) {
+      if (upgradePurchased(Constants.UPGRADES.FleetBeacon.name)) {
         if (purchased < 100) {
           total *= 2.5
         } else {
@@ -197,7 +205,7 @@ const helpers = {
       function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
         let base = this.power      
 
-        if (towerPurchased('Power Tower')) {
+        if (towerPurchased(Constants.TOWERS.Power.name)) {
           base += Math.max(Math.floor(base * 1.1), 1)
         }
         
@@ -229,7 +237,7 @@ const helpers = {
     function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
       let base = this.power      
 
-      if (towerPurchased('Power Tower')) {
+      if (towerPurchased(Constants.TOWERS.Power.name)) {
         base += Math.max(Math.floor(base * 1.1), 1)
       }
       
@@ -303,7 +311,7 @@ const helpers = {
     toxicFormula: function(towerPurchased) {
       const base = this.toxicity * this.purchased
 
-      if (!towerPurchased('Toxicity Tower')) return base
+      if (!towerPurchased(Constants.TOWERS.Toxicity.name)) return base
 
       return Math.floor(base * 0.9)
     }
