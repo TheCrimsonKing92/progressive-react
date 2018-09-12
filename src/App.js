@@ -4,7 +4,10 @@ import {Grid, Row, Col} from 'react-bootstrap'
 import FontAwesome from 'react-fontawesome'
 // Misc dependencies
 import abbreviate from 'number-abbreviate'
+import { asSequence } from 'sequency'
 import toastr from 'toastr'
+// Commons
+import { minus, sum } from './AppCommons/'
 // Constants
 import Constants from './Constants'
 // Components
@@ -43,6 +46,7 @@ class App extends Component {
     this.closeGameExport = this.closeGameExport.bind(this)
     this.closeHelpModal = this.closeHelpModal.bind(this)
     this.closeNewGameModal = this.closeNewGameModal.bind(this)
+    window.Constants = Constants
     this.consume = this.consume.bind(this)
     this.dumpClicked = this.dumpClicked.bind(this)
     this.getHelper = this.getHelper.bind(this)
@@ -58,6 +62,31 @@ class App extends Component {
     this.preReqFulfilled = this.preReqFulfilled.bind(this)
     this.resetBlocks = this.resetBlocks.bind(this)
     window.resetBlocks = this.resetBlocks
+    window.resetPurchased = (name, type) => {
+      const store = this.state.store
+      let buyable
+      switch (type) {
+        case Constants.BUYABLE_TYPE.HELPER:
+          buyable = this.getHelper(name, store)
+          break
+        case Constants.BUYABLE_TYPE.SPECIAL:
+          buyable = this.getSpecial(name, store)
+          break
+        case Constants.BUYABLE_TYPE.TOWER:
+          buyable = this.getTower(name, store)
+          break
+        case Constants.BUYABLE_TYPE.UPGRADE:
+          buyable = this.getUpgrade(name, store)
+          break
+        default:
+          console.warn('Unknown buyable type ', type, ' passed to resetPurchased')
+          return
+      }
+
+      if (buyable.purchased) {
+        this.setPurchased(buyable, store)
+      }
+    }
     this.saveGame = this.saveGame.bind(this)
     this.tick = this.tick.bind(this)
     this.toggleAutosave = this.toggleAutosave.bind(this)
@@ -466,16 +495,15 @@ class App extends Component {
     }
   }
   getPositiveHelperOutput(stats = this.state.stats, store = this.state.store) {
-    console.log('Store: ', JSON.stringify(store.helpers))
-    return Object.values(store.helpers)
-                 .map(h => this.calculateScore(h, stats, store))
-                 .filter(v => v > 0)
-                 .reduce((acc, val) => acc + val, 0)
+    return asSequence(Object.values(store.helpers))
+            .map(h => this.calculateScore(h, stats, store))
+            .filter(v => v > 0)
+            .reduce(sum, 0)
   }
   getScorePerSecond(store = this.state.store, stats = this.state.stats) {
-    return Object.values(store.helpers)
-                 .map(h => this.calculateScore(h, stats, store))
-                 .reduce((acc, val) => acc + val, 0)
+    return asSequence(Object.values(store.helpers))
+            .map(h => this.calculateScore(h, stats, store))
+            .reduce(sum, 0)
   }
   getSecondsSinceLoad(last) {
     return Math.floor(Math.abs((new Date().getTime() - new Date(last).getTime()) / 1000))
@@ -502,11 +530,14 @@ class App extends Component {
     return store.towers[tower]
   }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
-    const fromHelpers = Object.values(store.helpers)
-                              .filter(h => h.toxicity < 0)
-                              .reduce((a, v) => a - v.toxicFormula(), 0)
-    return fromHelpers + (this.isClass(Constants.CLASSES.MEDIC, stats) ? Constants.MEDIC_PASSIVE_POWER :
-                                                                        0)
+    const fromHelpers = asSequence(Object.values(store.helpers))
+                          .filter(h => h.toxicity < 0)
+                          .map(h => h.toxicFormula())
+                          .reduce(minus, 0)
+
+    if (!this.isClass(Constants.CLASSES.MEDIC)) return fromHelpers
+
+    return fromHelpers + Constants.MEDIC_PASSIVE_POWER
   }
   getToxicityIncrease(store = this.state.store) {
     return this.getHelper(Constants.HELPERS.Consumer.name, store)
@@ -696,8 +727,9 @@ class App extends Component {
     }
   }
   preReqsFulfilled(preReqs, stats, store) {
-    return preReqs.map(p => this.preReqFulfilled(p, stats, store))
-                  .every(b => b === true)
+    return asSequence(preReqs)
+            .map(p => this.preReqFulfilled(p, stats, store))
+            .all(b => b === true)
   }
   purchase(buyable, stats = this.state.stats) {
     const price = buyable.currentPrice
@@ -819,6 +851,24 @@ class App extends Component {
   }
   setChanges() {
 
+  }
+  setPurchased(buyable, store, isPurchased = false, isBuyable = true) {
+    const replacement = {
+      ...buyable,
+      buyable: isBuyable,
+      purchased: isPurchased ? 1 : 0
+    }
+    const storeKey = buyable.type + 's'
+    const old = store[storeKey]
+    this.setState({
+      store: {
+        ...this.state.store,
+        [storeKey]: {
+          ...old,
+          [buyable.name]: replacement
+        }
+      }
+    })
   }
   tickAll() {
 
