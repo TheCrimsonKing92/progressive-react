@@ -610,7 +610,8 @@ class App extends Component {
   initBuyableState(buyable) {
     const currentPrice = this.mapCurrentPrice(buyable)
     return {
-      ...buyable
+      ...buyable,
+      currentPrice
     }
   }
   isClass(c, stats = this.state.stats) {
@@ -874,22 +875,27 @@ class App extends Component {
 
   }
   tick(stats = this.state.stats, store = this.state.store) {
+    if (stats.selectedClass === null) {
+      return
+    }
     if (this.offlineProgress(stats, store)) {
       return
     }
 
-    this.setState({
-      stats: {
-        ...stats,
-        score: stats.score + this.getPositiveHelperOutput(stats, store)
-      },
-      store: {
-        ...store,
-        specials: this.unlockBuyables(Constants.BUYABLE_TYPE.SPECIAL),
-        towers: this.unlockBuyables(Constants.BUYABLE_TYPE.TOWER),
-        upgrades: this.unlockBuyables(Constants.BUYABLE_TYPE.UPGRADE)
-      }
-    })
+    if (this.helpersBought(store)) {
+      this.setState({
+        stats: {
+          ...stats,
+          score: stats.score + this.getPositiveHelperOutput(stats, store)
+        },
+        store: {
+          ...store,
+          specials: this.unlockBuyables(Constants.BUYABLE_TYPE.SPECIAL),
+          towers: this.unlockBuyables(Constants.BUYABLE_TYPE.TOWER),
+          upgrades: this.unlockBuyables(Constants.BUYABLE_TYPE.UPGRADE)
+        }
+      })
+    }
 
     if (this.consumePreReqs()) {
       this.consume()
@@ -949,16 +955,16 @@ class App extends Component {
     }
     const defaultStore = this.getDefaultStore()
 
-    for (let sub in defaultStore) {
-      for (let prop in defaultStore[sub]) {
-        store[sub][prop] = store[sub].hasOwnProperty(prop) ? 
+    for (const category in defaultStore) {
+      for (let item in defaultStore[category]) {
+        store[category][item] = store[category].hasOwnProperty(item) ? 
                             Object.assign(
                               {}, 
-                              defaultStore[sub][prop], 
+                              defaultStore[category][item], 
                               {
-                                purchased: store[sub][prop].purchased
+                                purchased: store[category][item].purchased
                               }) 
-                              : defaultStore[sub][prop]
+                              : defaultStore[category][item]
       }
     }
 

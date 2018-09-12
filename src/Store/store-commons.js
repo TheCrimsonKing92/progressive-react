@@ -19,6 +19,7 @@ const buyable = (
 ({
   name: name,
   description: description,
+  currentPrice: price,
   price: price,
   priceGrowth: priceGrowth,
   currency: currency,
