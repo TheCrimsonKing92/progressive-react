@@ -1,16 +1,10 @@
 import React, {PureComponent} from 'react'
-import { asSequence } from 'sequency'
-import { idMap, isBuyable } from './store-panel-commons'
+import { isBuyable, mapElements } from './store-panel-commons'
 import { Row } from 'react-bootstrap'
 
 class Specials extends PureComponent {
   render() {
-    const specials = this.props.specials
-    const specialElements = asSequence(Object.values(specials))
-                                  .filter(isBuyable)
-                                  .mapIndexed(idMap)
-                                  .map(this.props.mapBuyable)
-                                  .toArray()
+    const specialElements = mapElements(this.props.specials, this.props.mapBuyable, isBuyable)
 
     if (!specialElements.some(s => s)) return null
 
