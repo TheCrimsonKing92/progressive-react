@@ -622,7 +622,8 @@ class App extends Component {
   }
   mapCurrentPrice(buyable) {
     if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
-      if (buyable.name === 'Blue Block' || buyable.name === 'Green Block') {
+      if (buyable.name === Constants.SPECIALS.BlueBlock.name || 
+          buyable.name === Constants.SPECIALS.GreenBlock.name) {
         return this.mapBlockPurchasePrice(buyable)
       }
     }
@@ -758,7 +759,7 @@ class App extends Component {
       }
 
       // YUCK
-      if (buyable.name === 'Green Block') {
+      if (buyable.name === Constants.SPECIALS.GreenBlock.name) {
         statsSplice = {
           blocks: {
             ...statsSplice.blocks,
@@ -781,19 +782,19 @@ class App extends Component {
       }
       
       // YUCK
-      if (buyable.name === 'Blue Block') {
+      if (buyable.name === Constants.SPECIALS.BlueBlock.name) {
         statsSplice = {
           blocks: {
             ...statsSplice.blocks,
             blue: stats.blocks.blue + 1
           }
         }
-      } else if (buyable.name === 'Toxic Capacity') {
+      } else if (buyable.name === Constants.SPECIALS.ToxicCapacity) {
         statsSplice = {
           blocks: statsSplice.blocks,
           toxicityLimit: stats.toxicityLimit + 5
         }
-      } else if (buyable.name === 'Toxicity Recycling') {
+      } else if (buyable.name === Constants.SPECIALS.ToxicityRecycling.name) {
         const max = Math.max(0, stats.toxicity - Constants.TOXICITY_RECYCLING_POWER)
         statsSplice = {
           blocks: statsSplice.blocks,
