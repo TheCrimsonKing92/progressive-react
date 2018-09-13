@@ -103,15 +103,15 @@ class App extends Component {
     const base = (num * 100) / denom
     return parseFloat(base.toFixed(places))
   }
-  awakening() {
-    const current = this.state.stats.awakening
+  awakening(stats = this.state.stats) {
+    const current = stats.awakening
     if (current >= Constants.AWAKENING_POWER_LIMIT) return
 
-    const tick = this.state.stats.awakeningTick
+    const tick = stats.awakeningTick
     if (tick < Constants.AWAKENING_POWER_TICKS) {
       this.setState({
         stats: {
-          ...this.state.stats,
+          ...stats,
           awakeningTick: tick + 1
         }
       })
@@ -120,7 +120,7 @@ class App extends Component {
 
     this.setState({
       stats: {
-        ...this.state.stats,
+        ...stats,
         awakening: current + Constants.AWAKENING_POWER_GROWTH,
         awakeningTick: 0
       }
@@ -296,11 +296,11 @@ class App extends Component {
       }
     })
   }
-  efficientOperations() {
+  efficientOperations(stats, store) {
     let counter = 0
     const times = Math.min(
-      this.getHelper(Constants.HELPERS.Robot.name).purchased,
-      this.getHelper(Constants.HELPERS.Cloner.name).purchased
+      this.getHelper(Constants.HELPERS.Robot.name, store).purchased,
+      this.getHelper(Constants.HELPERS.Cloner.name, store).purchased
     )
     for (let i = 0; i < times; i++) {
       if (Math.random() > Constants.EFFICIENT_OPERATIONS_FAILURE_RATE) counter++
@@ -310,8 +310,8 @@ class App extends Component {
 
     this.setState({
       stats: {
-        ...this.state.stats,
-        efficientOperations: this.state.stats.efficientOperations + counter
+        ...stats,
+        efficientOperations: stats.efficientOperations + counter
       }
     })
   }
@@ -533,7 +533,7 @@ class App extends Component {
     const fromHelpers = asSequence(Object.values(store.helpers))
                           .filter(h => h.toxicity < 0)
                           .map(h => h.toxicFormula())
-                          .reduce(minus, 0)
+                          .reduce(sum, 0)
 
     if (!this.isClass(Constants.CLASSES.MEDIC)) return fromHelpers
 
@@ -544,7 +544,7 @@ class App extends Component {
                .toxicFormula(name => this.towerPurchased(name, store))
   }
   getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
-    return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
+    return this.getToxicityIncrease(store) + this.getToxicityDecrease(stats, store)
   }
   getToxicityPerSecondPercentage(stats = this.state.stats, store = this.state.store) {
     return this.abbreviatePercentage(this.getToxicityPerSecond(stats, store), stats.toxicityLimit)
@@ -897,14 +897,14 @@ class App extends Component {
       })
     }
 
-    if (this.consumePreReqs()) {
-      this.consume()
+    if (this.consumePreReqs(stats, store)) {
+      this.consume(stats, store)
     }
-    if (this.upgradePurchased(Constants.UPGRADES.EfficientOperations.name)) {
-      this.efficientOperations()
+    if (this.upgradePurchased(Constants.UPGRADES.EfficientOperations.name, store)) {
+      this.efficientOperations(stats, store)
     }
-    if (this.upgradePurchased(Constants.UPGRADES.TheAwakening.name)) {
-      this.awakening()
+    if (this.upgradePurchased(Constants.UPGRADES.TheAwakening.name, store)) {
+      this.awakening(stats)
     }
     this.saveTick()
   }

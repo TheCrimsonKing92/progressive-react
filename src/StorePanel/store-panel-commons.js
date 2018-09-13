@@ -15,7 +15,7 @@ const getMapBuyable = (fade, onPurchase) => {
   )
 }
 
-const idMap = (buyable, index) => ({
+const idMap = (index, buyable) => ({
   ...buyable,
   id: index
 })

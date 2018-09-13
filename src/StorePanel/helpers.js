@@ -7,7 +7,7 @@ class Helpers extends PureComponent {
   render() {
     const helpers = this.props.helpers
     const helperElements = asSequence(Object.values(helpers))
-                              .map(idMap)
+                              .mapIndexed(idMap)
                               .map(this.props.mapBuyable)
                               .toArray()
     return(

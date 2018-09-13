@@ -1,4 +1,5 @@
 import React, {PureComponent} from 'react'
+import { asSequence } from 'sequency'
 import { idMap, isBuyable, isOneTimeBuyable } from './store-panel-commons'
 import { Row } from 'react-bootstrap'
 
@@ -6,10 +7,11 @@ class Towers extends PureComponent {
   render() {
     const towers = this.props.towers
     const singularFilter = this.props.purchaseHandling ? isOneTimeBuyable : isBuyable
-    const towerElements = Object.values(towers)
+    const towerElements = asSequence(Object.values(towers))
                                 .filter(singularFilter)
-																.map(idMap)
+																.mapIndexed(idMap)
                                 .map(this.props.mapBuyable)
+                                .toArray()
 
     if (!towerElements.some(t => t)) return null
 
