@@ -7,7 +7,7 @@ import abbreviate from 'number-abbreviate'
 import { asSequence } from 'sequency'
 import toastr from 'toastr'
 // Commons
-import { minus, sum } from './AppCommons/'
+import { sum } from './AppCommons/'
 // Constants
 import Constants from './Constants'
 // Components
