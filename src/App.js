@@ -7,7 +7,7 @@ import abbreviate from 'number-abbreviate'
 import { asSequence } from 'sequency'
 import toastr from 'toastr'
 // Commons
-import { minus, sum } from './AppCommons/'
+import { sum } from './AppCommons/'
 // Constants
 import Constants from './Constants'
 // Components
@@ -533,7 +533,7 @@ class App extends Component {
     const fromHelpers = asSequence(Object.values(store.helpers))
                           .filter(h => h.toxicity < 0)
                           .map(h => h.toxicFormula())
-                          .reduce(minus, 0)
+                          .reduce(sum, 0)
 
     if (!this.isClass(Constants.CLASSES.MEDIC)) return fromHelpers
 
