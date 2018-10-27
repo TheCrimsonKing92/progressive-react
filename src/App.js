@@ -544,7 +544,7 @@ class App extends Component {
                .toxicFormula(name => this.towerPurchased(name, store))
   }
   getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
-    return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
+    return this.getToxicityIncrease(store) + this.getToxicityDecrease(stats, store)
   }
   getToxicityPerSecondPercentage(stats = this.state.stats, store = this.state.store) {
     return this.abbreviatePercentage(this.getToxicityPerSecond(stats, store), stats.toxicityLimit)
