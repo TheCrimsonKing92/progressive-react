@@ -282,7 +282,7 @@ class App extends Component {
       stats: {
         ...stats,
         score: remainder,
-        toxicity: Math.max(stats.toxicity + (increase - decrease), 0)
+        toxicity: Math.max(stats.toxicity + (increase + decrease), 0)
       }
     })
 
