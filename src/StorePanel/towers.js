@@ -1,15 +1,11 @@
 import React, {PureComponent} from 'react'
-import { idMap, isBuyable, isOneTimeBuyable } from './store-panel-commons'
+import { idMap, isBuyable, isOneTimeBuyable, mapElements } from './store-panel-commons'
 import { Row } from 'react-bootstrap'
 
 class Towers extends PureComponent {
   render() {
-    const towers = this.props.towers
     const singularFilter = this.props.purchaseHandling ? isOneTimeBuyable : isBuyable
-    const towerElements = Object.values(towers)
-                                .filter(singularFilter)
-																.map(idMap)
-                                .map(this.props.mapBuyable)
+    const towerElements = mapElements(this.props.towers, this.props.mapBuyable, singularFilter)
 
     if (!towerElements.some(t => t)) return null
 

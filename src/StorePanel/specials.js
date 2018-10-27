@@ -1,14 +1,10 @@
 import React, {PureComponent} from 'react'
-import { idMap, isBuyable } from './store-panel-commons'
+import { isBuyable, mapElements } from './store-panel-commons'
 import { Row } from 'react-bootstrap'
 
 class Specials extends PureComponent {
   render() {
-    const specials = this.props.specials
-    const specialElements = Object.values(specials)
-                                  .filter(isBuyable)
-                                  .map(idMap)
-                                  .map(this.props.mapBuyable)
+    const specialElements = mapElements(this.props.specials, this.props.mapBuyable, isBuyable)
 
     if (!specialElements.some(s => s)) return null
 

@@ -26,6 +26,7 @@ const helper = (
     true
   ),
   power: power,
+  sps: 0,
   type: Constants.BUYABLE_TYPE.HELPER,
   // Using a lambda for this breaks the game
   formula: formula,
