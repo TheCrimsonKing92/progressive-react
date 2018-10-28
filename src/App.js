@@ -262,7 +262,7 @@ class App extends Component {
     const toxicity = this.getToxicityRemaining(stats)
     
     if ((decrease + toxicity) < increase) {
-      const next = Math.max((stats.toxicity - decrease), 0)
+      const next = Math.min(stats.toxicityLimit, Math.max((stats.toxicity - decrease), 0))
       this.setState({
         stats: {
           ...stats,
