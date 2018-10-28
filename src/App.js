@@ -11,6 +11,7 @@ import { sum } from './AppCommons/'
 // Constants
 import Constants from './Constants'
 // Components
+import BlockBuilder from './BlockBuilder'
 import ButtonPanel from './ButtonPanel/'
 import ClassPicker from './ClassPicker/'
 import Clicker from './Clicker/'
@@ -51,6 +52,7 @@ class App extends Component {
     this.dumpClicked = this.dumpClicked.bind(this)
     this.getHelper = this.getHelper.bind(this)
     this.getPositiveHelperOutput = this.getPositiveHelperOutput.bind(this)
+    this.getSpecial = this.getSpecial.bind(this)
     this.handleExportSave = this.handleExportSave.bind(this)
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
@@ -218,13 +220,13 @@ class App extends Component {
     window.clearInterval(this.gameTick)
   }
   consume(stats = this.state.stats, store = this.state.store) {
-    const consumers = this.getHelper(Constants.HELPERS.Consumer.name, store).purchased
     
-    const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
+    const builder = this.isClass(Constants.CLASSES.BUILDER, stats)
+    const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(store, builder)
 
     const { blueFragments, blue, greenFragments, green } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
                                                                                   blueBuilt + stats.blocks.blueFragments,
-                                                                                  this.isClass(Constants.CLASSES.BUILDER, stats)
+                                                                                  builder
                                                                                 )
                                                                                                     
     this.setState({
@@ -240,17 +242,17 @@ class App extends Component {
     })
   }
   consumeOffline(seconds, store, stats) {
-    const consumers = this.getHelper(Constants.HELPERS.Consumer.name, store).purchased
+    const builder = this.isClass(Constants.CLASSES.BUILDER, stats)
     let totalGreen = 0
     let totalBlue = 0
 
     for (let i = 0; i < seconds; i++) {
-      const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(consumers, stats, store)
+      const { greenBuilt, blueBuilt } = this.getBlockFragmentsBuilt(store, builder)
       totalGreen += greenBuilt
       totalBlue += blueBuilt
     }
 
-    return this.getBlockStatuses(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
+    return this.getBlockStatuses(totalGreen, totalBlue, builder)
   }
   consumePreReqs(stats = this.state.stats, store = this.state.store) {
     const consumers = this.getHelper(Constants.HELPERS.Consumer.name, store)
@@ -259,10 +261,12 @@ class App extends Component {
 
     const decrease = this.getToxicityDecrease(stats, store)
     const increase = this.getToxicityIncrease(store)
-    const toxicity = this.getToxicityRemaining(stats)
-    
-    if ((decrease + toxicity) < increase) {
-      const next = Math.max((stats.toxicity - decrease), 0)
+    const remaining = this.getToxicityRemaining(stats)
+
+    console.table({decrease, increase, remaining})
+
+    if (remaining < increase) {
+      const next = Math.max(stats.toxicityLimit - decrease, 0)
       this.setState({
         stats: {
           ...stats,
@@ -282,7 +286,7 @@ class App extends Component {
       stats: {
         ...stats,
         score: remainder,
-        toxicity: Math.max(stats.toxicity + (increase - decrease), 0)
+        toxicity: Math.max(stats.toxicity + (increase + decrease), 0)
       }
     })
 
@@ -321,26 +325,13 @@ class App extends Component {
 
     return this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
-  getBlockFragmentsBuilt(consumers, stats = this.state.stats, store = this.state.store) {
-    let blueBuilt = 0
-    let greenBuilt = 0
-    const base = this.isClass(Constants.CLASSES.BUILDER, stats) ? Constants.BLOCK_GENERATION_RATE_BUILDER :
-                                                                  Constants.BLOCK_GENERATION_RATE
-    const bonus = this.getSpecial(Constants.SPECIALS.BetterBuilding.name, store).purchased
-    const total = base + bonus
-
-    while (consumers > 0) {
-      if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
-        if (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE) {
-          blueBuilt += total
-        } else {
-          greenBuilt += total
-        }
-      }
-      consumers--
-    }
-
-    return { greenBuilt, blueBuilt }
+  getBlockFragmentsBuilt(store = this.state.store, builder) {
+    return BlockBuilder.getBlockFragmentsBuilt(
+      store,
+      builder,
+      this.getHelper, 
+      this.getSpecial
+    )
   }
   getBlockStatuses(greenFragments, blueFragments, builder) {
     let green = 0
