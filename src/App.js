@@ -20,6 +20,7 @@ import ExportGameModal from './ExportGameModal'
 import GameNav from './GameNav/'
 import HelpModal from './HelpModal'
 import NewGameModal from './NewGameModal'
+import Stats from './Stats'
 import StatsPanel from './StatsPanel/'
 import StorePanel from './StorePanel/'
 import Store from './Store/'
@@ -375,23 +376,7 @@ class App extends Component {
     }
   }
   getDefaultStats() {
-    return {
-      awakening: 0,
-      awakeningTick: 0,
-      blocks: {
-        blue: 0,
-        blueFragments: 0,
-        green: 0,
-        greenFragments: 0
-      },
-      clicks: 0,
-      efficientOperations: 0,
-      lastTime: new Date(),
-      selectedClass: null,
-      score: 0,
-      toxicity: 0,
-      toxicityLimit: 100
-    }
+    return Stats.getDefaultStats()
   }
   getDefaultStore() {
     return Store
