@@ -93,6 +93,10 @@ class App extends Component {
   calculateClickScore(stats = this.state.stats, store = this.state.store) {
     let base = 1
 
+    if (this.isClass(Constants.CLASSES.MASTER, stats)) {
+      base += 1
+    }
+
     if (this.upgradePurchased('Helping Hand', store)) {
       base += Constants.POWER.HELPING_HAND
     }
