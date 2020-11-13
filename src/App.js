@@ -123,9 +123,7 @@ class App extends Component {
   calculateScore(helper, store = this.state.store, stats = this.state.stats) {
     if (helper.purchased === 0) return 0
 
-    const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
-
-    return helper.formula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
+    return helper.formula(this.getHelperFunctions(stats, store))
   }
   cheat() {
     this.setState({
@@ -480,22 +478,12 @@ class App extends Component {
     return store.specials[special]
   }
   getTooltip(buyable, stats = this.state.stats, store = this.state.store) {
-    if (buyable.type === Constants.BUYABLE_TYPE.HELPER) {
-      if (buyable.name === 'Consumer') {
-        const { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic } = this.getHelperFunctions(stats, store)
-        return buyable.getTooltip(this.abbreviateNumber, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
-      }      
-      return buyable.getTooltip(this.abbreviateNumber)
-    } else if (buyable.type === Constants.BUYABLE_TYPE.UPGRADE) {
-      if (buyable.name === 'Cybernetic Synergy' || buyable.name === 'Efficient Operations') return buyable.getTooltip(this.abbreviateNumber, name => this.isClass(name, stats))
-      return buyable.getTooltip(this.abbreviateNumber)
-    } else if (buyable.type === Constants.BUYABLE_TYPE.TOWER) {
-      return buyable.getTooltip(this.abbreviateNumber, this.isClass)
-    } else if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
-      return buyable.getTooltip(this.abbreviateNumber, this.isClass)
-    } else {
-      console.warn(`Unknown buyable type ${buyable.type}. Name? ${buyable.name}`)
+    if (buyable.type === Constants.BUYABLE_TYPE.HELPER || buyable.type === Constants.BUYABLE_TYPE.UPGRADE || buyable.type === Constants.BUYABLE_TYPE.TOWER ||
+        buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {      
+      return buyable.getTooltip(this.abbreviateNumber, this.getHelperFunctions(stats, store))
     }
+    
+    console.warn(`Unknown buyable type ${buyable.type}. Name? ${buyable.name}`)
   }
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
@@ -899,11 +887,7 @@ class App extends Component {
 
         buyable = {
           ...buyable,
-          currentPrice: this.mapCurrentPrice(buyable)
-        }
-
-        buyable = {
-          ...buyable,
+          currentPrice: this.mapCurrentPrice(buyable),
           tooltip: this.getTooltip(buyable, stats)
         }
 

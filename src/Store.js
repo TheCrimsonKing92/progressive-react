@@ -1,7 +1,7 @@
 import './Store.css'
 import Constants from './Constants'
 
-const baseTooltip = function(abbreviate, isClass) {
+const baseTooltip = function(abbreviate, { isClass }) {
   const title = !this.multiple ? this.name : `${this.name} - ${this.purchased}`
   const base = `${title}</br>${this.description}`
   if (!this.buyable) return base
@@ -9,11 +9,18 @@ const baseTooltip = function(abbreviate, isClass) {
   return `${base}</br>Costs ${abbreviate(this.currentPrice)} ${currency}`
 }
 
-const baseHelperTooltip = function(abbreviate, isClass) {
+const baseHelperFormula = function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
+  return this.power * this.purchased
+}
+
+const baseHelperTooltip = function(abbreviate, { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
   const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
   const title = `${this.name} - ${this.purchased}`
+
+  const sps = this.formula({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic })
+  const each = abbreviate(parseFloat((sps / this.purchased).toFixed(2)))
   
-  return `${title}</br>${this.description}</br>${costPhrase}</br>${this.sps} score per second`
+  return `${title}</br>${this.description}</br>${costPhrase}</br>${this.sps} score per second (${each} each)`
 }
 
 const buyable = (
@@ -46,12 +53,12 @@ const helper = (
   ...buyable(name || 'Helper', description || 'A helper', price || 1, Constants.PRICE_GROWTH.HELPER, Constants.CURRENCY.SCORE, true, true),
   power: power || 1,
   type: 'helper',
-  formula: formula || function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) { return this.power * this.purchased },
+  formula: formula || baseHelperFormula,
   getTooltip: tooltip || baseHelperTooltip
 })
 
 const helpers = {
-  'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 100, 1, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+  'AutoClicker': helper('AutoClicker', 'Weakly clicks the button for you', 100, 1, function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power
 
     if (towerPurchased('Power Tower')) {
@@ -96,7 +103,7 @@ const helpers = {
 
     return Math.floor(total)
   }),
-  'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, 5, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+  'Hammer': helper('Hammer', 'Earns score by smashing the button', 500, 5, function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power
 
     if (towerPurchased('Power Tower')) {
@@ -128,7 +135,7 @@ const helpers = {
 
     return Math.floor(total)
   }),
-  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, 14, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+  'Robot': helper('Robot', 'An AI optimizing score production routines', 1500, 14, function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power
     
     if (towerPurchased('Power Tower')) {
@@ -153,7 +160,7 @@ const helpers = {
 
     return Math.floor(total)
   }),
-  'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, 40, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+  'Airplane': helper('Airplane', 'An allied airplane to drop score en masse', 20000, 40, function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power      
 
     if (towerPurchased('Power Tower')) {
@@ -187,7 +194,7 @@ const helpers = {
 
     return Math.floor(total)
   }),
-  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, 100, function (getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, 100, function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power      
 
     if (towerPurchased('Power Tower')) {
@@ -213,7 +220,7 @@ const helpers = {
 
     return Math.floor(total)
   }),
-  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, 350, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+  'Djinn': helper('Djinn', 'An ancient fire spirit mystically connected to the button', 3500000, 350, function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power      
 
     if (towerPurchased('Power Tower')) {
@@ -250,27 +257,25 @@ const helpers = {
     return Math.floor(total)
   }),
   'Consumer': {
-    ...helper('Consumer', 'An anti-helper that consumes score to produce blocks', 5000, -5, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+    ...helper('Consumer', 'An anti-helper that consumes score to produce blocks', 5000, -5, function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
       const initial = this.power * Math.pow(1.5, this.purchased - 1)
       const tamers = getSpecial('Tamer').purchased
 
       if (tamers === 0) return Math.ceil(initial)  
       return Math.ceil(initial * Math.pow(0.95, tamers))
-    }, function(abbreviate, getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+    }, function(abbreviate, { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
       const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
       const title = `${this.name} - ${this.purchased}`
       
       const base = this.buyable ? `${title}</br>${this.description}</br>${costPhrase}` : `${title}</br>${this.description}`
       const withSps = `${base}</br>${this.sps} score per second`
 
-      const next = `${abbreviate(this.nextFormula(getHelper, 
-                                                  getSpecial, 
-                                                  isClass, 
-                                                  towerPurchased, 
-                                                  upgradePurchased, 
-                                                  magic))} score per second next`
+      const nextVal = this.nextFormula(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic)
+      const diff = abbreviate(nextVal - this.formula({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }))
+
+      const next = `${abbreviate(nextVal)} score per second next`
   
-      return `${withSps}</br>${next}`
+      return `${withSps}</br>${next} (${diff} more)`
     }),
     toxicity: 2,
     nextFormula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -289,7 +294,7 @@ const helpers = {
     }
   },
   'Garbage Truck': {
-    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
+    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
       return this.power * this.purchased
     }),
     toxicity: -1,
@@ -348,7 +353,7 @@ const upgrades = {
   'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
-  ], function(abbreviate, isClass) {
+  ], function(abbreviate, { isClass }) {
     const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
     const description = isClass(Constants.CLASSES.MECHANIC) ? 
                           this.description.replace('+14', '+28').concat(` (+100% ${Constants.CLASSES.MECHANIC.name} bonus)`) 
@@ -380,7 +385,7 @@ const upgrades = {
   'Efficient Operations': upgrade('Efficient Operations', 'Each Robot has a chance to upgrade the base power of Cloners', 20000000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 20),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 20)
-  ], function(abbreviate, isClass) {
+  ], function(abbreviate, { isClass }) {
     const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
     const description = isClass(Constants.CLASSES.MECHANIC) ?
                           this.description.concat(` (2x ${Constants.CLASSES.MECHANIC.name} rate)`)
