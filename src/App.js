@@ -44,6 +44,7 @@ class App extends Component {
     this.handleImportSave = this.handleImportSave.bind(this)
     this.handleStorePurchase = this.handleStorePurchase.bind(this)
     this.newGame = this.newGame.bind(this)
+    window.newGame = this.newGame
     this.onClassClick = this.onClassClick.bind(this)
     this.openHelpModal = this.openHelpModal.bind(this)
     this.openNewGameModal = this.openNewGameModal.bind(this)
@@ -489,12 +490,12 @@ class App extends Component {
     return store.towers[tower]
   }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
-    const { isClass, towerPurchased } = this.getHelperFunctions(stats, store)
+    const helperFunctions = this.getHelperFunctions(stats, store)
     const fromHelpers = Object.values(store.helpers)
                               .filter(h => h.toxicity < 0)
-                              .map(helper => helper.toxicFormula(towerPurchased))
+                              .map(helper => helper.toxicFormula(helperFunctions))
                               .reduce((a, v) => a - v, 0)
-    return fromHelpers + (isClass(Constants.CLASSES.MEDIC) ? Constants.MEDIC_PASSIVE_POWER : 0)
+    return fromHelpers + (helperFunctions.isClass(Constants.CLASSES.MEDIC) ? Constants.MEDIC_PASSIVE_POWER : 0)
   }
   getToxicityIncrease(store = this.state.store) {
     return this.getHelper('Consumer', store).toxicFormula(name => this.towerPurchased(name, store))
@@ -555,6 +556,16 @@ class App extends Component {
       if (thief) {
         basePrice *= 0.9
         growth = Constants.PRICE_GROWTH.HELPER_THIEF
+      }
+
+      if (buyable.name === 'Robot' && this.upgradePurchased('Plastic Bodies')) {
+        basePrice *= 0.85
+      } else if (buyable.name === 'Robot' && this.upgradePurchased('Steel Bodies')) {
+        basePrice *= 1.05
+      }
+
+      if (buyable.name === 'Airplane' && this.upgradePurchased('Mass Production')) {
+        basePrice *= 0.9
       }
       
       if (this.towerPurchased('Cost Tower')) {
@@ -641,6 +652,7 @@ class App extends Component {
       case Constants.PREREQ.SPECIAL.PURCHASED: return this.getSpecial(preReq.target, store).purchased > 0
       case Constants.PREREQ.TOWER.PURCHASED: return this.getTower(preReq.target, store).purchased > 0
       case Constants.PREREQ.UPGRADE.PURCHASED: return this.getUpgrade(preReq.target, store).purchased > 0
+      case Constants.PREREQ.UPGRADE.UNPURCHASED: return this.getUpgrade(preReq.target, store).purchased < 1
       default:
         console.warn(`Unknown preReq type ${preReq.type}`)
         return false
@@ -725,6 +737,7 @@ class App extends Component {
       return
     }
 
+    // TODO: When an excluding upgrade is purchased, the excluded upgrade should no longer be presented as buyable
     const bought = {
       ...buyable,
       buyable: buyable.multiple,

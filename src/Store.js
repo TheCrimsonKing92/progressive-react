@@ -18,7 +18,7 @@ const baseHelperTooltip = function(abbreviate, { getHelper, getSpecial, isClass,
   const title = `${this.name} - ${this.purchased}`
 
   const sps = this.formula({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic })
-  const each = abbreviate(parseFloat((sps / this.purchased).toFixed(2)))
+  const each = this.purchased === 0 ? 0 : abbreviate(parseFloat((sps / this.purchased).toFixed(2)))
   
   return `${title}</br>${this.description}</br>${costPhrase}</br>${this.sps} score per second (${each} each)`
 }
@@ -70,7 +70,12 @@ const helpers = {
     if (isClass(Constants.CLASSES.MASTER)) {
       base++
     }
+
     if (upgradePurchased('Helping Hand')) {
+      base++
+    }
+
+    if (upgradePurchased('Clicker Training')) {
       base++
     }
 
@@ -140,6 +145,12 @@ const helpers = {
     
     if (towerPurchased('Power Tower')) {
       base += Math.max(Math.floor(base * 1.1), 1)
+    }
+
+    if (upgradePurchased('Plastic Bodies')) {
+      base *= 0.95
+    } else if (upgradePurchased('Steel Bodies')) {
+      base *= 1.1
     }
     
     const purchased = this.purchased
@@ -294,12 +305,11 @@ const helpers = {
     }
   },
   'Garbage Truck': {
-    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
-      return this.power * this.purchased
-    }),
+    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, baseHelperFormula),
     toxicity: -1,
-    toxicFormula: function(towerPurchased) {
-      return Math.ceil(this.toxicity * this.purchased)
+    toxicFormula: function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
+      const power = this.toxicity - getSpecial('Sturdy Frames').purchased
+      return Math.ceil(power * this.purchased)
     }
   }
 }
@@ -335,6 +345,9 @@ const upgrades = {
     buyable: true,
     getTooltip: baseTooltip
   },
+  'Clicker Training': upgrade('Clicker Training', '+1 AutoClicker power', 1500, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 5)
+  ]),
   'Click Efficiency': upgrade('Click Efficiency', '+100% AutoClicker and mouse power', 1000, [
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 150),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'AutoClicker', 10)
@@ -350,6 +363,14 @@ const upgrades = {
     preReq(Constants.PREREQ.CLICKS.NUMBER, null, 500),
     preReq(Constants.PREREQ.UPGRADE.PURCHASED, 'Helping Handsier')
   ]),
+  'Plastic Bodies': upgrade('Plastic Bodies', '-15% Robot cost, -5% power</br>Excludes purchase of Steel Bodies', 7500, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 5),
+    preReq(Constants.PREREQ.UPGRADE.UNPURCHASED, 'Steel Bodies')
+  ]),
+  'Steel Bodies': upgrade('Steel Bodies', '+5% Robot cost, +10% power</br>Excludes purchase of Plastic Bodies', 10000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 5),
+    preReq(Constants.PREREQ.UPGRADE.UNPURCHASED, 'Steel Bodies')
+  ]),
   'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 10)
@@ -362,6 +383,9 @@ const upgrades = {
   }),
   'Extended Cargo': upgrade('Extended Cargo', '+25% Airplane power', 23000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 10)
+  ]),
+  'Mass Production': upgrade('Mass Production', '-10% Airplane cost', 55000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
   ]),
   'Buddy System': upgrade('Buddy System', '+100% Airplane power', 85000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
@@ -463,6 +487,12 @@ const specials = {
       preReq(Constants.PREREQ.HELPER.PURCHASED, 'Consumer')
     ]),
     currency: Constants.CURRENCY.BLOCK.BLUE,
+    getTooltip: baseTooltip
+  },
+  'Sturdy Frames': {
+    ...special('Sturdy Frames', 'Garbage Trucks remove more toxicity', 700, Constants.PRICE_GROWTH.SPECIAL, [
+      preReq(Constants.PREREQ.HELPER.NUMBER, 'Garbage Truck', 5)
+    ]),
     getTooltip: baseTooltip
   },
   'Tamer': {
