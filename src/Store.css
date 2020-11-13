@@ -46,6 +46,10 @@
     background-image: url('./MouseTower.png')
 }
 
+.clicker-training {
+    background-color: gray
+}
+
 .cloner-overdrive {
     background-image: url('./ClonerOverdrive.png')
 }
@@ -102,12 +106,28 @@
     background-image: url('./HelpingHand.png')
 }
 
+.mass-production {
+    background-color: navy;
+}
+
 .power-tower {
     background-image: url('./PowerTower.png')
 }
 
+.plastic-bodies {
+    background-color: navajowhite
+}
+
 .robot {
     background-image: url('./RobotBig.png')
+}
+
+.steel-bodies {
+    background-color: olivedrab
+}
+
+.sturdy-frames {
+    background-color: olive;
 }
 
 .tamer {

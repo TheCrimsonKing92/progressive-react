@@ -75,7 +75,8 @@ export default {
       PURCHASED: 'tower-purchased'
     },
     UPGRADE: {
-      PURCHASED: 'upgrade-purchased'
+      PURCHASED: 'upgrade-purchased',
+      UNPURCHASED: 'upgrade-unpurchased'
     }
   },
   PRICE_GROWTH: {
