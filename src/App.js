@@ -489,8 +489,12 @@ class App extends Component {
     return store.towers[tower]
   }
   getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
-    const fromHelpers = Object.values(store.helpers).filter(h => h.toxicity < 0).reduce((a, v) => a - v.toxicFormula(), 0)
-    return fromHelpers + (this.isClass(Constants.CLASSES.MEDIC, stats) ? Constants.MEDIC_PASSIVE_POWER : 0)
+    const { isClass, towerPurchased } = this.getHelperFunctions(stats, store)
+    const fromHelpers = Object.values(store.helpers)
+                              .filter(h => h.toxicity < 0)
+                              .map(helper => helper.toxicFormula(towerPurchased))
+                              .reduce((a, v) => a - v, 0)
+    return fromHelpers + (isClass(Constants.CLASSES.MEDIC) ? Constants.MEDIC_PASSIVE_POWER : 0)
   }
   getToxicityIncrease(store = this.state.store) {
     return this.getHelper('Consumer', store).toxicFormula(name => this.towerPurchased(name, store))
