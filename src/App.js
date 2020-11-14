@@ -217,7 +217,7 @@ class App extends Component {
 
     return this.getBlockStatuses(totalGreen, totalBlue, this.isClass(Constants.CLASSES.BUILDER, stats))
   }
-  consumePreReqs(stats = this.state.stats, store = this.state.store) {
+  consumePreReqs(stats, store) {
     const consumers = this.getHelper('Consumer', store)
 
     if (consumers.purchased < 1) return false
@@ -254,16 +254,16 @@ class App extends Component {
     return true
   }
   dumpClicked() {
-    this.setState({
-      stats:{
-        ...this.state.stats,
-        toxicity: Math.max(this.state.stats.toxicity - Constants.DUMP_POWER, 0)
+    this.setState((previousState, props) => ({
+      stats: {
+        ...previousState.stats,
+        toxicity: Math.max(previousState.stats.toxicity - Constants.DUMP_POWER, 0)
       }
-    })
+    }))
   }
-  efficientOperations() {
+  efficientOperations(stats, store) {
     let counter = 0
-    const times = Math.min(this.getHelper('Robot').purchased, this.getHelper('Cloner').purchased)
+    const times = Math.min(this.getHelper('Robot', store).purchased, this.getHelper('Cloner', store).purchased)
     for (let i = 0; i < times; i++) {
       if (Math.random() > Constants.EFFICIENT_OPERATIONS_FAILURE_RATE) counter++
     }
@@ -272,18 +272,18 @@ class App extends Component {
 
     this.setState({
       stats: {
-        ...this.state.stats,
-        efficientOperations: this.state.stats.efficientOperations + counter
+        ...stats,
+        efficientOperations: stats.efficientOperations + counter
       }
     })
   }
-  evaluateBuyable(buyable, stats = this.state.stats, store = this.state.store) {
+  evaluateBuyable(buyable, stats, store) {
     if (!buyable.multiple && buyable.purchased > 0) return false
-    if (buyable.preReqs === null) return true
+    if (buyable.preReqs === null || buyable.preReqs === undefined) return true
 
     return this.preReqsFulfilled(buyable.preReqs, stats, store)
   }
-  getBlockFragmentsBuilt(consumers, stats = this.state.stats, store = this.state.store) {
+  getBlockFragmentsBuilt(consumers, stats, store) {
     let blueBuilt = 0
     let greenBuilt = 0
     let bonus = this.getSpecial('Better Building', store).purchased
@@ -328,7 +328,7 @@ class App extends Component {
 
     return { blueFragments, blue, greenFragments, green }
   }
-  getClickTowerBonus(stats = this.state.stats, store = this.state.store) {
+  getClickTowerBonus(stats, store) {
     return this.getPositiveHelperOutput(store, stats) * Constants.CLICK_TOWER.HELPER_RATE
   }
   getConsumption(store = this.state.store, stats = this.state.stats) {
@@ -430,7 +430,7 @@ class App extends Component {
       </Row>
     )
   }
-  getHelper(helper, store = this.state.store) {
+  getHelper(helper, store) {
     return store.helpers[helper]
   }  
   getHelperFunctions(stats, store) {
@@ -460,7 +460,7 @@ class App extends Component {
       score: this.getScorePerSecond(store, stats) * seconds
     }
   }
-  getPositiveHelperOutput(store = this.state.store, stats = this.state.stats) {
+  getPositiveHelperOutput(store, stats) {
     return Object.values(store.helpers)
                  .filter(h => h.name !== 'Consumer')
                  .map(h => this.calculateScore(h, store, stats))
@@ -489,7 +489,7 @@ class App extends Component {
   getTower(tower, store = this.state.store) {
     return store.towers[tower]
   }
-  getToxicityDecrease(stats = this.state.stats, store = this.state.store) {
+  getToxicityDecrease(stats, store) {
     const helperFunctions = this.getHelperFunctions(stats, store)
     const fromHelpers = Object.values(store.helpers)
                               .filter(h => h.toxicity < 0)
@@ -500,8 +500,8 @@ class App extends Component {
   getToxicityIncrease(stats, store) {
     return this.getHelper('Consumer', store).toxicFormula(this.getHelperFunctions(stats, store))
   }
-  getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
-    return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
+  getToxicityPerSecond(stats, store) {
+    return this.getToxicityIncrease(stats, store) - this.getToxicityDecrease(stats, store)
   }
   getToxicityPerSecondPercentage(stats = this.state.stats, store = this.state.store) {
     const base = (this.getToxicityPerSecond(stats, store) * 100) / stats.toxicityLimit
@@ -781,28 +781,32 @@ class App extends Component {
     }
   }
   tick() {
-    const { stats, store } = this.state
+    let { stats, store } = this.state
 
     this.offlineProgress(stats, store)
 
-    this.setState({
+    this.setState((previousState, props) => ({
       stats: {
-        ...stats,
-        score: stats.score + this.getPositiveHelperOutput(store, stats)
+        ...previousState.stats,
+        score: previousState.stats.score + this.getPositiveHelperOutput(previousState.store, previousState.stats)
       },
       store: {
-        ...store,
-        specials: this.unlockBuyables('special'),
-        towers: this.unlockBuyables('tower'),
-        upgrades: this.unlockBuyables('upgrade')
+        ...previousState.store,
+        helpers: this.unlockBuyables('helper', previousState.stats, previousState.store),
+        specials: this.unlockBuyables('special', previousState.stats, previousState.store),
+        tower: this.unlockBuyables('tower', previousState.stats, previousState.store),
+        upgrades: this.unlockBuyables('upgrade', previousState.stats, previousState.store)
       }
-    })
+    }))
 
-    if (this.consumePreReqs()) {
-      this.consume()
+    stats = this.state.stats
+    store = this.state.store
+
+    if (this.consumePreReqs(stats, store)) {
+      this.consume(stats, store)
     }
     if (this.upgradePurchased('Efficient Operations')) {
-      this.efficientOperations()
+      this.efficientOperations(stats, store)
     }
     if (this.upgradePurchased('The Awakening')) {
       this.awakening()
@@ -834,11 +838,13 @@ class App extends Component {
       }
     })
   }
-  unlockBuyables(type) {
-    const copy = Object.assign({}, this.state.store[type + 's'])
+  unlockBuyables(type, stats, store) {
+    const copy = Object.assign({}, store[type + 's'])
 
     for (let prop in copy) {
-      copy[prop].buyable = this.evaluateBuyable(copy[prop])
+      console.log('Looking at prop ', prop, ' in copy')
+      console.log('Value: ', JSON.stringify(copy[prop]))
+      copy[prop].buyable = this.evaluateBuyable(copy[prop], stats, store)
     }
 
     return copy
