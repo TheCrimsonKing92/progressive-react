@@ -296,7 +296,8 @@ const helpers = {
 
       const next = `${abbreviate(nextVal)} score per second next`
   
-      return `${withSps}</br>${next} (${diff} more)`
+      const toxicity = this.toxicFormula({ towerPurchased })
+      return `${withSps}</br>${next} (${diff} more)</br>${toxicity} toxicity per second`
     }),
     toxicity: 2,
     nextFormula: function(getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic) {
@@ -306,7 +307,7 @@ const helpers = {
       if (tamers === 0) return Math.ceil(initial)
       return Math.ceil(initial * Math.pow(0.95, tamers))
     },
-    toxicFormula: function(towerPurchased) {
+    toxicFormula: function({ towerPurchased }) {
       const base = this.toxicity * this.purchased
 
       if (!towerPurchased('Toxicity Tower')) return base
@@ -315,7 +316,20 @@ const helpers = {
     }
   },
   'Garbage Truck': {
-    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, () => 0),
+    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, baseHelperFormula,
+    function(abbreviate, { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }){
+      const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
+      const title = `${this.name} - ${this.purchased}`
+      const sps = this.formula({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic })
+      const each = this.purchased === 0 ? 0 : abbreviate(parseFloat((sps / this.purchased).toFixed(2)))
+      const toxicity = this.toxicFormula({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic })
+
+      return `${title}</br>` +
+             `${this.description}</br>` +
+             `${costPhrase}</br>` +
+             `${this.sps} score per second (${each} each)</br>` +
+             `${toxicity} toxicity per second`
+    }),
     toxicity: -1,
     toxicFormula: function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
       const power = this.toxicity - getSpecial('Sturdy Frames').purchased
@@ -500,7 +514,7 @@ const specials = {
     getTooltip: baseTooltip
   },
   'Sturdy Frames': {
-    ...special('Sturdy Frames', 'Garbage Trucks remove more toxicity', 700, Constants.PRICE_GROWTH.SPECIAL, [
+    ...special('Sturdy Frames', 'Garbage Trucks remove more toxicity', 500, Constants.PRICE_GROWTH.SPECIAL, [
       preReq(Constants.PREREQ.HELPER.NUMBER, 'Garbage Truck', 5)
     ]),
     getTooltip: baseTooltip

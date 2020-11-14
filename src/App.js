@@ -223,7 +223,7 @@ class App extends Component {
     if (consumers.purchased < 1) return false
 
     const decrease = this.getToxicityDecrease(stats, store)
-    const increase = this.getToxicityIncrease(store)
+    const increase = this.getToxicityIncrease(stats, store)
     const toxicity = this.getToxicityRemaining(stats)
     
     if ((decrease + toxicity) < increase) {
@@ -497,8 +497,8 @@ class App extends Component {
                               .reduce((a, v) => a - v, 0)
     return fromHelpers + (helperFunctions.isClass(Constants.CLASSES.MEDIC) ? Constants.MEDIC_PASSIVE_POWER : 0)
   }
-  getToxicityIncrease(store = this.state.store) {
-    return this.getHelper('Consumer', store).toxicFormula(name => this.towerPurchased(name, store))
+  getToxicityIncrease(stats, store) {
+    return this.getHelper('Consumer', store).toxicFormula(this.getHelperFunctions(stats, store))
   }
   getToxicityPerSecond(stats = this.state.stats, store = this.state.store) {
     return this.getToxicityIncrease(store) - this.getToxicityDecrease(stats, store)
@@ -513,7 +513,7 @@ class App extends Component {
     const base = (stats.toxicity * 100) / stats.toxicityLimit
     return parseFloat(base.toFixed(2))
   }
-  getToxicityRemaining(stats = this.state.stats) {
+  getToxicityRemaining(stats) {
     return stats.toxicityLimit - stats.toxicity
   }
   getUpgrade(upgrade, store = this.state.store) {
@@ -666,8 +666,12 @@ class App extends Component {
                   .every(b => b === true)
   }
   purchase(buyable, stats, store) {
-    const price = buyable.currentPrice
-    
+    if (buyable.currency !== Constants.CURRENCY.SCORE && buyable.currency !== Constants.CURRENCY.BLOCK.BLUE && buyable.currency !== Constants.CURRENCY.BLOCK.GREEN) {
+      console.warn('Unknown currency type: ', buyable.currency)
+      return
+    }
+
+    const price = buyable.currentPrice    
     let statsSplice
 
     if (buyable.currency === Constants.CURRENCY.SCORE) {
@@ -735,12 +739,8 @@ class App extends Component {
       } else {
         console.warn(`No side effects defined for green block currency item '${buyable.name}'`)
       }
-    } else {
-      console.warn(`Unknown currency ${buyable.currency}`)
-      return
     }
 
-    // TODO: When an excluding upgrade is purchased, the excluded upgrade should no longer be presented as buyable
     const bought = {
       ...buyable,
       buyable: buyable.multiple,
