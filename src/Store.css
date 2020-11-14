@@ -106,8 +106,12 @@
     background-image: url('./HelpingHand.png')
 }
 
+.improved-engines {
+    background-color: black
+}
+
 .mass-production {
-    background-color: navy;
+    background-color: navy
 }
 
 .power-tower {

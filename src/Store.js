@@ -316,7 +316,16 @@ const helpers = {
     }
   },
   'Garbage Truck': {
-    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, baseHelperFormula,
+    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, 
+    function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
+      let power = this.power
+
+      if (upgradePurchased('Improved Engines')) {
+        power *= 0.75
+      }
+
+      return power * this.purchased
+    },
     function(abbreviate, { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }){
       const costPhrase = `Costs ${abbreviate(this.currentPrice)} ${this.currency}`
       const title = `${this.name} - ${this.purchased}`
@@ -413,6 +422,9 @@ const upgrades = {
   ]),
   'Buddy System': upgrade('Buddy System', '+100% Airplane power', 85000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 15)
+  ]),
+  'Improved Engines': upgrade('Improved Engines', '-25% Garbage Truck score cost', 90000, [
+    preReq(Constants.PREREQ.HELPER.NUMBER, 'Garbage Truck', 5)
   ]),
   'Cloner Overdrive': upgrade('Cloner Overdrive', '+40% Cloner power', 300000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Cloner', 10)
