@@ -10,7 +10,15 @@ const baseTooltip = function(abbreviate, { isClass }) {
 }
 
 const baseHelperFormula = function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
-  return this.power * this.purchased
+  let total = this.power * this.purchased        
+
+  if (magic.isToxic) {
+    total *= 0.5
+  } else if (magic.isHalfToxic) {
+    total *= 0.9
+  }
+
+  return total
 }
 
 const baseHelperTooltip = function(abbreviate, { getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
@@ -196,16 +204,18 @@ const helpers = {
     }
 
     if (upgradePurchased('Fleet Beacon')) {
-      if (purchased < 100) {
+      if (purchased < 50) {
         total *= 2
-      } else {
+      } else if (purchased < 100) {
         total *= 3
+      } else {
+        total *= 4
       }
     }
 
     return Math.floor(total)
   }),
-  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 100000, 100, function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
+  'Cloner': helper('Cloner', 'Creates score by cloning parts of the button', 105000, 110, function ({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
     let base = this.power      
 
     if (towerPurchased('Power Tower')) {
@@ -305,7 +315,7 @@ const helpers = {
     }
   },
   'Garbage Truck': {
-    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, baseHelperFormula),
+    ...helper('Garbage Truck', 'An anti-consumer that takes toxicity to The Dump', 15000, -50, () => 0),
     toxicity: -1,
     toxicFormula: function({ getHelper, getSpecial, isClass, towerPurchased, upgradePurchased, magic }) {
       const power = this.toxicity - getSpecial('Sturdy Frames').purchased
@@ -369,7 +379,7 @@ const upgrades = {
   ]),
   'Steel Bodies': upgrade('Steel Bodies', '+5% Robot cost, +10% power</br>Excludes purchase of Plastic Bodies', 10000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Robot', 5),
-    preReq(Constants.PREREQ.UPGRADE.UNPURCHASED, 'Steel Bodies')
+    preReq(Constants.PREREQ.UPGRADE.UNPURCHASED, 'Plastic Bodies')
   ]),
   'Cybernetic Synergy': upgrade('Cybernetic Synergy', '+14 power per Hammer and Robot pair', 9000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 10),
@@ -396,7 +406,7 @@ const upgrades = {
   'Aria Hammera': upgrade('Aria Hammera', '+1 Hammer power per 15 Hammers', 600000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Hammer', 15)
   ]),
-  'Fleet Beacon': upgrade('Fleet Beacon', '+100% Airplane power. +200% at 100 Airplanes', 1750000, [
+  'Fleet Beacon': upgrade('Fleet Beacon', '+100% Airplane power</br>+200% at 50 Airplanes</br>+300% at 100 Airplanes', 1750000, [
     preReq(Constants.PREREQ.HELPER.NUMBER, 'Airplane', 25)
   ]),
   'The Awakening': upgrade('The Awakening', 'Djinn sacrifice current power to reach full potential', 5000000, [
