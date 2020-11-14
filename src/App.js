@@ -458,7 +458,7 @@ class App extends Component {
   }
   getPositiveHelperOutput(store, stats) {
     return Object.values(store.helpers)
-                 .filter(h => h.name !== 'Consumer')
+                 .filter(h => h.purchased > 0 && h.name !== 'Consumer')
                  .map(h => this.calculateScore(h, store, stats))
                  .reduce((acc, val) => acc + val, 0)
   }
