@@ -80,19 +80,19 @@ const helpers = {
     }
 
     if (upgradePurchased('Helping Hand')) {
-      base++
+      base += Constants.POWER.HELPING_HAND
     }
 
     if (upgradePurchased('Clicker Training')) {
-      base++
+      base += Constants.POWER.CLICKER_TRAINING
     }
 
     if (upgradePurchased('Helping Handsier')) {
-      base += 2
+      base += Constants.POWER.HELPING_HANDSIER
     }
 
     if (upgradePurchased('Helping Handsiest')) {
-      base += 6
+      base += Constants.POWER.HELPING_HANDSIEST
     }
 
     let total = base * purchased
