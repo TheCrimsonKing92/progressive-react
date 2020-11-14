@@ -842,8 +842,6 @@ class App extends Component {
     const copy = Object.assign({}, store[type + 's'])
 
     for (let prop in copy) {
-      console.log('Looking at prop ', prop, ' in copy')
-      console.log('Value: ', JSON.stringify(copy[prop]))
       copy[prop].buyable = this.evaluateBuyable(copy[prop], stats, store)
     }
 
