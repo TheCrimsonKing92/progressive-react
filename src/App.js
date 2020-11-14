@@ -287,22 +287,17 @@ class App extends Component {
     let blueBuilt = 0
     let greenBuilt = 0
     let bonus = this.getSpecial('Better Building', store).purchased
+    if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
+      bonus += 2
+    }
 
     while (consumers > 0) {
       const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
         if (blue) {
-          if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            blueBuilt += (2 + bonus)          
-          } else {
-            blueBuilt += (1 + bonus)
-          }
+          blueBuilt += bonus
         } else {
-          if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
-            greenBuilt += (2 + bonus)
-          } else {
-            greenBuilt += (1 + bonus)
-          }
+          greenBuilt += bonus
         }
       }
       consumers--
@@ -314,7 +309,8 @@ class App extends Component {
     let green = 0
     let blue = 0
 
-    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER : Constants.BLOCK_FRAGMENT_LIMIT
+    const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER
+                          : Constants.BLOCK_FRAGMENT_LIMIT
 
     while (greenFragments > limit) {
       greenFragments -= limit
@@ -392,7 +388,7 @@ class App extends Component {
 
     return this.getDefaultGameState();
   }
-  getGameDisplay(handlers, stats = this.state.stats, store = this.state.store, options = this.state.options, ui = this.state.ui) {
+  getGameDisplay(handlers, { stats, store, options, ui }) {
     if (ui.loading) {
       console.log(`loading`)
       return <FontAwesome name="refresh" spin={true} />
@@ -953,7 +949,7 @@ class App extends Component {
           <Row>
             <GameNav { ...navActions } />
           </Row>
-          { this.getGameDisplay(handlers, stats, store, options, ui) }          
+          { this.getGameDisplay(handlers, { stats, store, options, ui }) }          
         </Grid>
       </div>
     );
