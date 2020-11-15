@@ -308,21 +308,14 @@ class App extends Component {
     return { greenBuilt, blueBuilt }
   }
   getBlockStatuses(greenFragments, blueFragments, builder) {
-    let green = 0
-    let blue = 0
-
     const limit = builder ? Constants.BLOCK_FRAGMENT_LIMIT_BUILDER
                           : Constants.BLOCK_FRAGMENT_LIMIT
 
-    while (greenFragments > limit) {
-      greenFragments -= limit
-      green++
-    }
+    const green = Math.floor(greenFragments / limit)
+    greenFragments = greenFragments % limit
 
-    while (blueFragments > limit) {
-      blueFragments -= limit
-      blue++
-    }
+    const blue = Math.floor(blueFragments / limit)
+    blueFragments = blueFragments % limit
 
     return { blueFragments, blue, greenFragments, green }
   }
