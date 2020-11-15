@@ -29,7 +29,7 @@ class StorePanel extends Component {
 		const isBuyable = b => b.buyable
 		const isOneTimeBuyable = b => (b.buyable || (!b.buyable && b.purchased > 0))
 		const mapBuyable = buyable => (
-			<Buyable 
+			<Buyable
 				buyable={buyable} 
 				fade={this.props.purchaseHandling} 
 				onPurchase={this.props.onPurchase} 

@@ -191,7 +191,7 @@ class App extends Component {
     const { blueFragments, blue, greenFragments, green } = this.getBlockStatuses(greenBuilt + stats.blocks.greenFragments,
                                                                                             blueBuilt + stats.blocks.blueFragments,
                                                                                             this.isClass(Constants.CLASSES.BUILDER, stats))
-                                                                                                    
+               
     this.setState({
       stats: {
         ...stats,
@@ -286,18 +286,20 @@ class App extends Component {
   getBlockFragmentsBuilt(consumers, stats, store) {
     let blueBuilt = 0
     let greenBuilt = 0
+    const base = 1
     let bonus = this.getSpecial('Better Building', store).purchased
     if (this.isClass(Constants.CLASSES.BUILDER, stats)) {
       bonus += 2
     }
+    const total = base + bonus
 
     while (consumers > 0) {
       const blue = (Math.random() > Constants.BLOCK_GENERATION_BLUE_RATE)
       if (Math.random() > Constants.BLOCK_GENERATION_FAILURE_RATE) {
         if (blue) {
-          blueBuilt += bonus
+          blueBuilt += total
         } else {
-          greenBuilt += bonus
+          greenBuilt += total
         }
       }
       consumers--
@@ -525,22 +527,20 @@ class App extends Component {
   handleStorePurchase(buyable) {
     if (!buyable.buyable || (!buyable.multiple && buyable.purchased > 0)) return
 
-    const stats = this.state.stats
-    const store = this.state.store
-
+    const { stats, store } = this.state
     this.purchase(buyable, stats, store)
   }
   helpersBought(store) {
     return Object.values(store.helpers)
                  .some(h => h.purchased > 0)
   }
-  isClass(c, stats = this.state.stats) {
+  isClass(c, stats) {
     return stats.selectedClass === c.name
   }
   mapBlockPurchasePrice(buyable) {
     return buyable.price + buyable.purchased
   }
-  mapCurrentPrice(buyable) {
+  mapCurrentPrice(buyable, isThief) {
     if (buyable.type === Constants.BUYABLE_TYPE.SPECIAL) {
       if (buyable.name === 'Blue Block' || buyable.name === 'Green Block') {
         return this.mapBlockPurchasePrice(buyable)
@@ -549,10 +549,8 @@ class App extends Component {
     let basePrice = buyable.price
     let growth = buyable.priceGrowth
 
-    if (buyable.currency === Constants.CURRENCY.SCORE) {
-      const thief = this.isClass(Constants.CLASSES.THIEF)
-      
-      if (thief) {
+    if (buyable.currency === Constants.CURRENCY.SCORE) {      
+      if (isThief) {
         basePrice *= 0.9
         growth = Constants.PRICE_GROWTH.HELPER_THIEF
       }
@@ -909,7 +907,7 @@ class App extends Component {
 
         buyable = {
           ...buyable,
-          currentPrice: this.mapCurrentPrice(buyable),
+          currentPrice: this.mapCurrentPrice(buyable, this.isClass(Constants.CLASSES.THIEF, stats)),
           tooltip: this.getTooltip(buyable, stats)
         }
 
